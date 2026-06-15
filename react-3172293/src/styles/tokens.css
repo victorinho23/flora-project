@@ -1,0 +1,76 @@
+:root{
+--color-primary-950: #887e5c;
+--color-primary-900: #988d6f;
+--color-primary-800: #a79d81;
+--color-primary-700: #b6ad94;
+--color-primary-600: #c5bda7;
+--color-primary-500: #d4cdba;
+--color-primary-400: #e4ddca;
+--color-primary-300: #f3eccf;
+--color-primary-200: #f5f2d2;
+--color-primary-100: #f7f5e0;
+--color-primary-50: #f9f8ee;
+
+--color-secundary-950:#2d1f15;
+--color-secundary-900:#372519;
+--color-secundary-800:#412b1d;
+--color-secundary-700:#4a3122;
+--color-secundary-600:#543726;
+--color-secundary-500:#5e3d2a;
+--color-secundary-400:#86674b;
+--color-secundary-300:#a58a75;
+--color-secundary-200:#c3ae9f;
+--color-secundary-100:#E1D1CA;
+--color-secundary-50:#F4EBE6;
+
+--color-tertiary-950: #613503;
+--color-tertiary-900: #723D03;
+--color-tertiary-800: #834504;
+--color-tertiary-700: #954E04;
+--color-tertiary-600: #A65605;
+--color-tertiary-500: #B75F06;
+--color-tertiary-400: #E68E3C;
+--color-tertiary-300: #EEB779;
+--color-tertiary-200: #F2CCA5;
+--color-tertiary-100: #F6E2D1;
+--color-tertiary-50:  #F9F1E6;
+
+--color-white: #fff;
+--color-black: #000;
+--color-gray-950: #101010;
+--color-gray-900: #262626;
+--color-gray-800: #3B3B3B;
+--color-gray-700: #515151;
+--color-gray-600: #676767;
+--color-gray-500: #7D7D7D;
+--color-gray-400: #929292;
+--color-gray-300: #A8A8A8;
+--color-gray-200: #BEBEBE;
+--color-gray-100: #D4D4D4;
+--color-gray-50:  #E9E9E9;
+
+/* Typografy */
+
+--main-font: Helvetica, Arial, sans-serif;
+--secondary-font: Calibri, Helvetica, Arial;
+
+/* Font weights crudos */
+
+--font-weight-light: 300;
+--font-weight-regular: 400;
+--font-weight-bold: 700;
+
+
+--fs-xxxxl: 5rem; /* Ultra grande */
+--fs-xxxl:  4rem; /* Súper grande */
+--fs-xxl:   3rem; /* Extra grande */
+--fs-xl:    2.5rem; /* Muy grande */
+--fs-lg:    2rem; /* h1 */
+--fs-md:    1.5rem; /* Mediano */
+--fs-sm:    1.25rem; /* Pequeño */
+--fs-xs:    1rem; /* Base*/
+--fs-xxs:   0.875rem; /* Muy pequeño 14px */
+--fs-xxxs:  0.75rem; /* extra pequeño 12px */
+--fs-xxxxs: 0.5rem;  /*Minimo 8px*/
+
+}
