@@ -1,108 +1,122 @@
 import { useState } from 'react';
 
 export default function InventoryRegisterForm() {
-    const [formData, setFormData] = useState({ nombre: '', cantidad: '', precio: '' });
+    const [formData, setFormData] = useState({ 
+        establecimiento: '', 
+        fecha: '', 
+        departamento: '', 
+        empleado: '' 
+    });
     const [productos, setProductos] = useState([]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (formData.nombre.trim() === '') {
-            alert("El nombre del producto es obligatorio.");
+        if (!formData.establecimiento || !formData.fecha) {
+            alert("Por favor completa los campos principales.");
             return;
         }
+
+        setProductos([...productos, { ...formData, id: productos.length + 1 }]);
         
-        const cantidad = parseInt(formData.cantidad);
-        const precio = parseFloat(formData.precio);
-
-        if (isNaN(cantidad) || cantidad <= 0) {
-            alert("La cantidad debe ser un número mayor a 0.");
-            return;
-        }
-
-        if (isNaN(precio) || precio < 0) {
-            alert("El precio no puede ser negativo.");
-            return;
-        }
-
-        setProductos([...productos, { ...formData, cantidad, precio }]);
-        
-        setFormData({ nombre: '', cantidad: '', precio: '' });
+        setFormData({ establecimiento: '', fecha: '', departamento: '', empleado: '' });
     };
 
     return (
-        <div className="flex flex-col items-center p-6 w-full">
-            {/* Formulario */}
-            <div className="bg-white/90 p-8 rounded-xl shadow-2xl w-full max-w-xl mb-8">
-                <h1 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Registro de Inventario</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del producto</label>
-                        <input 
-                            type="text" 
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-900 outline-none transition"
-                            placeholder="Ej. Café Espresso" 
-                            value={formData.nombre}
-                            onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                        />
+        <div className="min-h-screen w-full bg-cover bg-center text-white font-sans flex flex-col items-center justify-start p-0 relative">
+            <div className="absolute inset-0 bg-black/75 z-0"></div>
+
+            <div className="w-full max-w-5xl z-10 p-6 flex flex-col">
+                
+                <div className="w-full flex flex-col items-center justify-center border-b border-stone-800/40 pb-4 mb-6 relative">
+                    <button className="absolute right-2 top-2 text-stone-400 hover:text-white text-xl transition">
+                        
+                    </button>
+
+                    <div className="bg-white text-stone-900 font-serif font-black px-4 py-1.5 rounded text-lg tracking-wider text-center leading-none mb-2">
+                        FLORA
+                        <span className="block text-[10px] font-sans font-normal normal-case tracking-normal">Pizza y Café</span>
                     </div>
                     
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
-                        <input 
-                            type="number" 
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-900 outline-none transition"
-                            placeholder="0" 
-                            value={formData.cantidad}
-                            onChange={(e) => setFormData({...formData, cantidad: e.target.value})}
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
-                        <input 
-                            type="number" 
-                            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-amber-900 outline-none transition"
-                            placeholder="0.00" 
-                            value={formData.precio}
-                            onChange={(e) => setFormData({...formData, precio: e.target.value})}
-                        />
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        className="w-full bg-amber-900 text-white p-3 rounded-md font-bold hover:bg-amber-800 transition duration-200"
-                    >
-                        Guardar Producto
-                    </button>
-                </form>
-            </div>
-
-            {productos.length > 0 && (
-                <div className="bg-white/90 p-6 rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden">
-                    <h2 className="text-xl font-bold mb-4 text-gray-800">Productos Registrados</h2>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b-2 border-amber-900">
-                                    <th className="p-3">Producto</th>
-                                    <th className="p-3">Cantidad</th>
-                                    <th className="p-3">Precio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {productos.map((item, index) => (
-                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50">
-                                        <td className="p-3">{item.nombre}</td>
-                                        <td className="p-3">{item.cantidad}</td>
-                                        <td className="p-3">${item.precio.toFixed(2)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <h1 className="text-2xl font-bold text-stone-100 tracking-wide">
+                        Hoja de inventarios
+                    </h1>
                 </div>
-            )}
+
+                <form onSubmit={handleSubmit} className="w-full space-y-4 mb-8">
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3">
+                        
+                        <div className="flex items-center rounded overflow-hidden border border-stone-600/40 bg-black/20">
+                            <label className="w-36 bg-[#8C6D53]/90 text-[#F5EBE0] text-xs font-semibold py-2.5 px-3 whitespace-nowrap text-center">
+                                Establecimiento:
+                            </label>
+                            <input 
+                                type="text" 
+                                className="w-full p-2 bg-transparent text-white placeholder-stone-500 text-xs outline-none"
+                                placeholder="Digita el nombre del establecimiento" 
+                                value={formData.establecimiento}
+                                onChange={(e) => setFormData({...formData, establecimiento: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="flex items-center rounded overflow-hidden border border-stone-600/40 bg-black/20"> 
+                            <label className="w-36 bg-[#8C6D53]/90 text-[#F5EBE0] text-xs font-semibold py-2.5 px-3 whitespace-nowrap text-center">
+                                Fecha de inventario:
+                        </label>
+                        <input 
+                        type="text" 
+                        className="w-full p-2 bg-transparent text-white placeholder-stone-500 text-xs outline-none"
+                        placeholder="DD/MM/AAAA" 
+                        value={formData.fecha}
+                        onChange={(e) => setFormData({...formData, fecha: e.target.value})}
+                        />
+                        </div>
+
+                        <div className="flex items-center rounded overflow-hidden border border-stone-600/40 bg-black/20">
+                            <label className="w-36 bg-[#8C6D53]/90 text-[#F5EBE0] text-xs font-semibold py-2.5 px-3 whitespace-nowrap text-center">
+                                Departamento:
+                            </label>
+                            <input 
+                                type="text" 
+                                className="w-full p-2 bg-transparent text-white placeholder-stone-500 text-xs outline-none"
+                                placeholder="Departamento" 
+                                value={formData.departamento}
+                                onChange={(e) => setFormData({...formData, departamento: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="flex items-center rounded overflow-hidden border border-stone-600/40 bg-black/20">
+                            <label className="w-36 bg-[#8C6D53]/90 text-[#F5EBE0] text-xs font-semibold py-2.5 px-3 whitespace-nowrap text-center">
+                                Empleado:
+                            </label>
+                            <input 
+                                type="text" 
+                                className="w-full p-2 bg-transparent text-white placeholder-stone-500 text-xs outline-none"
+                                placeholder="Nombre del empleado" 
+                                value={formData.empleado}
+                                onChange={(e) => setFormData({...formData, empleado: e.target.value})}
+                            />
+                        </div>
+
+                    </div>
+
+                    <div className="w-full flex justify-end pt-2">
+                        <button 
+                            type="submit" 
+                            className="px-6 py-1.5 bg-transparent hover:bg-white/10 text-stone-300 border border-stone-500/60 rounded text-xs transition"
+                        >
+                            Añadir producto
+                        </button>
+                    </div>
+                </form>
+
+                <div className="w-full text-center text-[11px] text-stone-400 tracking-wide mb-4">
+                    La cantidad mínima de cada producto es de 
+                    <span className="font-bold text-stone-300">10</span>
+                </div>
+
+            </div>
         </div>
     );
 }

@@ -1,12 +1,11 @@
 import { createBrowserRouter } from "react-router-dom";
 
-// Layouts
+
 import DashboardLayout from "@/shared/layouts/DashboardLayout";
 import InventoryLayout from "@/shared/layouts/InventoryLayout";
-
-// Componentes
 import { UserRegisterForm } from "@/features/users";
 import InventoryRegisterForm from "@/features/inventory/components/InventoryRegisterForm";
+import SupplierRegisterForm from "@/features/suppliers/components/SupplierRegisterForm"; 
 
 const router = createBrowserRouter([
   {
@@ -26,6 +25,17 @@ const router = createBrowserRouter([
       {
         path: "", 
         element: <InventoryRegisterForm />
+      }
+    ]
+  },
+  
+  {
+    path: "/suppliers",
+    element: <InventoryLayout />, 
+    children: [
+      {
+        path: "", 
+        element: <SupplierRegisterForm />
       }
     ]
   }
