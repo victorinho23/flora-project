@@ -133,7 +133,9 @@ export default function AuthLayout(){
                     backgroundPosition: "center",
             }}
             >
-                <form className="grid bg-background-coffe w-200 h-180"
+                <div className="border border-1 border-white rounded-[8px]
+                 w-200 h-180 shadow-[0_0_15px_white] backdrop-blur-lg">
+                    <form className="grid"
                     onSubmit={handleSubmit}
                     action=""
                     >
@@ -189,9 +191,10 @@ export default function AuthLayout(){
                         />
 
                         <Checkbox
+                        className ="w-70 mt-5"
                         id="isActive"
                         name="isActive"
-                        label= "esta activo"
+                        label= "Al hacer click aceptas las condiciones de uso, la politica de privacidad y la politica de cookies de Flora"
                         checked={formData.isActive}
                         onChange={handleChange} 
             
@@ -224,6 +227,8 @@ export default function AuthLayout(){
                 
                 
 
+                </div>
+                
 
             </div>
         </>

@@ -34,6 +34,7 @@ export default function Button ({
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]
+            before:pointer-events-none
             `,
         w: `
             h-14 
@@ -58,6 +59,7 @@ export default function Button ({
         <button
             type= {type}
             className={`
+                relative
                 flex 
                 items-center 
                 gap-3
