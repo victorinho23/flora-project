@@ -19,7 +19,7 @@
     /* ====== BACKGROUND ====== */
 
     --color-background: var(--semantic-background);
-        --color-background-coffe:var(--semanmtic-bakground-coffe);
+    --color-background-coffe:var(--semanmtic-bakground-coffe);
     --color-surface: var(--semantic-surface);
     --color-surface-muted: var(--semantic-surface-muted);
     --color-background-inverse: var(--semantic-background-inverse);

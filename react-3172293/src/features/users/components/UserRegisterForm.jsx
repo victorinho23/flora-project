@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import {Input, Select, Checkbox, Button} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
+import { getTypeUser } from "@/services/selectServices";
 import {useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
 import authBg from "@/assets/icons/usuario.png";
@@ -124,11 +125,16 @@ export default function UserRegisterForm(){
 };
 
     const [documentTypes, setDocumentTypes] = useState([])
+    const [typesUser, setTypeUser] = useState([])
     
     
     
         useEffect(()=>{
             getDocumentTypes().then(setDocumentTypes);
+        },[])
+
+         useEffect(()=>{
+            getTypeUser().then(setTypeUser);
         },[])
 
 
@@ -143,7 +149,6 @@ export default function UserRegisterForm(){
 
             <form 
                 action=""
-                className=""
                 onSubmit={handleSubmit}
                 
             >
@@ -184,11 +189,11 @@ export default function UserRegisterForm(){
                 />
 
                     <Select 
-                        label="Tipos de documento"
-                        name="userDocumentTypes"
-                        value={formData.userDocumentTypes}
-                        htmlFor="userDocumentTypes"
-                        options={documentTypes}
+                        label="Tipo de usuario"
+                        name="typesUser"
+                        value={formData.setTypeUser}
+                        htmlFor="TypeUser"
+                        options={typesUser}
                         onChange={handleChange}
                         error={errors.userDocumentTypes}
                     />
@@ -299,7 +304,6 @@ export default function UserRegisterForm(){
                         
                         <img className= "w-4 h-4 text-end filter" src={authicon} alt="" />
                         Estado Activo
-                        
                         </Button>
 
                     </div>
@@ -308,8 +312,9 @@ export default function UserRegisterForm(){
                         <Button 
                        variant= "primary"
                         size="w"
-                        type= "button"
+                        type= "submit"
                         onClick={()=> console.log("Se oprimio el boton")}
+                        onSubmit={handleSubmit}
                        
                     >
                         Crear usuario
@@ -318,11 +323,7 @@ export default function UserRegisterForm(){
 
                     </div>
 
-                    
                 
-
-                
-
                 </div>{/** Actions */}
             </form>
             
