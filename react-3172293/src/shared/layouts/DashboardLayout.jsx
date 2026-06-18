@@ -1,24 +1,22 @@
-import {Outlet} from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import authBg from "@/assets/images/cafe.png";
-import { UserRegisterForm } from "@/features/users";
+import { UserRegisterForm } from "@/features/users"; // Esto recupera tu formulario original
 
-export default function DashboardLayout(){
-    return(
-        <>
-            <div
-                className="min-h-screen w-full"
-                style ={{
-                    backgroundImage: `url(${authBg})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
+export default function DashboardLayout() {
+    return (
+        <div
+            className="min-h-screen w-full"
+            style={{
+                backgroundImage: `url(${authBg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
             }}
         >
-                <main className="mx-auto">
-                    
-                    <UserRegisterForm className=""/>
-                 <Outlet />
-                </main>
-            </div>
-        </>
+            <main className="mx-auto">
+                <UserRegisterForm />
+                
+                <Outlet />
+            </main>
+        </div>
     );
 }

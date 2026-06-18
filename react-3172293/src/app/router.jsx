@@ -1,42 +1,34 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthLayout, DashboardLayout} from "@/shared";
+import { createBrowserRouter } from "react-router-dom";
+
+// Layouts
+import DashboardLayout from "@/shared/layouts/DashboardLayout";
+import InventoryLayout from "@/shared/layouts/InventoryLayout";
+
+// Componentes
+import { UserRegisterForm } from "@/features/users";
+import InventoryRegisterForm from "@/features/inventory/components/InventoryRegisterForm";
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <Navigate to="/auth" replace />
-    },
-    {
-        path: "/auth",
-        element: <AuthLayout/>,
-        children: [
-            {
-                index: true,
-
-            },
-
-        ],
-    },
-    {
-        path: "/dashboard",
-        element: <DashboardLayout/>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "/dashboard/userList", element: <h1>Hello3</h1>},
-
-        ],
-    },
-
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    children: [
+      {
+        path: "users", 
+        element: <UserRegisterForm />
+      }
+    ]
+  },
+  {
+    path: "/inventory",
+    element: <InventoryLayout />,
+    children: [
+      {
+        path: "", 
+        element: <InventoryRegisterForm />
+      }
+    ]
+  }
 ]);
 
-
-
-
-
-
 export default router;
-
-
-
