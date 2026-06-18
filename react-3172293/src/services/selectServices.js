@@ -6,3 +6,11 @@ export async function getDocumentTypes(){
 
     
 }
+
+
+export async function getTypeUser(){
+    const res = await fetch("/src/data/select/typesUser.json")
+    return res.json()
+
+    
+}
