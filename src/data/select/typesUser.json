@@ -1,0 +1,21 @@
+[
+
+    {
+        "id":"ADMIN",
+        "label": "Administrador"
+        
+    },
+
+    {
+        "id":"MESERO",
+        "label": "Mesero"
+        
+    },
+
+    {
+        "id":"COCINERO",
+        "label": "Cocinero"
+        
+    }
+
+]
