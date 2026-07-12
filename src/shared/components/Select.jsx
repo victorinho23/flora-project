@@ -6,14 +6,23 @@ export default function Select({
     error,
     htmlFor,
     name, 
-    onchange,
+    onChange,
     value,
+    variant = "p",
     options = [],
 
 }){
-    
-
-
+   const variants = {
+        // Estos valores deben ser con variables
+        p: `
+            text-text-primary
+           
+        `,
+        s: `
+            text-text-ligth-coffe
+        `,
+        
+    }
 
     return(
         <div>
@@ -21,12 +30,12 @@ export default function Select({
             {label && (
             <label 
                 htmlFor={htmlFor}
-                className="
+                className={`
                     block 
                     text-caption 
                     text-secondary
-                    text-text-primary
-                    ">
+                    ${variants[variant]}
+                    `}>
                 {label}
             </label>
         )}
@@ -36,7 +45,7 @@ export default function Select({
         <select 
             name={name}
             value={value}
-            onChange={onchange}
+            onChange={onChange}
             id="htmlFor"
             className="
                 w-80

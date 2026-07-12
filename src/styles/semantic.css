@@ -17,6 +17,7 @@
 
     --semantic-background: var(--color-white); /*Fondo de toda la aplicacion*/
     --semanmtic-bakground-coffe:var(--color-secundary-400);
+    --semanmtic-background-beige:var(--color-primary-50);
 
     --semantic-surface: var(--color-gray-400); /*Fondo de modales,cards,containers*/
 
@@ -33,6 +34,10 @@
     --semantic-text-muted: var(--color-gray-500); /* Texto deshabilitado por ejemplo*/
 
     --semantic-text-inverse: var(--color-tertiary-950); /*Texto invertido*/
+
+    --semanmtic-text-coffe:var(--color-secundary-800);
+
+    --semanmtic-text-ligth-coffe: var(--color-secundary-400);
 
     /* ======= BORDER ====== */
 

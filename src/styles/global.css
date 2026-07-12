@@ -20,6 +20,7 @@
 
     --color-background: var(--semantic-background);
     --color-background-coffe:var(--semanmtic-bakground-coffe);
+    --color-background-beige:var( --semanmtic-background-beige);
     --color-surface: var(--semantic-surface);
     --color-surface-muted: var(--semantic-surface-muted);
     --color-background-inverse: var(--semantic-background-inverse);
@@ -30,6 +31,8 @@
     --color-text-secondary: var(--semantic-text-secondary);
     --color-text-muted: var(--semantic-text-muted);
     --color-text-inverse: var(--semantic-text-inverse);
+    --color-text-coffe:var(--semanmtic-text-coffe);
+    --color-text-ligth-coffe:var(--semanmtic-text-ligth-coffe);
 
     /* ======= BORDER ======= */
 
