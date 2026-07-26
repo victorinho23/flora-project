@@ -12,6 +12,7 @@ export default function Checkbox({
         // Estos valores deben ser con variables
         primary: `
             text-text-primary
+            w-5 h-5 min-w-5 min-h-5
         `,
         secondary : `text-text-secondary`,
         tertiary : `text-text-coffe`,
