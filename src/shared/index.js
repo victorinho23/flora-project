@@ -17,6 +17,8 @@ export {Dropdown,
 } from "./components/Dropdown"
 export {default as Switch} from "./components/Switch"
 export {default as DataTable} from "./components/DataTable"  
+export {default as FileInput} from "./components/Fileinput"
+export {default as Card} from "./components/Card"
 
 // Espacio para layouts
 
