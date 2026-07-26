@@ -135,13 +135,15 @@ export default function AuthLayout(){
             >
                 <div className="border border-1 border-white rounded-[8px]
                  w-200 h-180 shadow-[0_0_15px_white] backdrop-blur-lg bg-background-coffe/50" >
-                    <form className="grid"
+                    
+            
+                    <form className="flex flex-col items-center"
                     onSubmit={handleSubmit}
                     action=""
                     >
                          <h1 className="mx-auto mt-45 text-title text-text-primary font-bold">Registro de usuarios</h1>
 
-                        <main className="grid gap-4 mx-auto mb-10 justify-center align-center">
+                        <main className="flex flex-col gap-4 mb-10 items-center w-full">
                         
                     
                         <Input 
@@ -199,14 +201,15 @@ export default function AuthLayout(){
                         onChange={handleChange} 
                         variant="primary"
                         />
+                        
 
 
                         {/** Actions */}
 
-                        <div className="flex gap-6 items-center justify-center mb-10">
+                        <div className="flex gap-6 items-center justify-center mb-10 mt-5">
                             <Button
                                 variant = "tertiary"
-                                size ="md"
+                                size ="mdl"
                                 type = "submit"
                                 onClick={()=> console.log("Se oprimio el boton")}
                                 onSubmit={handleSubmit}
