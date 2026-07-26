@@ -1,6 +1,6 @@
 // User regtister form para registrarn un usuario
 import { useState, useEffect } from "react";
-import {Input, Select, Checkbox, Button} from "@/shared";
+import {Input, Select, Checkbox, Button, FileInput} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import {useNavigate } from "react-router-dom"
@@ -320,6 +320,20 @@ export default function UserRegisterForm(){
                         Crear usuario
                         
                         </Button>
+
+                    <div className="absolute bottom-90 ">
+                        <FileInput
+                            value={formData.userImage}
+                            onChange={(files) => 
+                                setFormData((prev) => ({...prev, userImage: files}))
+                            }
+                            multiple={true}
+                        />
+                            {errors.userImage && (
+                                <span className="text-red-500 text-sm"> {errors.userImage}</span>
+                            )}
+                    </div>
+                        
 
                     </div>
 

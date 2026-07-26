@@ -7,7 +7,7 @@ import "ldrs/react/Infinity.css"
 
 export default function FileInput({
     value = [], // estado exterbo (files)
-    onchange,
+    onChange,
     multiple = false,
     accept = "image/*,application/pdf"
 })  {
@@ -15,10 +15,10 @@ export default function FileInput({
     const [isLoading, setIsLoading] = useState(false) // loader
     const [dragIndex, setDragIndex] = useState(null) // indice drag
 
-    const isImage = (file) => file.type.startWith("image/"); // discriminador MIME
+    const isImage = (file) => file.type.startsWith("image/"); // discriminador MIME
 
-    // Genera previws Solo para imagenes (evita crear URLs innecesarias)
-    const previws = useMemo(
+    // Genera e Solo para imagenes (evita crear URLs innecesarias)
+    const previews = useMemo(
         () => 
             value.map((file) => (isImage(file) ? URL.createObjectURL(file): null)),
         [value],
@@ -27,11 +27,11 @@ export default function FileInput({
     // Limpieza de Object url (prevencion memory leak
     useEffect(() => {
         return () => {
-            previws.forEach((url) => {
+            previews.forEach((url) => {
                 if(url) URL.revokeObjectURL(url);
             });
         };
-    }, [previws])
+    }, [previews])
 
     // Normaliza Filelist, simula async y limita a 12
     const handleFiles = async (files) => {
@@ -41,7 +41,7 @@ export default function FileInput({
         await new Promise((r) => setTimeout(r,500));
 
         const data = multiple ? [...value, ...list] : [list[0]];
-        onchange(data.slice(0,12));
+        onChange(data.slice(0, 12));
 
         setIsLoading(false)
     };
@@ -51,7 +51,7 @@ export default function FileInput({
     const remove = (i) => {
         const copy = [...value];
         copy.splice(i,1);
-        onchange(copy);
+        onChange(copy);
     };
 
     // Reordenamiento por drag y drop
@@ -60,7 +60,7 @@ export default function FileInput({
         const copy = [...value];
         const [m] = copy.splice(from, 1);
         copy.splice(to,0,m)
-        onchange(copy);
+        onChange(copy);
     };
 
     return(
@@ -77,7 +77,7 @@ export default function FileInput({
 
                     {/** Render condicional: imagen vs archivo generico */}
                     {isImage(file) ? (
-                        <img src={previws[i]} className="w-full h-full object-cover"/>
+                        <img src={previews[i]} className="w-full h-full object-cover"/>
                     ) : (
                         <div
                             className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-[10px] px-1"
@@ -135,4 +135,3 @@ export default function FileInput({
     )
 
 }
-
