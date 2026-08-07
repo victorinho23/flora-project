@@ -1,24 +1,8 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/shared";
-
-function getItemsPerView() {
-    const width = window.innerWidth;
-    if (width >= 1024) return 4; // desktop (lg)
-    if (width >= 640) return 2;  // tablet (sm)
-    return 1;                     // celular
-}
+import {Card} from "@/shared"
 
 export default function Slider({ products, interval = 3000 }) {
     const [position, setPosition] = useState(0);
-    const [itemsPerView, setItemsPerView] = useState(getItemsPerView());
-
-    useEffect(() => {
-        function handleResize() {
-            setItemsPerView(getItemsPerView());
-        }
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     useEffect(() => {
         const time = setInterval(() => {

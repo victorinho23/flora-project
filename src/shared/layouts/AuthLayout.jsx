@@ -217,7 +217,6 @@ export default function AuthLayout(){
                                     navigate("/home");
                                 }}
                                 onSubmit={handleSubmit}
-                               
                             >
                                 Continuar
                             </Button>
