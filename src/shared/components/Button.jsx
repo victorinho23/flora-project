@@ -10,8 +10,19 @@ export default function Button ({
 }){
 
     const variants = {
-        primary : "bg-brand text-text-inverse hover:bg-brand-hover ",    secondary : "bg-brand-soft text-text-primary hover:bg-brand-soft-hover" ,
-        tertiary: "bg-transparent text-text-primary hover:bg-brand-button-hover border border-0.5  rounded-[5px]  shadow-[0_0_3px_white] "
+        // Para fondos claros:
+        primary: `bg-bg-s800 text-bg-w hover:bg-bg-s950 active:scale-95 shadow-md transition-all duration-200`,
+        fifth: `bg-br-t600 text-bg-w hover:bg-br-t700 active:scale-95 shadow-md shadow-br-t600/30 transition-all duration-200`,
+
+        // Para fondos oscuros
+        secondary: `bg-br-p900 text-bg-p50 hover:bg-br-p950 active:scale-95 shadow-md transition-all duration-200`,
+        tertiary: "bg-transparent text-text-primary hover:bg-brand-button-hover border border-0.5  rounded-[5px]  shadow-[0_0_3px_white] ",
+        cuar: `bg-br-p200 text-bg-s900 hover:bg-br-p300
+        active:scale-95 transition-all duration-200`,
+        sex: ` bg-transparent border border-bg-w/30 text-bg-w hover:border-br-t400 hover:shadow-[0_0_15px_var(--color-br-t400)]/50 hover:bg-bg-w/5 active:scale-95 transition-all duration-300`,
+        
+        // Funciona para ambos fondos
+        sev: `bg-transparent border-2 border-br-t500 text-br-t400 hover:bg-br-t500 hover:text-bg-w hover:scale-105 active:scale-95 transition-all duration-300`
     };
 
     const sizes = {
