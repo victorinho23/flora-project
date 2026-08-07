@@ -7,6 +7,11 @@ import {
     cloneElement
 } from "react"
 
+const variants = {
+        primary : "bg-brand text-text-inverse hover:bg-brand-hover",    secondary : "bg-brand-soft text-text-primary hover:bg-brand-soft-hover" ,
+        tertiary: "bg-transparent text-text-primary hover:bg-brand-button-hover "
+    };
+
 export const DropdownContext = createContext(null)
 
 export function Dropdown({
@@ -14,7 +19,10 @@ export function Dropdown({
     open: controlledOpen,
     onOpenChange,
     className = ""
+
 }) {
+
+
     const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
 
     const isControlled = controlledOpen !== undefined
