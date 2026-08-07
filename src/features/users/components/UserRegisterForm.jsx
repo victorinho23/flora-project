@@ -295,7 +295,7 @@ export default function UserRegisterForm(){
                     <div className="col-2 flex justify-end">
                         <Button 
                        
-                       variant= "primary"
+                       variant= "secondary"
                         size="lgg"
                         type= "button"
                         onClick={()=> console.log("Se oprimio el boton")}

@@ -15,12 +15,36 @@ import { useState } from "react"
 // Botón reutilizable del sistema de componentes
 import { Button } from "@/shared"
 
+const tableVariants = {
+    fourth: { header: "bg-bg-p50 text-text-inverse", row: "hover:bg-bg-p100", border: "border-bd-g300" },
+    fifth: { header: "bg-bg-w text-text-inverse", row: "hover:bg-bg-p50", border: "border-bd-g400" },
+    sixth: { header: "bg-transparent text-text-inverse", row: "hover:bg-br-p50", border: "border-br-p700" },
+    seventh: { header: "bg-br-p200 text-text-inverse", row: "hover:bg-br-p300", border: "border-br-p400" },
+    eighth: { header: "bg-bg-w text-text-inverse", row: "hover:bg-br-t50", border: "border-br-t500" },
+    ninth: { header: "bg-bg-w/40 backdrop-blur-md text-text-inverse", row: "hover:bg-bg-w/20", border: "border-bd-g200" },
+    tenth: { header: "bg-bg-w text-text-inverse shadow-sm", row: "hover:bg-bd-g50", border: "border-bd-g100" },
+    eleventh: { header: "bg-br-p300 text-text-inverse", row: "hover:bg-br-p400", border: "border-br-p500" },
+    twelfth: { header: "bg-transparent text-text-inverse", row: "hover:bg-bd-g50", border: "border-bd-g300" },
+    thirteenth: { header: "bg-bg-w text-text-inverse", row: "hover:bg-br-t50", border: "border-br-t600" },
+    fourteenth: { header: "bg-bg-s900 text-text-primary", row: "hover:bg-bg-s700", border: "border-bd-g700" },
+    fifteenth: { header: "bg-bg-g950/90 text-text-primary", row: "hover:bg-bg-w/5", border: "border-bd-w/20" },
+    sixteenth: { header: "bg-bg-g950 text-text-primary", row: "hover:bg-br-t500/10", border: "border-br-t500" },
+    seventeenth: { header: "bg-bg-w/10 backdrop-blur-md text-text-primary", row: "hover:bg-bg-w/10", border: "border-bd-w/20" },
+    eighteenth: { header: "bg-bg-g950 text-br-t400", row: "hover:bg-br-t600/10", border: "border-br-t600" },
+    nineteenth: { header: "bg-bg-p100 text-text-inverse", row: "hover:bg-bg-p200", border: "border-bd-p300" },
+    twentieth: { header: "bg-bg-g900 text-text-primary", row: "hover:bg-bg-g800", border: "border-bd-g700" },
+    twentyFirst: { header: "bg-gradient-to-r from-bg-g950 to-bg-s800 text-text-primary", row: "hover:bg-bg-s700/50", border: "border-bd-s600" },
+    twentySecond: { header: "bg-bg-g900 text-text-primary", row: "hover:bg-bg-g800", border: "border-transparent" },
+    twentyThird: { header: "bg-bg-g950 text-text-primary", row: "hover:bg-br-t500/10", border: "border-br-t500/50" },
+};
 
 // Componente reutilizable de tabla
 // Recibe:
 // - data: datos que se mostrarán
 // - columns: configuración de columnas
-export default function DataTable({ data, columns }) {
+export default function DataTable({ data, columns, variant }) {
+
+  const v = variant ? tableVariants[variant] : null;
 
 
   // ================== ESTADO DE PAGINACIÓN ==================
@@ -95,7 +119,7 @@ export default function DataTable({ data, columns }) {
           placeholder="Buscar..."
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className="border rounded px-3 py-2 w-64"
+          className={`border rounded px-3 py-2 w-64 ${v ? v.border : ""}`}
         />
 
 
@@ -104,7 +128,7 @@ export default function DataTable({ data, columns }) {
         <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className="border rounded px-2 py-2"
+          className={`border rounded px-2 py-2 ${v ? v.border : ""}`}
         >
           {[5, 7, 10, 20, 50].map(size => (
             <option key={size} value={size}>
@@ -118,12 +142,12 @@ export default function DataTable({ data, columns }) {
 
 
       {/* ================== TABLA ================== */}
-      <div className="overflow-x-auto border rounded">
+      <div className={`overflow-x-auto border rounded ${v ? v.border : ""}`}>
         <table className="w-full">
 
 
           {/* ================== CABECERA ================== */}
-          <thead className="bg-gray-100">
+          <thead className={`bg-gray-100 ${v ? v.header : ""}`}>
 
 
             {/* TanStack agrupa cabeceras automáticamente */}
@@ -138,7 +162,7 @@ export default function DataTable({ data, columns }) {
 
                   <th
                     key={header.id}
-                    className="p-3 text-left border-b"
+                    className={`p-3 text-left border-b ${v ? v.border : ""}`}
                   >
 
 
@@ -174,14 +198,14 @@ export default function DataTable({ data, columns }) {
             {table.getRowModel().rows.map(row => (
 
 
-              <tr key={row.id} className="hover:bg-gray-50">
+              <tr key={row.id} className={`hover:bg-gray-50 ${v ? v.row : ""}`}>
 
 
                 {/* Celdas visibles de cada fila */}
                 {row.getVisibleCells().map(cell => (
 
 
-                  <td key={cell.id} className="p-3 border-b">
+                  <td key={cell.id} className={`p-3 border-b ${v ? v.border : ""}`}>
 
 
                     {/* Render dinámico del contenido de la celda */}
@@ -319,4 +343,3 @@ export default function DataTable({ data, columns }) {
     </div>
   )
 }
-
