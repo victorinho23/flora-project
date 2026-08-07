@@ -13,17 +13,122 @@
     --semantic-brand-button-hover: var(--color-secundary-400);
 
 
+    /* ---- Paleta completa BRAND (variables cortas) ---- */
+    --semantic-br-p950: var(--color-primary-950);
+    --semantic-br-p900: var(--color-primary-900);
+    --semantic-br-p800: var(--color-primary-800);
+    --semantic-br-p700: var(--color-primary-700);
+    --semantic-br-p600: var(--color-primary-600);
+    --semantic-br-p500: var(--color-primary-500);
+    --semantic-br-p400: var(--color-primary-400);
+    --semantic-br-p300: var(--color-primary-300);
+    --semantic-br-p200: var(--color-primary-200);
+    --semantic-br-p100: var(--color-primary-100);
+    --semantic-br-p50: var(--color-primary-50);
+
+    --semantic-br-s950: var(--color-secundary-950);
+    --semantic-br-s900: var(--color-secundary-900);
+    --semantic-br-s800: var(--color-secundary-800);
+    --semantic-br-s700: var(--color-secundary-700);
+    --semantic-br-s600: var(--color-secundary-600);
+    --semantic-br-s500: var(--color-secundary-500);
+    --semantic-br-s400: var(--color-secundary-400);
+    --semantic-br-s300: var(--color-secundary-300);
+    --semantic-br-s200: var(--color-secundary-200);
+    --semantic-br-s100: var(--color-secundary-100);
+    --semantic-br-s50: var(--color-secundary-50);
+
+    --semantic-br-t950: var(--color-tertiary-950);
+    --semantic-br-t900: var(--color-tertiary-900);
+    --semantic-br-t800: var(--color-tertiary-800);
+    --semantic-br-t700: var(--color-tertiary-700);
+    --semantic-br-t600: var(--color-tertiary-600);
+    --semantic-br-t500: var(--color-tertiary-500);
+    --semantic-br-t400: var(--color-tertiary-400);
+    --semantic-br-t300: var(--color-tertiary-300);
+    --semantic-br-t200: var(--color-tertiary-200);
+    --semantic-br-t100: var(--color-tertiary-100);
+    --semantic-br-t50: var(--color-tertiary-50);
+
+    --semantic-br-g950: var(--color-gray-950);
+    --semantic-br-g900: var(--color-gray-900);
+    --semantic-br-g800: var(--color-gray-800);
+    --semantic-br-g700: var(--color-gray-700);
+    --semantic-br-g600: var(--color-gray-600);
+    --semantic-br-g500: var(--color-gray-500);
+    --semantic-br-g400: var(--color-gray-400);
+    --semantic-br-g300: var(--color-gray-300);
+    --semantic-br-g200: var(--color-gray-200);
+    --semantic-br-g100: var(--color-gray-100);
+    --semantic-br-g50: var(--color-gray-50);
+
+    --semantic-br-w: var(--color-white);
+    --semantic-br-bk: var(--color-black);
+
     /* ========= BACKGROUND  ========== */
 
     --semantic-background: var(--color-white); /*Fondo de toda la aplicacion*/
     --semanmtic-bakground-coffe:var(--color-secundary-400);
-    --semanmtic-background-beige:var(--color-primary-50);
+    --semantic-background-beige:var(--color-primary-50);
+    --semantic-background-beige-dark: var(--color-primary-300);
 
     --semantic-surface: var(--color-gray-400); /*Fondo de modales,cards,containers*/
 
     --semantic--surface-muted: var(--color-gray-200); /*Zonas secundarias, con menos importancia*/
 
     --semantic-background-inverse: var(--color-gray-800);
+
+    /* ---- Paleta completa BACKGROUND (variables cortas) ---- */
+    --semantic-bg-p950: var(--color-primary-950);
+    --semantic-bg-p900: var(--color-primary-900);
+    --semantic-bg-p800: var(--color-primary-800);
+    --semantic-bg-p700: var(--color-primary-700);
+    --semantic-bg-p600: var(--color-primary-600);
+    --semantic-bg-p500: var(--color-primary-500);
+    --semantic-bg-p400: var(--color-primary-400);
+    --semantic-bg-p300: var(--color-primary-300);
+    --semantic-bg-p200: var(--color-primary-200);
+    --semantic-bg-p100: var(--color-primary-100);
+    --semantic-bg-p50: var(--color-primary-50);
+
+    --semantic-bg-s950: var(--color-secundary-950);
+    --semantic-bg-s900: var(--color-secundary-900);
+    --semantic-bg-s800: var(--color-secundary-800);
+    --semantic-bg-s700: var(--color-secundary-700);
+    --semantic-bg-s600: var(--color-secundary-600);
+    --semantic-bg-s500: var(--color-secundary-500);
+    --semantic-bg-s400: var(--color-secundary-400);
+    --semantic-bg-s300: var(--color-secundary-300);
+    --semantic-bg-s200: var(--color-secundary-200);
+    --semantic-bg-s100: var(--color-secundary-100);
+    --semantic-bg-s50: var(--color-secundary-50);
+
+    --semantic-bg-t950: var(--color-tertiary-950);
+    --semantic-bg-t900: var(--color-tertiary-900);
+    --semantic-bg-t800: var(--color-tertiary-800);
+    --semantic-bg-t700: var(--color-tertiary-700);
+    --semantic-bg-t600: var(--color-tertiary-600);
+    --semantic-bg-t500: var(--color-tertiary-500);
+    --semantic-bg-t400: var(--color-tertiary-400);
+    --semantic-bg-t300: var(--color-tertiary-300);
+    --semantic-bg-t200: var(--color-tertiary-200);
+    --semantic-bg-t100: var(--color-tertiary-100);
+    --semantic-bg-t50: var(--color-tertiary-50);
+
+    --semantic-bg-g950: var(--color-gray-950);
+    --semantic-bg-g900: var(--color-gray-900);
+    --semantic-bg-g800: var(--color-gray-800);
+    --semantic-bg-g700: var(--color-gray-700);
+    --semantic-bg-g600: var(--color-gray-600);
+    --semantic-bg-g500: var(--color-gray-500);
+    --semantic-bg-g400: var(--color-gray-400);
+    --semantic-bg-g300: var(--color-gray-300);
+    --semantic-bg-g200: var(--color-gray-200);
+    --semantic-bg-g100: var(--color-gray-100);
+    --semantic-bg-g50: var(--color-gray-50);
+
+    --semantic-bg-w: var(--color-white);
+    --semantic-bg-bk: var(--color-black);
 
     /* ========= TEXT ========== */
 
@@ -45,15 +150,171 @@
 
     --semantic-border-strong: var(--color-gray-700); /*Bordes más fuertes*/
 
+    /* ---- Paleta completa BORDER (variables cortas) ---- */
+    --semantic-bd-p950: var(--color-primary-950);
+    --semantic-bd-p900: var(--color-primary-900);
+    --semantic-bd-p800: var(--color-primary-800);
+    --semantic-bd-p700: var(--color-primary-700);
+    --semantic-bd-p600: var(--color-primary-600);
+    --semantic-bd-p500: var(--color-primary-500);
+    --semantic-bd-p400: var(--color-primary-400);
+    --semantic-bd-p300: var(--color-primary-300);
+    --semantic-bd-p200: var(--color-primary-200);
+    --semantic-bd-p100: var(--color-primary-100);
+    --semantic-bd-p50: var(--color-primary-50);
+
+    --semantic-bd-s950: var(--color-secundary-950);
+    --semantic-bd-s900: var(--color-secundary-900);
+    --semantic-bd-s800: var(--color-secundary-800);
+    --semantic-bd-s700: var(--color-secundary-700);
+    --semantic-bd-s600: var(--color-secundary-600);
+    --semantic-bd-s500: var(--color-secundary-500);
+    --semantic-bd-s400: var(--color-secundary-400);
+    --semantic-bd-s300: var(--color-secundary-300);
+    --semantic-bd-s200: var(--color-secundary-200);
+    --semantic-bd-s100: var(--color-secundary-100);
+    --semantic-bd-s50: var(--color-secundary-50);
+
+    --semantic-bd-t950: var(--color-tertiary-950);
+    --semantic-bd-t900: var(--color-tertiary-900);
+    --semantic-bd-t800: var(--color-tertiary-800);
+    --semantic-bd-t700: var(--color-tertiary-700);
+    --semantic-bd-t600: var(--color-tertiary-600);
+    --semantic-bd-t500: var(--color-tertiary-500);
+    --semantic-bd-t400: var(--color-tertiary-400);
+    --semantic-bd-t300: var(--color-tertiary-300);
+    --semantic-bd-t200: var(--color-tertiary-200);
+    --semantic-bd-t100: var(--color-tertiary-100);
+    --semantic-bd-t50: var(--color-tertiary-50);
+
+    --semantic-bd-g950: var(--color-gray-950);
+    --semantic-bd-g900: var(--color-gray-900);
+    --semantic-bd-g800: var(--color-gray-800);
+    --semantic-bd-g700: var(--color-gray-700);
+    --semantic-bd-g600: var(--color-gray-600);
+    --semantic-bd-g500: var(--color-gray-500);
+    --semantic-bd-g400: var(--color-gray-400);
+    --semantic-bd-g300: var(--color-gray-300);
+    --semantic-bd-g200: var(--color-gray-200);
+    --semantic-bd-g100: var(--color-gray-100);
+    --semantic-bd-g50: var(--color-gray-50);
+
+    --semantic-bd-w: var(--color-white);
+    --semantic-bd-bk: var(--color-black);
+
     /* ====== FOCUS ====== */
 
     --semantic-focus-ring: var(--color-primary-700);
+
+    /* ---- Paleta completa FOCUS (variables cortas) ---- */
+    --semantic-fc-p950: var(--color-primary-950);
+    --semantic-fc-p900: var(--color-primary-900);
+    --semantic-fc-p800: var(--color-primary-800);
+    --semantic-fc-p700: var(--color-primary-700);
+    --semantic-fc-p600: var(--color-primary-600);
+    --semantic-fc-p500: var(--color-primary-500);
+    --semantic-fc-p400: var(--color-primary-400);
+    --semantic-fc-p300: var(--color-primary-300);
+    --semantic-fc-p200: var(--color-primary-200);
+    --semantic-fc-p100: var(--color-primary-100);
+    --semantic-fc-p50: var(--color-primary-50);
+
+    --semantic-fc-s950: var(--color-secundary-950);
+    --semantic-fc-s900: var(--color-secundary-900);
+    --semantic-fc-s800: var(--color-secundary-800);
+    --semantic-fc-s700: var(--color-secundary-700);
+    --semantic-fc-s600: var(--color-secundary-600);
+    --semantic-fc-s500: var(--color-secundary-500);
+    --semantic-fc-s400: var(--color-secundary-400);
+    --semantic-fc-s300: var(--color-secundary-300);
+    --semantic-fc-s200: var(--color-secundary-200);
+    --semantic-fc-s100: var(--color-secundary-100);
+    --semantic-fc-s50: var(--color-secundary-50);
+
+    --semantic-fc-t950: var(--color-tertiary-950);
+    --semantic-fc-t900: var(--color-tertiary-900);
+    --semantic-fc-t800: var(--color-tertiary-800);
+    --semantic-fc-t700: var(--color-tertiary-700);
+    --semantic-fc-t600: var(--color-tertiary-600);
+    --semantic-fc-t500: var(--color-tertiary-500);
+    --semantic-fc-t400: var(--color-tertiary-400);
+    --semantic-fc-t300: var(--color-tertiary-300);
+    --semantic-fc-t200: var(--color-tertiary-200);
+    --semantic-fc-t100: var(--color-tertiary-100);
+    --semantic-fc-t50: var(--color-tertiary-50);
+
+    --semantic-fc-g950: var(--color-gray-950);
+    --semantic-fc-g900: var(--color-gray-900);
+    --semantic-fc-g800: var(--color-gray-800);
+    --semantic-fc-g700: var(--color-gray-700);
+    --semantic-fc-g600: var(--color-gray-600);
+    --semantic-fc-g500: var(--color-gray-500);
+    --semantic-fc-g400: var(--color-gray-400);
+    --semantic-fc-g300: var(--color-gray-300);
+    --semantic-fc-g200: var(--color-gray-200);
+    --semantic-fc-g100: var(--color-gray-100);
+    --semantic-fc-g50: var(--color-gray-50);
+
+    --semantic-fc-w: var(--color-white);
+    --semantic-fc-bk: var(--color-black);
 
     /* ====== STATE ====== */
 
     --semantic-success: var(--color-primary-950);
     --semantic-warning: var(--color-tertiary-950);
     --semantic-error: var(--color-secondary-950);
+
+    /* ---- Paleta completa STATE (variables cortas) ---- */
+    --semantic-st-p950: var(--color-primary-950);
+    --semantic-st-p900: var(--color-primary-900);
+    --semantic-st-p800: var(--color-primary-800);
+    --semantic-st-p700: var(--color-primary-700);
+    --semantic-st-p600: var(--color-primary-600);
+    --semantic-st-p500: var(--color-primary-500);
+    --semantic-st-p400: var(--color-primary-400);
+    --semantic-st-p300: var(--color-primary-300);
+    --semantic-st-p200: var(--color-primary-200);
+    --semantic-st-p100: var(--color-primary-100);
+    --semantic-st-p50: var(--color-primary-50);
+
+    --semantic-st-s950: var(--color-secundary-950);
+    --semantic-st-s900: var(--color-secundary-900);
+    --semantic-st-s800: var(--color-secundary-800);
+    --semantic-st-s700: var(--color-secundary-700);
+    --semantic-st-s600: var(--color-secundary-600);
+    --semantic-st-s500: var(--color-secundary-500);
+    --semantic-st-s400: var(--color-secundary-400);
+    --semantic-st-s300: var(--color-secundary-300);
+    --semantic-st-s200: var(--color-secundary-200);
+    --semantic-st-s100: var(--color-secundary-100);
+    --semantic-st-s50: var(--color-secundary-50);
+
+    --semantic-st-t950: var(--color-tertiary-950);
+    --semantic-st-t900: var(--color-tertiary-900);
+    --semantic-st-t800: var(--color-tertiary-800);
+    --semantic-st-t700: var(--color-tertiary-700);
+    --semantic-st-t600: var(--color-tertiary-600);
+    --semantic-st-t500: var(--color-tertiary-500);
+    --semantic-st-t400: var(--color-tertiary-400);
+    --semantic-st-t300: var(--color-tertiary-300);
+    --semantic-st-t200: var(--color-tertiary-200);
+    --semantic-st-t100: var(--color-tertiary-100);
+    --semantic-st-t50: var(--color-tertiary-50);
+
+    --semantic-st-g950: var(--color-gray-950);
+    --semantic-st-g900: var(--color-gray-900);
+    --semantic-st-g800: var(--color-gray-800);
+    --semantic-st-g700: var(--color-gray-700);
+    --semantic-st-g600: var(--color-gray-600);
+    --semantic-st-g500: var(--color-gray-500);
+    --semantic-st-g400: var(--color-gray-400);
+    --semantic-st-g300: var(--color-gray-300);
+    --semantic-st-g200: var(--color-gray-200);
+    --semantic-st-g100: var(--color-gray-100);
+    --semantic-st-g50: var(--color-gray-50);
+
+    --semantic-st-w: var(--color-white);
+    --semantic-st-bk: var(--color-black);
 
     /* ====== TYPOGRAPHY ====== */
 

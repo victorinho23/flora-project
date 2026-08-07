@@ -16,14 +16,119 @@
     --color-brand-button-hover: var(--semantic-brand-button-hover);
 
 
+    /* ---- Paleta completa BRAND (variables cortas) ---- */
+    --color-br-p950: var(--semantic-br-p950);
+    --color-br-p900: var(--semantic-br-p900);
+    --color-br-p800: var(--semantic-br-p800);
+    --color-br-p700: var(--semantic-br-p700);
+    --color-br-p600: var(--semantic-br-p600);
+    --color-br-p500: var(--semantic-br-p500);
+    --color-br-p400: var(--semantic-br-p400);
+    --color-br-p300: var(--semantic-br-p300);
+    --color-br-p200: var(--semantic-br-p200);
+    --color-br-p100: var(--semantic-br-p100);
+    --color-br-p50: var(--semantic-br-p50);
+
+    --color-br-s950: var(--semantic-br-s950);
+    --color-br-s900: var(--semantic-br-s900);
+    --color-br-s800: var(--semantic-br-s800);
+    --color-br-s700: var(--semantic-br-s700);
+    --color-br-s600: var(--semantic-br-s600);
+    --color-br-s500: var(--semantic-br-s500);
+    --color-br-s400: var(--semantic-br-s400);
+    --color-br-s300: var(--semantic-br-s300);
+    --color-br-s200: var(--semantic-br-s200);
+    --color-br-s100: var(--semantic-br-s100);
+    --color-br-s50: var(--semantic-br-s50);
+
+    --color-br-t950: var(--semantic-br-t950);
+    --color-br-t900: var(--semantic-br-t900);
+    --color-br-t800: var(--semantic-br-t800);
+    --color-br-t700: var(--semantic-br-t700);
+    --color-br-t600: var(--semantic-br-t600);
+    --color-br-t500: var(--semantic-br-t500);
+    --color-br-t400: var(--semantic-br-t400);
+    --color-br-t300: var(--semantic-br-t300);
+    --color-br-t200: var(--semantic-br-t200);
+    --color-br-t100: var(--semantic-br-t100);
+    --color-br-t50: var(--semantic-br-t50);
+
+    --color-br-g950: var(--semantic-br-g950);
+    --color-br-g900: var(--semantic-br-g900);
+    --color-br-g800: var(--semantic-br-g800);
+    --color-br-g700: var(--semantic-br-g700);
+    --color-br-g600: var(--semantic-br-g600);
+    --color-br-g500: var(--semantic-br-g500);
+    --color-br-g400: var(--semantic-br-g400);
+    --color-br-g300: var(--semantic-br-g300);
+    --color-br-g200: var(--semantic-br-g200);
+    --color-br-g100: var(--semantic-br-g100);
+    --color-br-g50: var(--semantic-br-g50);
+
+    --color-br-w: var(--semantic-br-w);
+    --color-br-bk: var(--semantic-br-bk);
+
     /* ====== BACKGROUND ====== */
 
     --color-background: var(--semantic-background);
     --color-background-coffe:var(--semanmtic-bakground-coffe);
     --color-background-beige:var( --semanmtic-background-beige);
+    --color-background-beige-dark:var(--semantic-background-beige-dark);
     --color-surface: var(--semantic-surface);
     --color-surface-muted: var(--semantic-surface-muted);
     --color-background-inverse: var(--semantic-background-inverse);
+
+    /* ---- Paleta completa BACKGROUND (variables cortas) ---- */
+    --color-bg-p950: var(--semantic-bg-p950);
+    --color-bg-p900: var(--semantic-bg-p900);
+    --color-bg-p800: var(--semantic-bg-p800);
+    --color-bg-p700: var(--semantic-bg-p700);
+    --color-bg-p600: var(--semantic-bg-p600);
+    --color-bg-p500: var(--semantic-bg-p500);
+    --color-bg-p400: var(--semantic-bg-p400);
+    --color-bg-p300: var(--semantic-bg-p300);
+    --color-bg-p200: var(--semantic-bg-p200);
+    --color-bg-p100: var(--semantic-bg-p100);
+    --color-bg-p50: var(--semantic-bg-p50);
+
+    --color-bg-s950: var(--semantic-bg-s950);
+    --color-bg-s900: var(--semantic-bg-s900);
+    --color-bg-s800: var(--semantic-bg-s800);
+    --color-bg-s700: var(--semantic-bg-s700);
+    --color-bg-s600: var(--semantic-bg-s600);
+    --color-bg-s500: var(--semantic-bg-s500);
+    --color-bg-s400: var(--semantic-bg-s400);
+    --color-bg-s300: var(--semantic-bg-s300);
+    --color-bg-s200: var(--semantic-bg-s200);
+    --color-bg-s100: var(--semantic-bg-s100);
+    --color-bg-s50: var(--semantic-bg-s50);
+
+    --color-bg-t950: var(--semantic-bg-t950);
+    --color-bg-t900: var(--semantic-bg-t900);
+    --color-bg-t800: var(--semantic-bg-t800);
+    --color-bg-t700: var(--semantic-bg-t700);
+    --color-bg-t600: var(--semantic-bg-t600);
+    --color-bg-t500: var(--semantic-bg-t500);
+    --color-bg-t400: var(--semantic-bg-t400);
+    --color-bg-t300: var(--semantic-bg-t300);
+    --color-bg-t200: var(--semantic-bg-t200);
+    --color-bg-t100: var(--semantic-bg-t100);
+    --color-bg-t50: var(--semantic-bg-t50);
+
+    --color-bg-g950: var(--semantic-bg-g950);
+    --color-bg-g900: var(--semantic-bg-g900);
+    --color-bg-g800: var(--semantic-bg-g800);
+    --color-bg-g700: var(--semantic-bg-g700);
+    --color-bg-g600: var(--semantic-bg-g600);
+    --color-bg-g500: var(--semantic-bg-g500);
+    --color-bg-g400: var(--semantic-bg-g400);
+    --color-bg-g300: var(--semantic-bg-g300);
+    --color-bg-g200: var(--semantic-bg-g200);
+    --color-bg-g100: var(--semantic-bg-g100);
+    --color-bg-g50: var(--semantic-bg-g50);
+
+    --color-bg-w: var(--semantic-bg-w);
+    --color-bg-bk: var(--semantic-bg-bk);
 
     /* ====== TEXT ====== */
 
@@ -34,15 +139,173 @@
     --color-text-coffe:var(--semanmtic-text-coffe);
     --color-text-ligth-coffe:var(--semanmtic-text-ligth-coffe);
 
+    /* ---- Paleta completa BORDER (variables cortas) ---- */
+    --color-bd-p950: var(--semantic-bd-p950);
+    --color-bd-p900: var(--semantic-bd-p900);
+    --color-bd-p800: var(--semantic-bd-p800);
+    --color-bd-p700: var(--semantic-bd-p700);
+    --color-bd-p600: var(--semantic-bd-p600);
+    --color-bd-p500: var(--semantic-bd-p500);
+    --color-bd-p400: var(--semantic-bd-p400);
+    --color-bd-p300: var(--semantic-bd-p300);
+    --color-bd-p200: var(--semantic-bd-p200);
+    --color-bd-p100: var(--semantic-bd-p100);
+    --color-bd-p50: var(--semantic-bd-p50);
+
+    --color-bd-s950: var(--semantic-bd-s950);
+    --color-bd-s900: var(--semantic-bd-s900);
+    --color-bd-s800: var(--semantic-bd-s800);
+    --color-bd-s700: var(--semantic-bd-s700);
+    --color-bd-s600: var(--semantic-bd-s600);
+    --color-bd-s500: var(--semantic-bd-s500);
+    --color-bd-s400: var(--semantic-bd-s400);
+    --color-bd-s300: var(--semantic-bd-s300);
+    --color-bd-s200: var(--semantic-bd-s200);
+    --color-bd-s100: var(--semantic-bd-s100);
+    --color-bd-s50: var(--semantic-bd-s50);
+
+    --color-bd-t950: var(--semantic-bd-t950);
+    --color-bd-t900: var(--semantic-bd-t900);
+    --color-bd-t800: var(--semantic-bd-t800);
+    --color-bd-t700: var(--semantic-bd-t700);
+    --color-bd-t600: var(--semantic-bd-t600);
+    --color-bd-t500: var(--semantic-bd-t500);
+    --color-bd-t400: var(--semantic-bd-t400);
+    --color-bd-t300: var(--semantic-bd-t300);
+    --color-bd-t200: var(--semantic-bd-t200);
+    --color-bd-t100: var(--semantic-bd-t100);
+    --color-bd-t50: var(--semantic-bd-t50);
+
+    --color-bd-g950: var(--semantic-bd-g950);
+    --color-bd-g900: var(--semantic-bd-g900);
+    --color-bd-g800: var(--semantic-bd-g800);
+    --color-bd-g700: var(--semantic-bd-g700);
+    --color-bd-g600: var(--semantic-bd-g600);
+    --color-bd-g500: var(--semantic-bd-g500);
+    --color-bd-g400: var(--semantic-bd-g400);
+    --color-bd-g300: var(--semantic-bd-g300);
+    --color-bd-g200: var(--semantic-bd-g200);
+    --color-bd-g100: var(--semantic-bd-g100);
+    --color-bd-g50: var(--semantic-bd-g50);
+
+    --color-bd-w: var(--semantic-bd-w);
+    --color-bd-bk: var(--semantic-bd-bk);
+
     /* ======= BORDER ======= */
 
     --color-border: var(--semantic-border);
     --color-border-strong: var(--semantic-border-strong);
 
+    
+
+    /* ---- Paleta completa FOCUS (variables cortas) ---- */
+    --color-fc-p950: var(--semantic-fc-p950);
+    --color-fc-p900: var(--semantic-fc-p900);
+    --color-fc-p800: var(--semantic-fc-p800);
+    --color-fc-p700: var(--semantic-fc-p700);
+    --color-fc-p600: var(--semantic-fc-p600);
+    --color-fc-p500: var(--semantic-fc-p500);
+    --color-fc-p400: var(--semantic-fc-p400);
+    --color-fc-p300: var(--semantic-fc-p300);
+    --color-fc-p200: var(--semantic-fc-p200);
+    --color-fc-p100: var(--semantic-fc-p100);
+    --color-fc-p50: var(--semantic-fc-p50);
+
+    --color-fc-s950: var(--semantic-fc-s950);
+    --color-fc-s900: var(--semantic-fc-s900);
+    --color-fc-s800: var(--semantic-fc-s800);
+    --color-fc-s700: var(--semantic-fc-s700);
+    --color-fc-s600: var(--semantic-fc-s600);
+    --color-fc-s500: var(--semantic-fc-s500);
+    --color-fc-s400: var(--semantic-fc-s400);
+    --color-fc-s300: var(--semantic-fc-s300);
+    --color-fc-s200: var(--semantic-fc-s200);
+    --color-fc-s100: var(--semantic-fc-s100);
+    --color-fc-s50: var(--semantic-fc-s50);
+
+    --color-fc-t950: var(--semantic-fc-t950);
+    --color-fc-t900: var(--semantic-fc-t900);
+    --color-fc-t800: var(--semantic-fc-t800);
+    --color-fc-t700: var(--semantic-fc-t700);
+    --color-fc-t600: var(--semantic-fc-t600);
+    --color-fc-t500: var(--semantic-fc-t500);
+    --color-fc-t400: var(--semantic-fc-t400);
+    --color-fc-t300: var(--semantic-fc-t300);
+    --color-fc-t200: var(--semantic-fc-t200);
+    --color-fc-t100: var(--semantic-fc-t100);
+    --color-fc-t50: var(--semantic-fc-t50);
+
+    --color-fc-g950: var(--semantic-fc-g950);
+    --color-fc-g900: var(--semantic-fc-g900);
+    --color-fc-g800: var(--semantic-fc-g800);
+    --color-fc-g700: var(--semantic-fc-g700);
+    --color-fc-g600: var(--semantic-fc-g600);
+    --color-fc-g500: var(--semantic-fc-g500);
+    --color-fc-g400: var(--semantic-fc-g400);
+    --color-fc-g300: var(--semantic-fc-g300);
+    --color-fc-g200: var(--semantic-fc-g200);
+    --color-fc-g100: var(--semantic-fc-g100);
+    --color-fc-g50: var(--semantic-fc-g50);
+
+    --color-fc-w: var(--semantic-fc-w);
+    --color-fc-bk: var(--semantic-fc-bk);
+
     /* ====== FOCUS ====== */
 
     --color-focus-ring: var(--semantic-focus-ring);
     --color-focus-border: var(--semantic-focus-border);
+
+    /* ---- Paleta completa STATE (variables cortas) ---- */
+    --color-st-p950: var(--semantic-st-p950);
+    --color-st-p900: var(--semantic-st-p900);
+    --color-st-p800: var(--semantic-st-p800);
+    --color-st-p700: var(--semantic-st-p700);
+    --color-st-p600: var(--semantic-st-p600);
+    --color-st-p500: var(--semantic-st-p500);
+    --color-st-p400: var(--semantic-st-p400);
+    --color-st-p300: var(--semantic-st-p300);
+    --color-st-p200: var(--semantic-st-p200);
+    --color-st-p100: var(--semantic-st-p100);
+    --color-st-p50: var(--semantic-st-p50);
+
+    --color-st-s950: var(--semantic-st-s950);
+    --color-st-s900: var(--semantic-st-s900);
+    --color-st-s800: var(--semantic-st-s800);
+    --color-st-s700: var(--semantic-st-s700);
+    --color-st-s600: var(--semantic-st-s600);
+    --color-st-s500: var(--semantic-st-s500);
+    --color-st-s400: var(--semantic-st-s400);
+    --color-st-s300: var(--semantic-st-s300);
+    --color-st-s200: var(--semantic-st-s200);
+    --color-st-s100: var(--semantic-st-s100);
+    --color-st-s50: var(--semantic-st-s50);
+
+    --color-st-t950: var(--semantic-st-t950);
+    --color-st-t900: var(--semantic-st-t900);
+    --color-st-t800: var(--semantic-st-t800);
+    --color-st-t700: var(--semantic-st-t700);
+    --color-st-t600: var(--semantic-st-t600);
+    --color-st-t500: var(--semantic-st-t500);
+    --color-st-t400: var(--semantic-st-t400);
+    --color-st-t300: var(--semantic-st-t300);
+    --color-st-t200: var(--semantic-st-t200);
+    --color-st-t100: var(--semantic-st-t100);
+    --color-st-t50: var(--semantic-st-t50);
+
+    --color-st-g950: var(--semantic-st-g950);
+    --color-st-g900: var(--semantic-st-g900);
+    --color-st-g800: var(--semantic-st-g800);
+    --color-st-g700: var(--semantic-st-g700);
+    --color-st-g600: var(--semantic-st-g600);
+    --color-st-g500: var(--semantic-st-g500);
+    --color-st-g400: var(--semantic-st-g400);
+    --color-st-g300: var(--semantic-st-g300);
+    --color-st-g200: var(--semantic-st-g200);
+    --color-st-g100: var(--semantic-st-g100);
+    --color-st-g50: var(--semantic-st-g50);
+
+    --color-st-w: var(--semantic-st-w);
+    --color-st-bk: var(--semantic-st-bk);
 
     /* ====== STATE ====== */
 
@@ -67,12 +330,14 @@
     --font-body: var(--semantic-font-weight-body);
     --font-label: var(--semantic-font-weigth-label);
 
+}
 
 
-
-
-
-
-
-
+@layer base{
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-results-button,
+    input[type="search"]::-webkit-search-results-decoration {
+        display:none;
+    }
 }

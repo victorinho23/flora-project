@@ -1,5 +1,6 @@
 export { default as AuthLayout} from "./layouts/AuthLayout";
 export { default as DashboardLayout} from "./layouts/DashboardLayout";
+export { default as UsersCreateLayout} from "./layouts/UsersCreateLayout";
 
 
 // Componentes
@@ -19,8 +20,10 @@ export {default as Switch} from "./components/Switch"
 export {default as DataTable} from "./components/DataTable"  
 export {default as FileInput} from "./components/Fileinput"
 export {default as Card} from "./components/Card"
+export {default as Slider} from "./components/Slider"
 
 // Espacio para layouts
 
 // export {default as Navbar} from "./layouts/Navbar"
+export {default as Navbar} from "./layouts/Navbar"
 
