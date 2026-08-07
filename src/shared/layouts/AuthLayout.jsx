@@ -211,7 +211,11 @@ export default function AuthLayout(){
                                 variant = "tertiary"
                                 size ="mdl"
                                 type = "submit"
-                                onClick={()=> console.log("Se oprimio el boton")}
+                                onClick={()=> {
+                                    
+                                    console.log("Se oprimio el boton");
+                                    navigate("/home");
+                                }}
                                 onSubmit={handleSubmit}
                             >
                                 Continuar

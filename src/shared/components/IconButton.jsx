@@ -34,7 +34,7 @@ export const IconButton = React.forwardRef(function IconButton(
     ref
 ) {
     const baseStyles = `
-        inline*flex items-center justify-center
+        inline-flex items-center justify-center
         rounded-full
         transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
@@ -53,9 +53,9 @@ export const IconButton = React.forwardRef(function IconButton(
             focus-visible:ring-neutral-300
         `,
         primary: `
-            text-white bg-blue-600
-            hover:bg-blue-700
-            focus-visible:ring-blue-500
+            text-white
+            hover:bg-white
+            focus-visible:ring-neutral-300
             w-10
         `
     };

@@ -21,6 +21,7 @@ const variantStyles = {
 
   // Outlined: campo con fondo transparente y borde visible siempre.
   outlined: "bg-transparent border-green-500 hover:border-green-600",
+  white: "bg-transparent border-white hover:border-white text-white"
 };
 
 const SearchField = forwardRef(
@@ -78,7 +79,7 @@ const SearchField = forwardRef(
             {loading ? (
                 <LoaderCircle className="size-4 shrink-0 animate-spin text-neutral-500" />
             ) : (
-                <SearchIcon className="size-4 shrink-0 text-neutral-500" />
+                <SearchIcon className="size-4 shrink-0 text-white" />
             )}
 
             <input
@@ -101,7 +102,7 @@ const SearchField = forwardRef(
                     aria-label="Limpiar búsqueda"
                     className="search__clear rounded-full p-1 hover:bg-neutral-200"
                 >
-                    <X className="size-4 text-neutral-500" />
+                    <X className="size-4 text-white" />
                 </button>
             )}
         </form>
