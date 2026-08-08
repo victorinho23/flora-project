@@ -43,32 +43,32 @@ export default function InventoryDetailPage() {
         <div className="p-6 max-w-2xl mx-auto">
 
             {/* Boton para volver al listado */}
-            <Button variant="tertiary" size="sm" onClick={() => navigate("/inventory/list")}>
+            <Button variant="secondary" size="sm" onClick={() => navigate("/inventory/list")}>
                 <ArrowLeft size={16} />
                 Volver al listado
             </Button>
 
-            <h1 className="text-xl font-semibold mt-4 mb-4 text-white drop-shadow">
+            <h1 className="text-xl font-semibold mt-4 mb-4 text-[var(--color-white)] drop-shadow">
                 Detalle de inventario {item ? `#${item.id}` : ""}
             </h1>
 
             {/* Caso: registro no encontrado */}
             {!item ? (
-                <div className="p-6 rounded-xl border bg-white shadow-sm">
-                    <p className="text-sm text-gray-600">
+                <div className="p-6 rounded-xl border bg-[var(--color-white)] shadow-sm">
+                    <p className="text-sm text-[var(--color-gray-600)]">
                         No se encontró ningún registro de inventario con el id "{id}".
                     </p>
                 </div>
             ) : (
                 // Caso: registro encontrado, muestra ficha de detalle
-                <div className="p-6 rounded-xl border bg-white shadow-sm">
+                <div className="p-6 rounded-xl border bg-[var(--color-white)] shadow-sm">
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {fields.map((field) => (
                             <div key={field.label} className="flex flex-col gap-1">
-                                <dt className="text-xs uppercase tracking-wide text-gray-500">
+                                <dt className="text-xs uppercase tracking-wide text-[var(--color-gray-500)]">
                                     {field.label}
                                 </dt>
-                                <dd className="text-sm font-medium text-gray-900">
+                                <dd className="text-sm font-medium text-[var(--color-gray-900)]">
                                     {field.value}
                                 </dd>
                             </div>

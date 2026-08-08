@@ -70,17 +70,13 @@ export default function InventoryUpdatePage() {
                     </div>
                 </div>
 
-                <button
-                    type="button"
-                    aria-label="Notificaciones"
-                    className="relative p-2 rounded-full hover:bg-[var(--color-primary-200)]"
-                >
-                    <Bell size={20} className="text-[var(--color-secundary-900)]" />
-                </button>
+                <Button variant="secondary" size="sm" aria-label="Notificaciones">
+                    <Bell size={20} />
+                </Button>
             </div>
 
             {/* Tarjeta clara con el buscador y la tabla editable */}
-            <div className="bg-white/95 rounded-xl shadow-lg p-6 space-y-4">
+            <div className="bg-[var(--color-white)]/95 rounded-xl shadow-lg p-6 space-y-4">
 
                 <SearchField
                     value={search}
@@ -91,7 +87,7 @@ export default function InventoryUpdatePage() {
 
                 <div className="overflow-x-auto border rounded">
                     <table className="w-full text-sm">
-                        <thead className="bg-gray-100">
+                        <thead className="bg-[var(--color-gray-100)]">
                             <tr>
                                 <th className="p-3 text-left border-b">Id</th>
                                 <th className="p-3 text-left border-b">Marca</th>
@@ -105,7 +101,7 @@ export default function InventoryUpdatePage() {
                         </thead>
                         <tbody>
                             {filteredItems.map((item) => (
-                                <tr key={item.id} className="hover:bg-gray-50">
+                                <tr key={item.id} className="hover:bg-[var(--color-gray-50)]">
                                     <td className="p-3 border-b">{item.id}</td>
                                     <td className="p-3 border-b">{item.marca}</td>
                                     <td className="p-3 border-b">{item.nombre}</td>
@@ -120,7 +116,7 @@ export default function InventoryUpdatePage() {
                                             }
                                             className={`border rounded px-2 py-1 w-20 ${
                                                 item.cantidad < CANTIDAD_MINIMA
-                                                    ? "border-red-400 text-red-600"
+                                                    ? "border-[var(--color-tertiary-600)] text-[var(--color-tertiary-700)]"
                                                     : ""
                                             }`}
                                         />
@@ -132,10 +128,10 @@ export default function InventoryUpdatePage() {
                                         <span
                                             className={`px-2 py-1 rounded-full text-xs font-medium ${
                                                 item.estado === "Disponible"
-                                                    ? "bg-green-100 text-green-700"
+                                                    ? "bg-[var(--color-primary-200)] text-[var(--color-secundary-900)]"
                                                     : item.estado === "Vencido"
-                                                    ? "bg-red-100 text-red-700"
-                                                    : "bg-yellow-100 text-yellow-700"
+                                                    ? "bg-[var(--color-secundary-800)] text-[var(--color-primary-100)]"
+                                                    : "bg-[var(--color-tertiary-200)] text-[var(--color-tertiary-900)]"
                                             }`}
                                         >
                                             {item.estado}
@@ -147,7 +143,7 @@ export default function InventoryUpdatePage() {
 
                             {filteredItems.length === 0 && (
                                 <tr>
-                                    <td colSpan={8} className="p-6 text-center text-gray-400">
+                                    <td colSpan={8} className="p-6 text-center text-[var(--color-gray-400)]">
                                         No se encontraron productos.
                                     </td>
                                 </tr>

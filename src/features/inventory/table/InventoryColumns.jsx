@@ -42,7 +42,7 @@ export const InventoryColumns = [
           className="w-10 h-10 object-cover rounded"
         />
       ) : (
-        <span className="text-xs text-gray-400">Sin imagen</span>
+        <span className="text-xs text-[var(--color-gray-400)]">Sin imagen</span>
       ),
   },
 

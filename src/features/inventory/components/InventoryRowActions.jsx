@@ -6,6 +6,9 @@ import {Pencil, Trash2} from "lucide-react";
 // Hook de React Router para navegar programaticamente entre rutas
 import {useNavigate} from "react-router-dom";
 
+// Componente de boton compartido (design system)
+import { Button } from "@/shared";
+
 // Componente que renderiza las acciones de cada fila de inventario
 // Recibe como prop el objeto item (un registro de inventario)
 
@@ -32,22 +35,14 @@ export default function InventoryRowActions({item}){
         <div className="flex gap-2">
 
             {/** Botón editar */}
-            <button
-                onClick={handleEdit}
-                className="p-1 rounded hover:bg-gray-100"
-            >
-
+            <Button variant="secondary" size="sm" onClick={handleEdit}>
                 <Pencil size={16}/> {/** Icono de editar */}
-            </button>
+            </Button>
 
              {/** Botón eliminar */}
-            <button
-                onClick={handleDelete}
-                className="p-1 rounded hover:bg-gray-100"
-            >
-
+            <Button variant="secondary" size="sm" onClick={handleDelete}>
                 <Trash2 size={16}/> {/** Icono de eliminar */}
-            </button>
+            </Button>
 
         </div>
     )

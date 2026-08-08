@@ -35,13 +35,9 @@ export default function InventoryListPage (){
 
                 <div className="flex items-center gap-4">
                     {/* Notificaciones (visual, sin logica asociada por ahora) */}
-                    <button
-                        type="button"
-                        aria-label="Notificaciones"
-                        className="relative p-2 rounded-full hover:bg-[var(--color-primary-200)]"
-                    >
-                        <Bell size={20} className="text-[var(--color-secundary-900)]" />
-                    </button>
+                    <Button variant="secondary" size="sm" aria-label="Notificaciones">
+                        <Bell size={20} />
+                    </Button>
 
                     <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
                         Generar reporte
@@ -50,7 +46,7 @@ export default function InventoryListPage (){
             </div>
 
             {/* Tarjeta clara: mantiene el texto y la tabla legibles sobre el fondo oscurecido */}
-            <div className="bg-white/95 rounded-xl shadow-lg p-6">
+            <div className="bg-[var(--color-white)]/95 rounded-xl shadow-lg p-6">
                 <DataTable data={inventory} columns={InventoryColumns}/>
             </div>
 

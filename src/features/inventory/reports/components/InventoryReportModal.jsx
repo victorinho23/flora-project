@@ -62,7 +62,7 @@ export default function InventoryReportModal({ isOpen, onClose }) {
 
     return (
         // Overlay del modal
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-black)]/40">
 
             {/** Contenedor del modal */}
             <div className="w-full max-w-lg rounded-xl bg-background-beige p-6 shadow-lg">
