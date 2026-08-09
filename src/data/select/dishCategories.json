@@ -1,0 +1,33 @@
+[
+
+    {
+        "id":"ENTRADAS",
+        "label": "Entradas"
+        
+    },
+
+    {
+        "id":"PLATOS_FUERTES",
+        "label": "Platos fuertes"
+        
+    },
+
+    {
+        "id":"POSTRES",
+        "label": "Postres"
+        
+    },
+
+    {
+        "id":"BEBIDAS",
+        "label": "Bebidas"
+        
+    },
+
+    {
+        "id":"CAFES",
+        "label": "Cafés"
+        
+    }
+
+]
