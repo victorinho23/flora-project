@@ -6,7 +6,8 @@ import {Input,
     Select, 
     Checkbox} from "@/shared";
 import {  getDocumentTypes  } from "../../services/selectServices";
-import { userSchema } from "../schemas/userSchema";
+import { loginSchema } from "../schemas/userSchema";
+import { ForgotPasswordModal } from "../../features/users";
 
 
 
@@ -18,16 +19,14 @@ export default function AuthLayout(){
 
     const [documentTypes, setDocumentTypes] = useState([])
     const [errors, setErrors] = useState({});   
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
 
 
     const [formData, setFormData] = useState({
-        userName: "",
         userEmail: "",
-        userPhone: "",
-        userDocumentType: "",
+        userDocumentTypes: "",
         userDocumentNumber: "",
         userPassword: "",
-        userImage: [],
 
         isStaff: false,
         isActive: false,
@@ -59,7 +58,7 @@ export default function AuthLayout(){
     // Validamos los datos del formulario contra el esquema Zod
     // safeParse No lanza excepcion, retorna un objeto controlado
 
-    const result = userSchema.safeParse(formData)
+    const result = loginSchema.safeParse(formData)
 
     // Si la validacion falla
     if (!result.success){
@@ -94,11 +93,10 @@ export default function AuthLayout(){
         // console.log("Usuario creado", response);
 
         // feedback basico al usuario
-        alert("Usuario creado correctamente");
+        alert("Usuario registrado correctamente");
 
-        // Navegamos la vista anterior
-        //navigate(-1) equivale a volver atras
-        navigate(-1)
+        // Navegamos directo a home tras el registro exitoso
+        navigate("/home")
     } catch(error){
 
         //Capturanmos errores de red o errores lanzados por el service
@@ -113,8 +111,6 @@ export default function AuthLayout(){
     }
 
 };
-    
-    
     
         useEffect(()=>{
             getDocumentTypes().then(setDocumentTypes);
@@ -169,7 +165,7 @@ export default function AuthLayout(){
                             error={errors.userPassword}
 
                         />
-
+                        
                         <Select 
                             label="Tipos de documento"
                             name="userDocumentTypes"
@@ -182,7 +178,7 @@ export default function AuthLayout(){
 
                         <Input 
                             name="userDocumentNumber"
-                            type="Documento"
+                            type="text"
                             placeholder="Escribe tu numero de documento"
                             htmlFor= "user-document-number"
                             variant="fourth"
@@ -201,6 +197,14 @@ export default function AuthLayout(){
                         onChange={handleChange} 
                         variant="primary"
                         />
+
+                        <button
+                            type="button"
+                            onClick={() => setShowForgotPassword(true)}
+                            className="w-80 text-white text-sm text-br-t400 hover:text-br-t300 hover:underline mt-4 "
+                        >
+                            ¿Olvidaste tu contraseña?
+                        </button>
                         
 
 
@@ -211,12 +215,6 @@ export default function AuthLayout(){
                                 variant = "tertiary"
                                 size ="mdl"
                                 type = "submit"
-                                onClick={()=> {
-                                    
-                                    console.log("Se oprimio el boton");
-                                    navigate("/home");
-                                }}
-                                onSubmit={handleSubmit}
                             >
                                 Continuar
                             </Button>
@@ -238,6 +236,10 @@ export default function AuthLayout(){
                 
 
             </div>
+
+            {showForgotPassword && (
+                <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+            )}
         </>
     );
 }

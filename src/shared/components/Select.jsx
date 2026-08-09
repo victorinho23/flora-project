@@ -1,7 +1,5 @@
 //  Componente Select
-
 export default function Select({
-
     label,
     error,
     htmlFor,
@@ -40,6 +38,14 @@ export default function Select({
         twentyFirst: { label: `text-text-primary`, control: `bg-gradient-to-br from-bg-g950 to-bg-s800 border border-bd-s600 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
         twentySecond: { label: `text-text-primary`, control: `bg-bg-g900 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g900` },
         twentyThird: { label: `text-text-primary`, control: `bg-bg-g950 border border-br-t500/50 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
+
+        // ===== NUEVA: café con texto blanco y borde glow =====
+        cafe: {
+            label: `text-bg-w`,
+            control: `bg-bg-s800 border border-bg-w/40 text-bg-w shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)]`,
+            optionText: `text-bg-w`,
+            optionBg: `bg-bg-s800`
+        },
     }
 
     const v = variants[variant] ?? variants.p;

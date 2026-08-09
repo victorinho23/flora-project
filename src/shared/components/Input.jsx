@@ -9,12 +9,26 @@ export default function Input({
 
 }){
     const variants = {
-        primary: `border border-brand bg-yellow-950`,
-        secondary: `border border-brand bg-background`,
-        tertiary: `border border-purple-950`,
-        fourth: `bg-transparent border border-white text-white placeholder-text-primary`,
+        primary: `
+            border border-brand
+            bg-yellow-950
+        `,
+        secondary: `
+            border border-brand
+            bg-background
+        `,
+        tertiary: `
+            border border-purple-950
+        
+        `,
 
-        // ===== CLARAS que van del (5-13) =====
+        fourth: `
+            bg-transparent
+            border border-white
+            text-white
+            placeholder-text-primary 
+        `,
+
         fifth: `bg-bg-w border border-bd-g400 text-text-inverse focus:border-fc-p700`,
         sixth: `bg-transparent border-2 border-br-p700 text-text-inverse focus:bg-bg-p50`,
         seventh: `bg-br-p200 border border-br-p400 text-text-inverse`,
@@ -25,7 +39,6 @@ export default function Input({
         twelfth: `bg-transparent border-b-2 border-bd-g300 text-text-inverse rounded-none focus:border-fc-p700`,
         thirteenth: `bg-bg-w border-2 border-br-t600 text-text-inverse focus:border-br-t700`,
 
-        // ===== OSCURAS que van (14-23) =====
         fourteenth: `bg-bg-s900 border border-bd-g700 text-text-primary focus:ring-2 focus:ring-fc-p600`,
         fifteenth: `bg-transparent border border-bd-w/30 text-text-primary focus:border-br-t400 focus:shadow-[0_0_12px_var(--color-br-t400)]/50`,
         sixteenth: `bg-bg-g950 border-2 border-br-t500 text-text-primary focus:shadow-[0_0_15px_var(--color-br-t500)]/60`,
@@ -36,6 +49,39 @@ export default function Input({
         twentyFirst: `bg-gradient-to-br from-bg-g950 to-bg-s800 border border-bd-s600 text-text-primary`,
         twentySecond: `bg-bg-g900 text-text-primary shadow-[inset_2px_2px_6px_rgba(0,0,0,0.5),inset_-2px_-2px_6px_rgba(255,255,255,0.05)]`,
         twentyThird: `bg-bg-g950 border border-br-t500/50 text-text-primary`,
+
+        cafe: `bg-bg-s800 border border-bg-w/40 text-bg-w placeholder-bg-w/50 shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)] placeholder-white`,
+    }
+
+    // ===== NUEVO: color del label, uno por cada variante =====
+    const labelColors = {
+        primary: `text-secondary`,
+        secondary: `text-secondary`,
+        tertiary: `text-secondary`,
+        fourth: `text-white`,
+
+        fifth: `text-text-inverse`,
+        sixth: `text-text-inverse`,
+        seventh: `text-text-inverse`,
+        eighth: `text-text-inverse`,
+        ninth: `text-text-inverse`,
+        tenth: `text-text-inverse`,
+        eleventh: `text-text-inverse`,
+        twelfth: `text-text-inverse`,
+        thirteenth: `text-text-inverse`,
+
+        fourteenth: `text-text-primary`,
+        fifteenth: `text-text-primary`,
+        sixteenth: `text-text-primary`,
+        seventeenth: `text-text-primary`,
+        eighteenth: `text-br-t400`,
+        nineteenth: `text-text-inverse`,
+        twentieth: `text-text-primary`,
+        twentyFirst: `text-text-primary`,
+        twentySecond: `text-text-primary`,
+        twentyThird: `text-text-primary`,
+
+        cafe: `text-bg-w`,
     }
 
     const sizes = {
@@ -49,9 +95,10 @@ export default function Input({
             <label 
                 htmlFor={htmlFor}
                 className={`
-                    block text-caption text-secondary
+                    block text-caption
+                    ${labelColors[variant] ?? "text-secondary"}
                     ${size === "sm" ? "-mb-1" : size === "md" ? "mb-0" : "mb-1"}
-                    ${error ? "border-red-800" : "text-caption"}
+                    ${error ? "border-red-800" : ""}
                 `}
             >
             {label} 

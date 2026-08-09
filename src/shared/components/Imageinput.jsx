@@ -1,5 +1,5 @@
-// src/shared/components/FileInput.jsx
-// Input controlado: soporta imagenes + PDF, previw condicional, reorder y limpieza de memoria
+// src/shared/components/ImageInput.jsx
+// Input controlado exclusivo para imagenes: preview, reorder y limpieza de memoria
 
 import {useRef, useState, useEffect, useMemo}  from "react"
 import {Infinity as InfinityLoader} from "ldrs/react"
@@ -28,27 +28,22 @@ const dropZoneVariants = {
     twentyThird: "border-br-t500/50 bg-bg-g950 text-text-primary",
 };
 
-export default function FileInput({
-    value = [], // estado exterbo (files)
+export default function ImageInput({
+    value = [],
     onChange,
     multiple = false,
-    accept = "image/*,application/pdf",
     variant,
 })  {
-    const inputRef = useRef(); //input oculto
-    const [isLoading, setIsLoading] = useState(false) // loader
-    const [dragIndex, setDragIndex] = useState(null) // indice drag
+    const inputRef = useRef();
+    const [isLoading, setIsLoading] = useState(false)
+    const [dragIndex, setDragIndex] = useState(null)
 
-    const isImage = (file) => file.type.startsWith("image/"); // discriminador MIME
-
-    // Genera e Solo para imagenes (evita crear URLs innecesarias)
     const previews = useMemo(
         () => 
-            value.map((file) => (isImage(file) ? URL.createObjectURL(file): null)),
+            value.map((file) => URL.createObjectURL(file)),
         [value],
     );
 
-    // Limpieza de Object url (prevencion memory leak
     useEffect(() => {
         return () => {
             previews.forEach((url) => {
@@ -57,7 +52,6 @@ export default function FileInput({
         };
     }, [previews])
 
-    // Normaliza Filelist, simula async y limita a 12
     const handleFiles = async (files) => {
         setIsLoading(true);
 
@@ -65,20 +59,16 @@ export default function FileInput({
         await new Promise((r) => setTimeout(r,500));
 
         const data = multiple ? [...value, ...list] : [list[0]];
-        onChange(data.slice(0, 12));
+        onChange(data.slice(0, 1));
 
         setIsLoading(false)
     };
-
-    // Eliminacion inmutable
 
     const remove = (i) => {
         const copy = [...value];
         copy.splice(i,1);
         onChange(copy);
     };
-
-    // Reordenamiento por drag y drop
 
     const reorder = (from, to) => {
         const copy = [...value];
@@ -88,7 +78,7 @@ export default function FileInput({
     };
 
     return(
-        <div className="flex items-center gap-2">
+        <div className="w-fit self-start flex items-center gap-2">
             {value.map((file, i) => (
                 <div 
                     key={i} 
@@ -96,23 +86,11 @@ export default function FileInput({
                     onDragStart={() => setDragIndex(i)}
                     onDragOver={(e) => e.preventDefault()}
                     onDrop = {() => reorder(dragIndex, i)}
-                    className="relative w-24 h-24 border rounded overflow-hidden group"
+                    className="relative w-24 h-24 border rounded overflow-hidden group flex-shrink-0"
                 >
+                    <img src={previews[i]} className="w-full h-full object-cover"/>
 
-                    {/** Render condicional: imagen vs archivo generico */}
-                    {isImage(file) ? (
-                        <img src={previews[i]} className="w-full h-full object-cover"/>
-                    ) : (
-                        <div
-                            className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-[10px] px-1"
-                        >
-                            <span className="font-semibold">PDF</span>
-                            <span className="truncate w-full text-center">{file.name}</span>
-                        </div>
-                    )}
-
-                    {/** Acciones hover: reorder visual + eliminar */}
-                    <div className="absolute top-1 rigth-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
+                    <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
                         <button className="w-7 h-7 bg-white rounded-full text-black text-xs">
                             ↕
                         </button>
@@ -126,10 +104,10 @@ export default function FileInput({
                 </div>
             ))}
 
-            {/** Trigger de input oculto + loader */}
             <div onClick={() => !isLoading && inputRef.current.click()}
                 className={`
-                    w-120 h-120 border-2 border-dashed rounded flex items-center justify-center cursor-pointer
+                    w-120 h-120 flex-shrink-0 border-2 border-dashed rounded
+                    flex items-center justify-center cursor-pointer
                     transition-all duration-300
                     ${variant ? dropZoneVariants[variant] : ""}
                 `}>
@@ -137,29 +115,27 @@ export default function FileInput({
                 {isLoading ? (
                     <InfinityLoader
                         size="55"
-                        stroke = "4"
+                        stroke="4"
                         strokeLength="0.15"
-                        bgOpacity = "0.1"
-                        speed = "1.3"
-                        color = "black"
+                        bgOpacity="0.1"
+                        speed="1.3"
+                        color="black"
                     />
                 ) : (
-                    <span className="text-bg-white text-sm"> Seleccionar </span>
+                    <span className="text-sm text-center"> <span>Cargar imagen <br /></span>Formato permitido solo: jpg, jpeg, png</span>
+                    
                 )}
             </div>
-
-            {/** Input descoplado de UI*/}
 
             <input 
                 ref={inputRef}
                 type="file"
                 hidden
                 multiple={multiple}
-                accept={accept}
+                accept="image/*"
                 onChange={(e) => handleFiles(e.target.files)}
             />
 
         </div>
     )
-
 }
