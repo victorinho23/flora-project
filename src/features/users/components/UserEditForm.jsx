@@ -1,6 +1,6 @@
-// User regtister form para registrarn un usuario
+// Formulario para modificar un usuario ya existente
 import { useState, useEffect } from "react";
-import {Input, Select, Checkbox, Button, FileInput, Imageinput} from "@/shared";
+import {Input, Select, Checkbox, Button, Imageinput} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import {useNavigate } from "react-router-dom"
@@ -10,34 +10,31 @@ import authicon from "@/assets/icons/usuario.png";
 
 
 
-export default function UserRegisterForm(){
-    // Estado del formulario
+export default function UserEditForm({ user }){
 
     const navigate = useNavigate();
-
-    // Estado del error
 
     const [errors, setErrors] = useState({});   
 
 
     const [formData, setFormData] = useState({
-        userName: "",
-        userEmail: "",
-        userEmailConfirm: "",
-        userBusinessEmail: "",
-        userPhone: "",
-        userDocumentTypes: "",
-        userType: "",
-        userDocumentNumber: "",
+        userName: user.userName || "",
+        userEmail: user.userEmail || "",
+        userEmailConfirm: user.userEmail || "",
+        userBusinessEmail: user.userBusinessEmail || "",
+        userPhone: user.userPhone || "",
+        userDocumentTypes: user.userDocumentTypes || "",
+        userType: user.userType || "",
+        userDocumentNumber: user.userDocumentNumber || "",
         userPassword: "",
         userImage: [],
-        userAddress:"",
-        userContractStartDate:"",
-        userContractEndDate:"",
+        userAddress: user.userAddress || "",
+        userContractStartDate: user.userContractStartDate || "",
+        userContractEndDate: user.userContractEndDate || "",
 
-        isStaff: false,
-        isActive: false,
-        isSuperUser: false,
+        isStaff: user.isStaff || false,
+        isActive: user.isActive || false,
+        isSuperUser: user.isSuperUser || false,
 
 
     });
@@ -45,16 +42,10 @@ export default function UserRegisterForm(){
 
     
     const handleChange = (e) => {
-        //Se obtiene el nombre del campo y su valor 
-
         const {name, value, type, checked} = e.target;
 
         setFormData((prev) => ({
-            // Se copian todos los valores anterirores del estado
             ...prev,
-
-            // Se actualiza unicamente lo que cambio
-
             [name]: type === "checkbox" ? checked: value,
     }))
 };
@@ -67,25 +58,14 @@ export default function UserRegisterForm(){
     };
 
     const handleSubmit = async (e) => {
-        // Evita que el formulario recargue la pagina
         e.preventDefault();
-    
-
-    // Validamos los datos del formulario contra el esquema Zod
-    // safeParse No lanza excepcion, retorna un objeto controlado
 
     const result = userSchema.safeParse(formData)
 
-    // Si la validacion falla
     if (!result.success){
-        // Objeto donde almacenaremos los errores por campo
         const fieldErrors = {};
-    
 
-    // Recorremos cada error generado por Zod
     result.error.issues.forEach((issue) => {
-    // issue.path[0] corresponde al nombre del campo
-    // issue.message contiene el mensaje de error definido en el schema
     fieldErrors[issue.path[0]] = issue.message;
     });
 
@@ -94,12 +74,11 @@ export default function UserRegisterForm(){
 
     return;
 }
-    //Si la validacion pasa limpiamos errores previos
     setErrors({});
 
     try{
-        alert("Usuario creado correctamente");
-        navigate("/viewUser")
+        alert("Usuario actualizado correctamente");
+        navigate(`/viewUser`)
     } catch(error){
         console.log("Error: ", error.message)
         alert(error.message)
@@ -113,11 +92,17 @@ export default function UserRegisterForm(){
     
     
         useEffect(()=>{
-            getDocumentTypes().then(setDocumentTypes);
+            getDocumentTypes().then((data) => {
+                setDocumentTypes(data);
+                console.log("Opciones reales del select (documentTypes):", data);
+            });
         },[])
 
          useEffect(()=>{
-            getTypeUser().then(setTypeUser);
+            getTypeUser().then((data) => {
+                setTypeUser(data);
+                console.log("Opciones reales del select (typesUser):", data);
+            });
         },[])
 
 
@@ -125,12 +110,9 @@ export default function UserRegisterForm(){
         
         <div className="grid items-center justify-center relative">
 
-            {/** Panel oscuro detras de todo el formulario, para dar contraste sin cambiar el layout */}
-           
-
             <div className="flex absolute top-5 left-5 ">
                 <img className="w-32 h-32" src={authBg } alt="usuario"/>
-                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Creacion de usuarios</h1>
+                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Modificar usuario</h1>
             </div>
 
             <form 
@@ -211,7 +193,7 @@ export default function UserRegisterForm(){
                         type="password"
                         label="Contraseña"
                         value={formData.userPassword}
-                        placeholder="Escribe tu contraseña"
+                        placeholder="contraseña"
                         htmlFor= "user-password"
                         variant="cafe"
                         onChange={handleChange}
@@ -309,7 +291,7 @@ export default function UserRegisterForm(){
                         type= "submit"
                         
                     >
-                        Crear usuario
+                        Guardar cambios
                         </Button>
 
                     <div className="absolute bottom-40 rigth-10 ">
