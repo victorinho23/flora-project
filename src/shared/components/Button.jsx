@@ -74,8 +74,13 @@ export default function Button ({
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]
-        
-        
+            `,
+        lggg: `
+            h-14 
+            w-93
+            px-4
+            before:absolute before:content-['']
+            before:-inset-y-[0px] before:-inset-x-[0px]
             `,
     }
 

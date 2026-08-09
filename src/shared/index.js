@@ -2,6 +2,9 @@ export { default as AuthLayout} from "./layouts/AuthLayout";
 export { default as DashboardLayout} from "./layouts/DashboardLayout";
 export { default as UsersCreateLayout} from "./layouts/UsersCreateLayout";
 export { default as UserEditLayout } from "./layouts/UserEditLayout"
+export { default as CreateDishesLayout } from "./layouts/CreateDishesLayout"
+export { default as DishDetailsLayout } from "./layouts/DishDetailsLayout"
+export { default as EditDishLayout } from "./layouts/EditDishLayout"
 
 
 // Componentes
@@ -23,6 +26,7 @@ export {default as FileInput} from "./components/Fileinput"
 export {default as Card} from "./components/Card"
 export {default as Slider} from "./components/Slider"
 export {default as Imageinput} from "./components/Imageinput"
+export {default as Textarea} from "./components/Textarea"
 
 // Espacio para layouts
 
