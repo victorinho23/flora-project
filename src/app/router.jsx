@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthLayout, DashboardLayout, UsersCreateLayout} from "@/shared";
+import { AuthLayout, UsersCreateLayout} from "@/shared";
 import UserListPage from "../features/users/pages/UserListPage";
 import HomePage from "../features/home/components/pages/HomePage";
 import SeeUsers from "../shared/layouts/SeeUsers";
@@ -12,6 +12,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <Navigate to="/auth" replace />
     },
+
     {
         path: "/auth",
         element: <AuthLayout/>,
@@ -19,24 +20,23 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-
             },
 
-        ],
-    },
     {
-        path: "/dashboard",
-        element: <DashboardLayout/>,
+        path: "/home",
+        element: <HomePage/>,
         children: [
 
             {index: true,},
             // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
             // {path: "userList", element: <UserListPage/>},
-            
+            // {path: "userCreate", element: <UserRegisterForm/>},
 
         ],
     },
-    {
+],
+},
+   {
         path: "/userCreate",
         element: <UsersCreateLayout/>,
         children: [
@@ -86,18 +86,6 @@ const router = createBrowserRouter([
 
     
 
-    {
-        path: "/home",
-        element: <HomePage/>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "userList", element: <UserListPage/>},
-            // {path: "userCreate", element: <UserRegisterForm/>},
-
-        ],
-    },
 
 ]);
 
