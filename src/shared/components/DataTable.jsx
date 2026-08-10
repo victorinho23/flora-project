@@ -102,14 +102,14 @@ export default function DataTable({ data, columns, variant }) {
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-gray-100">
 
 
       {/* ================== TOOLBAR ================== */}
       {/* Barra superior con buscador y selector de filas */}
 
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 ">
 
 
         {/* ================== BUSCADOR ================== */}
@@ -119,7 +119,7 @@ export default function DataTable({ data, columns, variant }) {
           placeholder="Buscar..."
           value={globalFilter ?? ""}
           onChange={(e) => setGlobalFilter(e.target.value)}
-          className={`border rounded px-3 py-2 w-64 ${v ? v.border : ""}`}
+          className={`border rounded px-3 py-2 w-64 text-white ${v ? v.border : ""}`}
         />
 
 
@@ -128,7 +128,7 @@ export default function DataTable({ data, columns, variant }) {
         <select
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className={`border rounded px-2 py-2 ${v ? v.border : ""}`}
+          className={`border rounded px-2 py-2 text-black m-4 ${v ? v.border : ""} bg-white/30 backdrop-blur-sm `}
         >
           {[5, 7, 10, 20, 50].map(size => (
             <option key={size} value={size}>
@@ -142,7 +142,7 @@ export default function DataTable({ data, columns, variant }) {
 
 
       {/* ================== TABLA ================== */}
-      <div className={`overflow-x-auto border rounded ${v ? v.border : ""}`}>
+      <div className={`overflow-x-auto border rounded bg-white/10 backdrop-blur-md text-gray-300 ${v ? v.border : ""}`}>
         <table className="w-full">
 
 
@@ -162,7 +162,7 @@ export default function DataTable({ data, columns, variant }) {
 
                   <th
                     key={header.id}
-                    className={`p-3 text-left border-b ${v ? v.border : ""}`}
+                    className={`p-3 text-left border-b  ${v ? v.border : ""}`}
                   >
 
 
@@ -235,19 +235,19 @@ export default function DataTable({ data, columns, variant }) {
 
 
       {/* ================== FOOTER ================== */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between ">
 
 
         {/* ================== INFORMACIÓN ================== */}
         {/* Cantidad de registros visibles */}
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-gray-200 ">
           Mostrando {table.getRowModel().rows.length} de{" "}
           {table.getFilteredRowModel().rows.length} registros
         </span>
 
 
         {/* ================== CONTROLES DE PAGINACIÓN ================== */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-gray-200">
 
 
           {/* Ir a la primera página */}
@@ -273,7 +273,7 @@ export default function DataTable({ data, columns, variant }) {
 
 
           {/* Información de página actual */}
-          <span className="text-sm px-2">
+          <span className="text-sm px-2 text-gray-200">
             Página {table.getState().pagination.pageIndex + 1} de{" "}
             {table.getPageCount()}
           </span>
