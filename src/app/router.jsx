@@ -6,6 +6,7 @@ import SeeUsers from "../shared/layouts/SeeUsers";
 import { CreateDishesLayout, DishDetailsLayout, OrderDetailsLayout, OrderEditLayout, UserEditLayout } from "../shared";
 import EditDishLayout from "../shared/layouts/EditDishLayout";
 import OrdersLayout from "../shared/layouts/OrdersLayout";
+import PermissionsLayout from "../shared/layouts/PermissionLayout";
 
 
 
@@ -134,6 +135,17 @@ const router = createBrowserRouter([
        {
         path: "orderEdit/:id",
         element: <OrderEditLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+        {
+        path: "/permissions",
+        element: <PermissionsLayout/>,
         children: [
 
             {index: true,},

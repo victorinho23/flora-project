@@ -50,7 +50,7 @@ export default function Input({
         twentySecond: `bg-bg-g900 text-text-primary shadow-[inset_2px_2px_6px_rgba(0,0,0,0.5),inset_-2px_-2px_6px_rgba(255,255,255,0.05)]`,
         twentyThird: `bg-bg-g950 border border-br-t500/50 text-text-primary`,
 
-        cafe: `bg-bg-s800 border border-bg-w/40 text-bg-w placeholder-bg-w/50 shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)] placeholder-white`,
+        cafe: `bg-bg-s900 border border-bg-w/40 text-bg-w placeholder-bg-w/50 shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)] placeholder-white`,
     }
 
     // ===== NUEVO: color del label, uno por cada variante =====

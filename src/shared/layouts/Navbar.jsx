@@ -83,7 +83,7 @@ export default function Navbar(){
                    <DropdownItem><Link to="/createInventory"  
                    className="block w-full" >Crear inventario</Link></DropdownItem>
 
-                    <DropdownItem><Link to="/PermissionsManagement"  
+                    <DropdownItem><Link to="/permissions"  
                    className="block w-full" >Gestion de Permisos</Link></DropdownItem>
 
 
