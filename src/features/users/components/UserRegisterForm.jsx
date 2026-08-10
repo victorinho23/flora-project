@@ -1,352 +1,365 @@
-// User regtister form para registrarn un usuario
+// User register form para registrar un usuario
 import { useState, useEffect } from "react";
-import {Input, Select, Checkbox, Button, FileInput} from "@/shared";
+import { ArrowLeft, User } from "lucide-react";
+import {Input, Select, Button, Imageinput} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import {useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
-import authBg from "@/assets/icons/usuario.png";
 import authicon from "@/assets/icons/usuario.png";
 
 
-export default function UserRegisterForm(){
-    // Estado del formulario
+/**
+ * Pequeño titulo de seccion reutilizable dentro del form.
+ * Punto ambar (br-t500) + texto en mayusculas -> le da jerarquia visual
+ * a cada grupo de campos sin necesidad de otro componente nuevo.
+ */
+function SectionTitle({ children }) {
+    return (
+        // FIX: el texto completo estaba en text-br-t400 (naranja/ambar), competia
+        // demasiado. Ahora el texto es blanco (text-text-primary) y SOLO el punto
+        // se queda ambar como acento -- suficiente para dar identidad de color
+        // sin que el titulo entero se lea "naranja".
+        <h2 className="flex items-center gap-2 text-caption font-label uppercase tracking-wider text-text-primary">
+            <span className="w-1.5 h-1.5 rounded-full bg-bg-w shrink-0" />
+            {children}
+        </h2>
+    );
+}
 
+export default function UserRegisterForm(){
     const navigate = useNavigate();
 
-    // Estado del error
-
     const [errors, setErrors] = useState({});   
-
 
     const [formData, setFormData] = useState({
         userName: "",
         userEmail: "",
+        userEmailConfirm: "",
+        userBusinessEmail: "",
         userPhone: "",
-        userDocumentType: "",
+        userDocumentTypes: "",
+        userType: "",
         userDocumentNumber: "",
         userPassword: "",
         userImage: [],
+        userAddress:"",
+        userContractStartDate:"",
+        userContractEndDate:"",
 
         isStaff: false,
         isActive: false,
         isSuperUser: false,
-
-
     });
 
-
-    
     const handleChange = (e) => {
-        //Se obtiene el nombre del campo y su valor 
-
         const {name, value, type, checked} = e.target;
 
         setFormData((prev) => ({
-            // Se copian todos los valores anterirores del estado
             ...prev,
-
-            // Se actualiza unicamente lo que cambio
-
             [name]: type === "checkbox" ? checked: value,
-    }))
-};
+        }))
+    };
 
-    // const handleNameChange = (e) => {
-    //     const value = e.target.value.trim();
-
-    //     if (value === ""){
-    //         console.log("El nombre no puede estar vacio")
-    //     }
-            
-    // };
+    const toggleActiveStatus = () => {
+        setFormData((prev) => ({
+            ...prev,
+            isActive: !prev.isActive,
+        }));
+    };
 
     const handleSubmit = async (e) => {
-        // Evita que el formulario recargue la pagina
         e.preventDefault();
-    
 
-    // Validamos los datos del formulario contra el esquema Zod
-    // safeParse No lanza excepcion, retorna un objeto controlado
+        const result = userSchema.safeParse(formData)
 
-    const result = userSchema.safeParse(formData)
+        if (!result.success){
+            const fieldErrors = {};
+            result.error.issues.forEach((issue) => {
+                fieldErrors[issue.path[0]] = issue.message;
+            });
+            setErrors(fieldErrors);
+            return;
+        }
 
-    // Si la validacion falla
-    if (!result.success){
-        // Objeto donde almacenaremos los errores por campo
-        const fieldErrors = {};
-    
+        setErrors({});
 
-    // Recorremos cada error generado por Zod
-    result.error.issues.forEach((issue) => {
-    // issue.path[0] corresponde al nombre del campo
-    // issue.message contiene el mensaje de error definido en el schema
-    fieldErrors[issue.path[0]] = issue.message;
-    });
-
-    setErrors(fieldErrors);
-
-
-    return;
-}
-    //Si la validacion pasa limpiamos errores previos
-    setErrors({});
-
-    // Activamos estado de envio(util para desahablitar el boton)
-    // setIsSubmmiting(true);
-
-    try{
-        // Llamamos al servicio frontend que consume la API
-        // result.data contiene los datos ya validados por Zod
-        // const response = await createUser(result.data)
-
-        // Log informativo para desarrollo
-        // console.log("Usuario creado", response);
-
-        // feedback basico al usuario
-        alert("Usuario creado correctamente");
-
-        // Navegamos la vista anterior
-        //navigate(-1) equivale a volver atras
-        navigate(-1)
-    } catch(error){
-
-        //Capturanmos errores de red o errores lanzados por el service
-        console.log("Error: ", error.message)
-        
-        alert(error.message)
-
-    } finally{
-        // Pase lo que pase, desactivamos el estado de envio
-
-    // setIsSubmmiting(false)
-    }
-
-};
+        try{
+            alert("Usuario creado correctamente");
+            navigate("/viewUser")
+        } catch(error){
+            console.log("Error: ", error.message)
+            alert(error.message)
+        }
+    };
 
     const [documentTypes, setDocumentTypes] = useState([])
     const [typesUser, setTypeUser] = useState([])
-    
-    
-    
-        useEffect(()=>{
-            getDocumentTypes().then(setDocumentTypes);
-        },[])
 
-         useEffect(()=>{
-            getTypeUser().then(setTypeUser);
-        },[])
+    useEffect(()=>{
+        getDocumentTypes().then(setDocumentTypes);
+    },[])
+
+    useEffect(()=>{
+        getTypeUser().then(setTypeUser);
+    },[])
 
 
     return(
-        
-        <div className="grid items-center justify-center">
+        <div className="min-h-screen w-full bg-cover bg-center bg-fixed">
 
-            <div className="flex absolute top-5 left-5">
-                <img className="w-32 h-32" src={authBg } alt="usuario"/>
-                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Creacion de usuarios</h1>
+            {/** Header */}
+            <div className="w-full flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-bk/30 backdrop-blur-sm">
+
+                {/* Icono de usuario + titulo agrupados, para que "justify-between"
+                    siga funcionando contra el boton de volver del otro extremo */}
+                <div className="flex items-center gap-3">
+                    {/* FIX: circulo ambar -> blanco solido, con border-2 (antes 1px)
+                        para que el borde resalte de verdad y no se pierda contra
+                        el fondo oscuro del header */}
+                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-bg-w/10 border-2 border-bg-w/80 shrink-0">
+                        <User className="w-5 h-5 text-bg-w" />
+                    </span>
+                    <h1 className="text-title text-text-primary font-bold underline drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                        Creacion de usuarios
+                    </h1>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/home")}
+                    className="text-text-primary hover:opacity-70 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                    aria-label="Volver al inicio"
+                >
+                    <ArrowLeft className="w-8 h-8" />
+                </button>
             </div>
 
-            <form 
-                action=""
-                onSubmit={handleSubmit}
-                
-            >
-               <div className="flex gap-6 mt-50 absolute top-0 left-46">
-                    <Input 
-                        type="text"
-                        name="userName"
-                        value={formData.userName}
-                        placeholder="Escribe tu nombre"
-                        htmlFor= "user-name"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userName}
-                    />
+            {/** Contenido */}
+            <div className="flex justify-center px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+                <form
+                    onSubmit={handleSubmit}
+                    className="w-full max-w-8xl bg-bg-bk/30 backdrop-blur-sm border-2 border-bd-w/35 shadow-2xl rounded-2xl p-6 sm:p-10 flex flex-col lg:flex-row gap-6 lg:gap-8"
+                >
 
-                    <Select 
-                        name="userDocumentTypes"
-                        value={formData.userDocumentTypes}
-                        htmlFor="userDocumentTypes"
-                        options={documentTypes}
-                        onChange={handleChange}
-                        error={errors.userDocumentTypes}
-                    />
+                    {/** Columna izquierda: datos del usuario, agrupados en secciones */}
+                    <div className="flex flex-col gap-5 sm:gap-6 lg:flex-[2] lg:min-w-0">
 
+                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
+                            <SectionTitle>Identificación</SectionTitle>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                                <Input
+                                    type="text"
+                                    name="userName"
+                                    label="Nombre"
+                                    value={formData.userName}
+                                    placeholder="Escribe tu nombre"
+                                    htmlFor="user-name"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userName}
+                                />
 
-                </div>
+                                <Select
+                                    label="Tipo de documento"
+                                    name="userDocumentTypes"
+                                    value={formData.userDocumentTypes}
+                                    htmlFor="userDocumentTypes"
+                                    options={documentTypes}
+                                    onChange={handleChange}
+                                    error={errors.userDocumentTypes}
+                                    variant="cafe"
+                                />
 
-                <div className="grid gap-4 absolute top-65 left-46">
-                    <Input 
-                    name="userDocumentNumber"
-                    type="text"
-                    value={formData.userDocumentNumber}
-                    placeholder="Escribe tu numero documento"
-                    htmlFor= "user-document-number"
-                    variant="fourth"
-                    onChange={handleChange}
-                    error={errors.userDocumentNumber}
-                />
+                                <Input
+                                    name="userDocumentNumber"
+                                    type="text"
+                                    label="Numero de documento"
+                                    value={formData.userDocumentNumber}
+                                    placeholder="Escribe tu numero documento"
+                                    htmlFor="user-document-number"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userDocumentNumber}
+                                />
 
-                    <Select 
-                        label="Tipo de usuario"
-                        name="typesUser"
-                        value={formData.setTypeUser}
-                        htmlFor="TypeUser"
-                        options={typesUser}
-                        onChange={handleChange}
-                        error={errors.userDocumentTypes}
-                    />
-                </div>
-        
+                                <Select
+                                    label="Tipo de usuario"
+                                    name="userType"
+                                    value={formData.userType}
+                                    htmlFor="userType"
+                                    options={typesUser}
+                                    onChange={handleChange}
+                                    error={errors.userType}
+                                    variant="cafe"
+                                />
+                            </div>
+                        </section>
 
-                <div className="grid grid-cols-2 absolute top-150 left-45 gap-6 ">
-                
-                    <Input 
-                        name="userEmail"
-                        type="email"
-                        value={formData.userEmail}
-                        placeholder="Escribe tu Correo Electronico"
-                        htmlFor= "user-email"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userEmail}
-                    />
+                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
+                            <SectionTitle>Contacto y acceso</SectionTitle>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                                <Input
+                                    name="userEmail"
+                                    type="email"
+                                    label="Correo electronico"
+                                    value={formData.userEmail}
+                                    placeholder="Escribe tu Correo Electronico"
+                                    htmlFor="user-email"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userEmail}
+                                />
 
-                    <Input 
-                        name="userPassword"
-                        type="password"
-                        value={formData.userPassword}
-                        placeholder="Escribe tu contraseña"
-                        htmlFor= "user-password"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userPassword}
-                    />
-                    
-                    <Input 
-                        name="userEmail"
-                        type="email"
-                        value={formData.userEmail}
-                        placeholder="Confirma tu correo electronico"
-                        htmlFor= "user-email"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userEmail}
-                    />
+                                <Input
+                                    name="userPassword"
+                                    type="password"
+                                    label="Contraseña"
+                                    value={formData.userPassword}
+                                    placeholder="Escribe tu contraseña"
+                                    htmlFor="user-password"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userPassword}
+                                />
 
-                    <Input 
-                        name="userDirection"
-                        type="direction"
-                        value={formData.Direction}
-                        placeholder="Direccion"
-                        htmlFor= "user-direction"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userDirection}
-                    />
+                                <Input
+                                    name="userEmailConfirm"
+                                    type="email"
+                                    label="Confirmar correo electronico"
+                                    value={formData.userEmailConfirm}
+                                    placeholder="Confirma tu correo electronico"
+                                    htmlFor="user-email-confirm"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userEmailConfirm}
+                                />
 
-                    <Input 
-                        name="userEmail"
-                        type="email"
-                        value={formData.userEmail}
-                        placeholder="Correo empresarial"
-                        htmlFor= "user-email"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userEmail}
-                    />
+                                <Input
+                                    name="userAddress"
+                                    type="text"
+                                    label="Direccion"
+                                    value={formData.userAddress}
+                                    placeholder="Direccion"
+                                    htmlFor="user-direction"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userAddress}
+                                />
 
-                    <Input 
-                        name="userEmail"
-                        type="email"
-                        value={formData.userEmail}
-                        placeholder="Fecha inicio contrato"
-                        htmlFor= "user-email"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userEmail}
-                    />
+                                <Input
+                                    name="userBusinessEmail"
+                                    type="email"
+                                    label="Correo empresarial"
+                                    value={formData.userBusinessEmail}
+                                    placeholder="Correo empresarial"
+                                    htmlFor="user-business-email"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userBusinessEmail}
+                                />
 
-                   
-    
-                    <Input 
-                        name="userPhone"
-                        type="tel"
-                        value={formData.userPhone}
-                        placeholder="Escribe tu numero de telefono"
-                        htmlFor= "user-Phone"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userPhone}
-                    />
+                                <Input
+                                    name="userPhone"
+                                    type="tel"
+                                    label="Telefono"
+                                    value={formData.userPhone}
+                                    placeholder="Escribe tu numero de telefono"
+                                    htmlFor="user-Phone"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userPhone}
+                                />
+                            </div>
+                        </section>
 
-                     <Input 
-                        name="userEmail"
-                        type="email"
-                        value={formData.userEmail}
-                        placeholder="Fecha fin contrato"
-                        htmlFor= "user-email"
-                        variant="fourth"
-                        onChange={handleChange}
-                        error={errors.userEmail}
-                    />
+                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
+                            <SectionTitle>Contrato</SectionTitle>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                                <Input
+                                    name="userContractStartDate"
+                                    type="date"
+                                    label="Fecha inicio contrato"
+                                    value={formData.userContractStartDate}
+                                    htmlFor="user-contract-start"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userContractStartDate}
+                                />
 
-                    <div className="col-2 flex justify-end">
-                        <Button 
-                       
-                       variant= "secondary"
-                        size="lgg"
-                        type= "button"
-                        onClick={()=> console.log("Se oprimio el boton")}
-                       
-                    >
-                        
-                        <img className= "w-4 h-4 text-end filter" src={authicon} alt="" />
-                        Estado Activo
-                        </Button>
+                                <Input
+                                    name="userContractEndDate"
+                                    type="date"
+                                    label="Fecha fin contrato"
+                                    value={formData.userContractEndDate}
+                                    htmlFor="user-contract-end"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userContractEndDate}
+                                />
+                            </div>
+
+                            {/* El estado vive dentro de la seccion de contrato porque
+                                conceptualmente es parte de la relacion contractual del
+                                usuario, no un dato aislado flotando al final del form */}
+                            <div className="pt-1">
+                                <Button
+                                    variant={formData.isActive ? "statusActive" : "statusInactive"}
+                                    size="lgg"
+                                    type="button"
+                                    onClick={toggleActiveStatus}
+                                >
+                                    <img className="w-4 h-4 brightness-0 invert" src={authicon} alt="" />
+                                    {formData.isActive ? "Estado Activo" : "Estado Inactivo"}
+                                </Button>
+                            </div>
+                        </section>
 
                     </div>
 
-                    <div className="flex absolute top-68 left-250 w-115">
-                        <Button 
-                       variant= "primary"
-                        size="w"
-                        type= "submit"
-                        onClick={()=> console.log("Se oprimio el boton")}
-                        onSubmit={handleSubmit}
-                       
-                    >
-                        Crear usuario
-                        
-                        </Button>
+                    {/** Columna derecha: imagen y acciones.
+                        lg:sticky + lg:top-6 para que, en desktop, esta columna quede
+                        alineada a la altura visible mientras se hace scroll por las
+                        secciones largas de la izquierda -- comportamiento tipico de
+                        "sidebar card" en formularios largos. */}
+                    <div className="flex flex-col gap-5 sm:gap-6 lg:flex-1 lg:min-w-0 lg:sticky lg:top-6 lg:self-start justify-center items-center">
 
-                    <div className="absolute bottom-90 ">
-                        <FileInput
-                            value={formData.userImage}
-                            onChange={(files) => 
-                                setFormData((prev) => ({...prev, userImage: files}))
-                            }
-                            multiple={true}
-                        />
+                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
+                            <SectionTitle>Foto de perfil</SectionTitle>
+
+                            <div className="flex items-center justify-center bg-bg-s950/60 border border-bd-w/30 rounded-xl p-4">
+                                <Imageinput
+                                    value={formData.userImage}
+                                    onChange={(files) =>
+                                        setFormData((prev) => ({...prev, userImage: files}))
+                                    }
+                                    multiple={true}
+                                    variant="fifteenth"
+                                />
+                            </div>
                             {errors.userImage && (
-                                <span className="text-red-500 text-sm"> {errors.userImage}</span>
+                                // FIX: "text-error text-" tenia una clase de tamaño
+                                // incompleta (cortada a la mitad), invalida en CSS.
+                                // Se completa a text-small, consistente con el resto
+                                // de mensajes de error del formulario.
+                                <span className="text-error text-small">{errors.userImage}</span>
                             )}
-                    </div>
-                        
+                        </section>
+
+                    
+                        <Button
+                            variant="fifth"
+                            size="lgg"
+                            type="submit"
+                        >
+                            Crear usuario
+                        </Button>
 
                     </div>
 
-                
-                </div>{/** Actions */}
-            </form>
-            
-                </div>
-                
-        
+                </form>
+            </div>
 
-
- 
-)
+        </div>
+    )
 }
-

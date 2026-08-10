@@ -1,5 +1,5 @@
 import {Outlet} from "react-router-dom";
-import authBg from "@/assets/images/cafe.png";
+import authBg from "@/assets/images/fondo-users.png";
 import { UserRegisterForm } from "@/features/users";
 
 
@@ -19,7 +19,6 @@ export default function UsersCreate(){
                 <main className="mx-auto">
                     
                     <UserRegisterForm className=""/>
-                 <Outlet />
                 </main>
             </div>
         </>
