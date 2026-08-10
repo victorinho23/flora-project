@@ -340,4 +340,9 @@
     input[type="search"]::-webkit-search-results-decoration {
         display:none;
     }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
 }

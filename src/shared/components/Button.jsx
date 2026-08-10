@@ -22,7 +22,11 @@ export default function Button ({
         sex: ` bg-transparent border border-bg-w/30 text-bg-w hover:border-br-t400 hover:shadow-[0_0_15px_var(--color-br-t400)]/50 hover:bg-bg-w/5 active:scale-95 transition-all duration-300`,
         
         // Funciona para ambos fondos
-        sev: `bg-transparent border-2 border-br-t500 text-br-t400 hover:bg-br-t500 hover:text-bg-w hover:scale-105 active:scale-95 transition-all duration-300`
+        sev: `bg-transparent border-2 border-br-t500 text-br-t400 hover:bg-br-t500 hover:text-bg-w hover:scale-105 active:scale-95 transition-all duration-300`,
+
+        statusActive: `bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-md transition-all duration-300`,
+        statusInactive: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-300`,
+        danger: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-200`,
     };
 
     const sizes = {
@@ -57,7 +61,7 @@ export default function Button ({
             `,
         w: `
             h-14 
-            w-115
+            w-120
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]
@@ -66,11 +70,17 @@ export default function Button ({
             `,
         lgg: `
             h-14 
+            w-60
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]
-        
-        
+            `,
+        lggg: `
+            h-14 
+            w-93
+            px-4
+            before:absolute before:content-['']
+            before:-inset-y-[0px] before:-inset-x-[0px]
             `,
     }
 

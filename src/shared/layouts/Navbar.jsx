@@ -67,18 +67,24 @@ export default function Navbar(){
                 </DropdownTrigger>
 
                 <DropdownContent className="absolute left-5">
-                  <DropdownItem><Link to="/dashboard"  
-                   className="block w-full" >Dashboard</Link></DropdownItem>
 
                   <DropdownItem><Link to="/userCreate"  
                     className="block w-full" >Crear usuarios</Link></DropdownItem>
 
-                   <DropdownItem>
-                      <Link to="/userList"className="block w-full" >Listar usuarios</Link>
-                    </DropdownItem>
+                  <DropdownItem><Link to="/suppliersCreate"  
+                    className="block w-full" >Crear proveedores</Link></DropdownItem>
+
+                  <DropdownItem><Link to="/createDishes"  
+                  className="block w-full" >Crear Menu</Link></DropdownItem>
+
+                  <DropdownItem><Link to="/createOrders"  
+                    className="block w-full" >Crear Orden</Link></DropdownItem>
 
                    <DropdownItem><Link to="/createInventory"  
                    className="block w-full" >Crear inventario</Link></DropdownItem>
+
+                    <DropdownItem><Link to="/permissions"  
+                   className="block w-full" >Gestion de Permisos</Link></DropdownItem>
 
 
                   <DropdownItem><Link to="/auth"  
