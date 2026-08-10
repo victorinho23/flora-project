@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AuthLayout, DashboardLayout, UsersCreateLayout} from "@/shared";
+import { AuthLayout, UsersCreateLayout} from "@/shared";
 import UserListPage from "../features/users/pages/UserListPage";
 import HomePage from "../features/home/components/pages/HomePage";
 import SuppliersListPage from "../features/users/pages/SuppliersListPage";
@@ -16,6 +16,7 @@ const router = createBrowserRouter([
         path: "/",
         element: <Navigate to="/auth" replace />
     },
+
     {
         path: "/auth",
         element: <AuthLayout/>,
@@ -23,54 +24,7 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-
             },
-
-        ],
-    },
-    {
-        path: "/dashboard",
-        element: <DashboardLayout/>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "userList", element: <UserListPage/>},
-            
-
-        ],
-    },
-    {
-        path: "/userCreate",
-        element: <UsersCreateLayout/>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "userList", element: <UserListPage/>},
-
-        ],
-    },
-        {
-        path: "/userList",
-        element: <UserListPage/>,
-        
-        children: [
-            {
-                index: true,
-
-            },
-
-        ],
-    },
-    {
-        path: "/createInventory",
-        element: <UsersCreateLayout/>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            {path: "userList", element: <UserListPage/>},
 
         ],
     },
@@ -86,90 +40,136 @@ const router = createBrowserRouter([
 
         ],
     },
-    {
-        path: "/viewusers",
-        element: <ViewUserListPage/>,
-        
+   {
+        path: "/userCreate",
+        element: <UsersCreateLayout/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
+            {path: "userList", element: <UserListPage/>},
+            // {path: "userModify", element: <UserModify/>},
 
         ],
     },
     {
-        path: "/suppliers",
-        element: <SuppliersListPage/>,
-        
+        path: "/viewUser",
+        element: <SeeUsers/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
+            // {path: "viewUsers", element: <SeeUsers/>},
+            // {path: "userModify", element: <UserModify/>},
 
         ],
     },
     {
-        path: "/menu",
-        element: <MenuListPage/>,
-        
+        path: "/userEdit",
+        element: <UserEditLayout/>,
         children: [
-            {
-                index: true,
+ 
+            {index: true,},
+            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
 
-            },
 
         ],
     },
     {
-        path: "/order",
-        element: <OrderListPage/>,
-        
+        path: "/createDishes",
+        element: <CreateDishesLayout/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
 
         ],
     },
     {
-        path: "/viewmenu",
-        element: <ViewMenuListPage/>,
-        
+        path: "/viewDish",
+        element: <DishDetailsLayout/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            // {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
 
         ],
     },
     {
-        path: "/viewSuppliers",
-        element: <ViewSuppliersListPage/>,
-        
+        path: "/dishEdit/:id",
+        element: <EditDishLayout/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            // {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
 
         ],
     },
     {
-        path: "/viewOrder",
-        element: <ViewOrderListPage/>,
-        
+        path: "/createOrders",
+        element: <OrdersLayout/>,
         children: [
-            {
-                index: true,
 
-            },
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
 
         ],
     },
+    {
+        path: "/orderView/:id",
+        element: <OrderDetailsLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+       {
+        path: "orderEdit/:id",
+        element: <OrderEditLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+        {
+        path: "/permissions",
+        element: <PermissionsLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+    
+
+    // {
+    //     path: "/createInventory",
+    //     element: <UsersCreateLayout/>,
+    //     children: [
+
+    //         {index: true,},
+    //         // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
+
+    //     ],
+    // },
+
+    
+
 
 ]);
 

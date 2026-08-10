@@ -129,7 +129,7 @@ export default function FileInput({
             {/** Trigger de input oculto + loader */}
             <div onClick={() => !isLoading && inputRef.current.click()}
                 className={`
-                    w-24 h-24 border-2 border-dashed rounded flex items-center justify-center cursor-pointer
+                    w-120 h-120 border-2 border-dashed rounded flex items-center justify-center cursor-pointer
                     transition-all duration-300
                     ${variant ? dropZoneVariants[variant] : ""}
                 `}>
@@ -144,7 +144,7 @@ export default function FileInput({
                         color = "black"
                     />
                 ) : (
-                    <span className="text-blue-500 text-sm"> Seleccionar </span>
+                    <span className="text-bg-white text-sm"> Seleccionar </span>
                 )}
             </div>
 
