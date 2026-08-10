@@ -2,12 +2,13 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, UsersCreateLayout} from "@/shared";
 import UserListPage from "../features/users/pages/UserListPage";
 import HomePage from "../features/home/components/pages/HomePage";
-import SeeUsers from "../shared/layouts/SeeUsers";
-import { CreateDishesLayout, DishDetailsLayout, OrderDetailsLayout, OrderEditLayout, UserEditLayout } from "../shared";
-import EditDishLayout from "../shared/layouts/EditDishLayout";
-import OrdersLayout from "../shared/layouts/OrdersLayout";
-import PermissionsLayout from "../shared/layouts/PermissionLayout";
-
+import SuppliersListPage from "../features/users/pages/SuppliersListPage";
+import MenuListPage from "../features/users/pages/MenuListPage"
+import OrderListPage from "../features/users/pages/OrderListPage"
+import ViewMenuListPage from "../features/users/pages/ViewMenuListPage";
+import ViewOrderListPage from "../features/users/pages/ViewOrderListPage";
+import ViewSuppliersListPage from "../features/users/pages/ViewSuppliersListPage";
+import ViewUserListPage from "../features/users/pages/ViewUserListPage";
 
 
 const router = createBrowserRouter([
@@ -67,7 +68,7 @@ const router = createBrowserRouter([
         path: "/userEdit",
         element: <UserEditLayout/>,
         children: [
-
+ 
             {index: true,},
             // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
 

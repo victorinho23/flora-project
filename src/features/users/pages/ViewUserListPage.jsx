@@ -1,13 +1,11 @@
 import { DataTable } from "../../../shared"
 import { UserColumns } from "../table/UsersColumns"
 import { users } from "../data/users"
-import { Link } from "react-router-dom"
-import {Button} from "../../../shared"
 import authBg from "@/assets/images/userList.png"
 import ReportConfigModal from "../reports/components/ReportConfigModal"
 import { useState } from "react"
 
-export default function UserListPage (){
+export default function ViewUserListPage (){
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     return(
@@ -20,17 +18,6 @@ export default function UserListPage (){
         >
             <h1 className="text-xl-font-semibold py-4 mb-4 text-center text-white bg-background-coffe border-2 border-bd-t800 shadow-[0_0_15px_white] backdrop-blur-lg bg-background-coffe/80">Listado de usuarios</h1>
 
-            <div className="flex gap-12 justify-end">
-            <Button size="sm" variant="fifth" onClick={() => setIsReportModalOpen(true)}>
-            Reportar usuario
-            </Button>
-
-            <Link to="/userCreate">
-            <Button size="sm" variant="tertiary">
-            Crear usuario
-            </Button>
-            </Link>
-            </div>
 
             <DataTable variant="nineteenth"
             data={users} columns={UserColumns}/>
