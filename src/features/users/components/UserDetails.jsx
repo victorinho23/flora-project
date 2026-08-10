@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/shared";
 import authBg from "@/assets/icons/usuario.png";
 import userBg from "@/assets/images/Victor.jpeg";
@@ -29,11 +30,22 @@ export function UserDetails({ user }) {
     return (
         <div className="grid items-center justify-center relative min-h-screen">
 
-            <div className="flex absolute top-5 left-5">
-                <img className="w-32 h-32" src={authBg} alt="usuario" />
-                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">
-                    Detalles de usuario
-                </h1>
+            <div className="flex items-center justify-between absolute top-5 left-5 right-5">
+                <div className="flex">
+                    <img className="w-32 h-32" src={authBg} alt="usuario" />
+                    <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">
+                        Detalles de usuario
+                    </h1>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/userCreate")}
+                    className="text-text-primary hover:opacity-70 transition-opacity"
+                    aria-label="Volver a crear usuario"
+                >
+                    <ArrowLeft className="w-12 h-12" />
+                </button>
             </div>
 
             <div className="flex gap-6 mt-45 absolute top-0 left-46">

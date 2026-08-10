@@ -69,7 +69,7 @@ export default function CreateDishsForm() {
 
                 <Button
                     type="button"
-                    onClick={() => navigate("configuration")}
+                    onClick={() => navigate("/home")}
                     className="text-bg-w hover:text-bg-w/70 transition-colors"
                     aria-label="Volver"
                 >
