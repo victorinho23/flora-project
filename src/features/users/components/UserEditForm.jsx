@@ -1,5 +1,5 @@
-// Formulario para modificar un usuario ya existente
 import { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
 import {Input, Select, Checkbox, Button, Imageinput} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
@@ -110,9 +110,20 @@ export default function UserEditForm({ user }){
         
         <div className="grid items-center justify-center relative">
 
-            <div className="flex absolute top-5 left-5 ">
-                <img className="w-32 h-32" src={authBg } alt="usuario"/>
-                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Modificar usuario</h1>
+            <div className="flex items-center justify-between absolute top-5 left-5 right-5">
+                <div className="flex">
+                    <img className="w-32 h-32" src={authBg } alt="usuario"/>
+                    <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Modificar usuario</h1>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/viewUser")}
+                    className="text-text-primary hover:opacity-70 transition-opacity"
+                    aria-label="Volver a visualizar"
+                >
+                    <ArrowLeft className="w-12 h-12" />
+                </button>
             </div>
 
             <form 

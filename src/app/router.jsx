@@ -3,8 +3,9 @@ import { AuthLayout, UsersCreateLayout} from "@/shared";
 import UserListPage from "../features/users/pages/UserListPage";
 import HomePage from "../features/home/components/pages/HomePage";
 import SeeUsers from "../shared/layouts/SeeUsers";
-import { CreateDishesLayout, DishDetailsLayout, UserEditLayout } from "../shared";
+import { CreateDishesLayout, DishDetailsLayout, OrderDetailsLayout, OrderEditLayout, UserEditLayout } from "../shared";
 import EditDishLayout from "../shared/layouts/EditDishLayout";
+import OrdersLayout from "../shared/layouts/OrdersLayout";
 
 
 
@@ -108,18 +109,51 @@ const router = createBrowserRouter([
 
         ],
     },
-
-
     {
-        path: "/createInventory",
-        element: <UsersCreateLayout/>,
+        path: "/createOrders",
+        element: <OrdersLayout/>,
         children: [
 
             {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
 
         ],
     },
+    {
+        path: "/orderView/:id",
+        element: <OrderDetailsLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+       {
+        path: "orderEdit/:id",
+        element: <OrderEditLayout/>,
+        children: [
+
+            {index: true,},
+            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
+
+
+        ],
+    },
+    
+
+    // {
+    //     path: "/createInventory",
+    //     element: <UsersCreateLayout/>,
+    //     children: [
+
+    //         {index: true,},
+    //         // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
+
+    //     ],
+    // },
 
     
 

@@ -1,5 +1,6 @@
 // User regtister form para registrarn un usuario
 import { useState, useEffect } from "react";
+import { ArrowLeft } from "lucide-react";
 import {Input, Select, Checkbox, Button, FileInput, Imageinput} from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
@@ -128,9 +129,20 @@ export default function UserRegisterForm(){
             {/** Panel oscuro detras de todo el formulario, para dar contraste sin cambiar el layout */}
            
 
-            <div className="flex absolute top-5 left-5 ">
-                <img className="w-32 h-32" src={authBg } alt="usuario"/>
-                <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Creacion de usuarios</h1>
+            <div className="flex items-center justify-between absolute top-5 left-5 right-5">
+                <div className="flex">
+                    <img className="w-32 h-32" src={authBg } alt="usuario"/>
+                    <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">Creacion de usuarios</h1>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => navigate("/home")}
+                    className="text-text-primary hover:opacity-70 transition-opacity"
+                    aria-label="Volver al inicio"
+                >
+                    <ArrowLeft className="w-12 h-12" />
+                </button>
             </div>
 
             <form 
@@ -138,7 +150,9 @@ export default function UserRegisterForm(){
                 onSubmit={handleSubmit}
                 
             >
+                
                <div className="flex gap-6 mt-50 absolute top-0 left-46 ">
+                
                     <Input 
                         type="text"
                         name="userName"
