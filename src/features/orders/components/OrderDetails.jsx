@@ -130,6 +130,14 @@ export function OrderDetails({ order }) {
                     {canEdit && (
                         <div className="flex flex-col sm:flex-row gap-4">
                             <Button
+                                variant="danger"
+                                size="lgg"
+                                type="button"
+                                onClick={handleCancelOrder}
+                            >
+                                Anular orden
+                            </Button>
+                            <Button
                                 variant="primary"
                                 size="lgg"
                                 type="button"
@@ -138,14 +146,6 @@ export function OrderDetails({ order }) {
                                 Actualizar orden
                             </Button>
 
-                            <Button
-                                variant="danger"
-                                size="lgg"
-                                type="button"
-                                onClick={handleCancelOrder}
-                            >
-                                Anular orden
-                            </Button>
                         </div>
                     )}
 

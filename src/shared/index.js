@@ -29,6 +29,7 @@ export {default as Card} from "./components/Card"
 export {default as Slider} from "./components/Slider"
 export {default as Imageinput} from "./components/Imageinput"
 export {default as Textarea} from "./components/Textarea"
+export {default as ToggleSwitch} from "./components/ToggleSwitch"
 
 // Espacio para layouts
 
