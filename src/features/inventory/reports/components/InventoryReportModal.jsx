@@ -20,7 +20,7 @@ export default function InventoryReportModal({ isOpen, onClose }) {
     // Estado del alcance del reporte
     const [scope, setScope] = useState("all");
 
-    // Estado del filtro (establecimiento o producto, segun el alcance)
+    // Estado del filtro (marca o producto, segun el alcance)
     const [filterValue, setFilterValue] = useState("");
 
     // Estado de campos seleccionados (inicializacion lazy)
@@ -64,8 +64,14 @@ export default function InventoryReportModal({ isOpen, onClose }) {
         // Overlay del modal
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-black)]/40">
 
-            {/** Contenedor del modal */}
-            <div className="w-full max-w-lg rounded-xl bg-background-beige p-6 shadow-lg">
+            {/** Contenedor del modal
+                FIX: mismo bug que ReportConfigModal -- bg-background-beige
+                dependia de una cadena de tokens con un typo (semanmtic vs
+                semantic entre global.css y semantic.css) y nunca resolvia a
+                un color real. El panel quedaba transparente y el texto de la
+                tabla de atras se montaba encima de los labels del modal.
+                bg-bg-p50 es el token corto equivalente, sin ese typo. */}
+            <div className="w-full max-w-lg rounded-xl bg-bg-p50 p-6 shadow-lg">
 
                 {/** Titulo */}
                 <h2 className="mb-6 text-xl font-semibold text-text-coffe">
@@ -124,26 +130,26 @@ export default function InventoryReportModal({ isOpen, onClose }) {
                         }}
                         options={[
                             { label: "Todo el inventario", value: "all" },
-                            { label: "Filtrar por establecimiento", value: "establecimiento" },
-                            { label: "Filtrar por producto", value: "producto" },
+                            { label: "Filtrar por marca", value: "brand" },
+                            { label: "Filtrar por producto", value: "product" },
                         ]}
                     />
                 </div>
 
-                {/** Campo condicional para filtro de establecimiento */}
-                {scope === "establecimiento" && (
+                {/** Campo condicional para filtro de marca */}
+                {scope === "brand" && (
                     <div className="mb-4">
                         <Input
-                            label="Establecimiento"
+                            label="Marca"
                             value={filterValue}
                             onChange={(e) => setFilterValue(e.target.value)}
-                            placeholder="Ej. Sucursal Centro"
+                            placeholder="Ej. Flora cafe"
                         />
                     </div>
                 )}
 
                 {/** Campo condicional para filtro de producto */}
-                {scope === "producto" && (
+                {scope === "product" && (
                     <div className="mb-4">
                         <Input
                             label="Producto"

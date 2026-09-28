@@ -4,6 +4,7 @@ import { Input, Select, Button, Imageinput, Textarea } from "@/shared";
 import { getDishCategories } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom";
 import { dishUpdateSchema } from "@/shared/schemas/disheSchema.js";
+import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 export function DishEditForm({ dish }) {
     const navigate = useNavigate();
@@ -53,11 +54,18 @@ export function DishEditForm({ dish }) {
 
         try {
             
-            alert("El menu ha sido actualizado correctamente");
+            await showSuccesAlert({
+                title: "Menu actualizado",
+                text: "El menu ha sido actualizado correctamente",
+                timer: 3000,
+            });
             navigate("/viewDish");
         } catch (error) {
             console.log("Error: ", error.message);
-            alert(error.message);
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
         }
     };
 

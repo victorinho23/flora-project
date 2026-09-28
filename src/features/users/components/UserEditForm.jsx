@@ -7,6 +7,7 @@ import {useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
 import authBg from "@/assets/icons/usuario.png";
 import authicon from "@/assets/icons/usuario.png";
+import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 
 
@@ -77,11 +78,18 @@ export default function UserEditForm({ user }){
     setErrors({});
 
     try{
-        alert("Usuario actualizado correctamente");
+        await showSuccesAlert({
+            title: "Usuario actualizado",
+            text: "El usuario fue actualizado correctamente",
+            timer: 3000,
+        });
         navigate(`/viewUser`)
     } catch(error){
         console.log("Error: ", error.message)
-        alert(error.message)
+        await showUnexpectedErrorAlert({
+            text: error.message,
+            timer: 3000,
+        })
     }
 
 };

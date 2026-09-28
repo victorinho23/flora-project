@@ -34,7 +34,7 @@ export default function SupplierListPage() {
                         <Bell size={20} />
                     </Button>
 
-                    <Button variant="primary" size="sm" onClick={() => navigate("/suppliers")}>
+                    <Button variant="primary" size="sm" onClick={() => navigate("/suppliersCreate")}>
                         Nuevo proveedor
                     </Button>
                 </div>

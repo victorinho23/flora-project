@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/shared";
 import { useNavigate } from "react-router-dom";
+import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 const InfoField = ({ label, value }) => (
     <div className="w-full bg-bg-s800/70 border border-bd-w/15 rounded-lg px-4 py-3 backdrop-blur-sm">
@@ -45,17 +46,38 @@ export function OrderDetails({ order }) {
         });
     };
 
-    const handleCancelOrder = () => {
-        const confirmed = window.confirm(
-            "¿Seguro que deseas anular esta orden? Esta accion no se puede deshacer."
-        );
-        if (!confirmed) return;
+    const handleCancelOrder = async () => {
+        const result = await showConfirmDeleteAlert({
+            title: "¿Anular orden?",
+            text: "¿Seguro que deseas anular esta orden? Esta accion no se puede deshacer.",
+            confirmButtonText: "Anular",
+        });
 
-        // Aqui luego va la llamada real al backend
-        // await cancelOrder(order.id)
+        if (!result.isConfirmed) {
+            await showDeleteCancelAlert({
+                title: "Cancelado",
+                text: "La orden no fue anulada",
+                timer: 3000,
+            });
+            return;
+        }
 
-        setStatus("CANCELADA");
-        alert("La orden ha sido anulada correctamente");
+        try {
+            // Aqui luego va la llamada real al backend
+            // await cancelOrder(order.id)
+
+            setStatus("CANCELADA");
+            await showDeleteSuccessAlert({
+                title: "Orden anulada",
+                text: "La orden ha sido anulada correctamente",
+                timer: 3000,
+            });
+        } catch (error) {
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
+        }
     };
 
     return (

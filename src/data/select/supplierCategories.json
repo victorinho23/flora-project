@@ -1,0 +1,45 @@
+[
+
+    {
+        "id":"INSUMOS_CAFE",
+        "label": "Insumos de café"
+        
+    },
+
+    {
+        "id":"LACTEOS",
+        "label": "Lácteos"
+        
+    },
+
+    {
+        "id":"PANADERIA",
+        "label": "Panadería y repostería"
+        
+    },
+
+    {
+        "id":"BEBIDAS",
+        "label": "Bebidas"
+        
+    },
+
+    {
+        "id":"EMPAQUES",
+        "label": "Empaques y desechables"
+        
+    },
+
+    {
+        "id":"LIMPIEZA",
+        "label": "Aseo y limpieza"
+        
+    },
+
+    {
+        "id":"EQUIPOS",
+        "label": "Equipos y mantenimiento"
+        
+    }
+
+]

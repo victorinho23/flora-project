@@ -7,6 +7,7 @@ import { pizzas } from "@/features/products/data/pizzas";
 import { cafes } from "@/features/products/data/cafes";
 import { malteadas } from "@/features/products/data/malteadas";
 import { galletas } from "@/features/products/data/galletas";
+import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 // Se combinan todas las categorias con id unico, y se filtran solo los habilitados
 // (por ahora todos los productos mock se consideran habilitados)
@@ -116,12 +117,19 @@ export default function CreateOrderForm() {
                 createdAt: new Date().toISOString(),
             };
 
-            alert("Orden creada correctamente");
+            await showSuccesAlert({
+                title: "Orden creada",
+                text: "La orden fue creada correctamente",
+                timer: 3000,
+            });
 
             navigate(`/orderView/${newOrderId}`, { state: { order: newOrder } });
         } catch (error) {
             console.log("Error: ", error.message);
-            alert(error.message);
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
         }
     };
 
@@ -129,7 +137,14 @@ export default function CreateOrderForm() {
         <div className="min-h-screen flex flex-col">
 
             <div className="w-full bg-bg-s700 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-s900/90 border border-bd-w/15">
-                <div className="w-8" />
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    onClick={() => navigate("/orderList")}
+                >
+                    Ver listado
+                </Button>
                 <h1 className="text-title text-bg-w font-bold text-center">
                     Crear orden
                 </h1>

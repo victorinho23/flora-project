@@ -15,3 +15,13 @@ export async function getDishCategories(){
     return res.json()
 }
 
+export async function getSupplierCategories(){
+    const res = await fetch("/src/data/select/supplierCategories.json")
+    return res.json()
+}
+
+export async function getSupplierDocumentTypes(){
+    const res = await fetch("/src/data/select/supplierDocumentTypes.json")
+    return res.json()
+}
+

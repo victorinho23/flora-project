@@ -1,31 +1,62 @@
-import { useState } from 'react';
-import { ClipboardCheck, Store, Calendar, Coffee, User, Package, Scale, Info } from 'lucide-react';
-import { inventoryHeaderSchema, inventoryProductSchema } from "../schemas/inventorySchema";
-import { Button } from "@/shared";
+import { useState, useMemo } from 'react';
+import { ClipboardCheck, ArrowLeft, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { inventoryProductSchema } from "../schemas/inventorySchema";
+import { inventory } from "../data/inventory";
+import { users } from "@/features/users/data/users";
+import { Button, Input, Select, Textarea, Imageinput } from "@/shared";
+
+import fondoInventory from "@/assets/images/fondo-inventory.jpeg";
+
+// Opciones de estado del producto, ligadas al lote (RFADMIN08 / RFADMIN11)
+const statusOptions = [
+    { id: "Disponible", label: "Disponible" },
+    { id: "Vencido", label: "Vencido" },
+    { id: "Avería", label: "Avería" },
+    { id: "Agotado", label: "Agotado" },
+];
+
+// Cuentadante: se selecciona entre los usuarios ya registrados (RFADMIN02)
+const custodianOptions = users.map((u) => ({ id: String(u.id), label: u.username }));
 
 export default function InventoryRegisterForm() {
-    // Estado del encabezado
-    const [headerData, setHeaderData] = useState({ 
-        establecimiento: '', fecha: '', departamento: '', empleado: '' 
+    // Navegacion hacia el listado
+    const navigate = useNavigate();
+
+    // Marcas ya registradas en el inventario, mas las que el usuario agregue en esta sesion
+    const initialBrands = useMemo(
+        () => [...new Set(inventory.map((item) => item.brand))],
+        []
+    );
+    const [brands, setBrands] = useState(initialBrands);
+    const [showNewBrand, setShowNewBrand] = useState(false);
+    const [newBrand, setNewBrand] = useState('');
+
+    // Estado del producto a registrar
+    const [productForm, setProductForm] = useState({
+        id: '',
+        brand: '',
+        name: '',
+        barcode: '',
+        custodian: '',
+        quantity: '',
+        minQuantity: '',
+        unitValue: '',
+        status: 'Disponible',
+        expirationDate: '',
+        description: '',
+        location: '',
+        image: [],
     });
 
-    // Estado del producto actual en el formulario
-    const [productForm, setProductForm] = useState({ nombre: '', cantidad: '' });
+    // Lote: siempre 1 para un producto nuevo (RFADMIN10 - se incrementa al reabastecer)
+    const batch = 1;
 
-    // Lista de productos agregados
-    const [productos, setProductos] = useState([]);
+    // Lista de products agregados en esta sesion
+    const [products, setProducts] = useState([]);
 
-    // Estado de errores de validacion (encabezado + producto, por nombre de campo)
+    // Estado de errores de validacion por nombre de campo
     const [errors, setErrors] = useState({});
-
-    // Controladores de cambio (sin modificar)
-    const handleHeaderChange = (e) => {
-        const { name, value } = e.target;
-        setHeaderData((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    };
 
     const handleProductChange = (e) => {
         const { name, value } = e.target;
@@ -35,23 +66,29 @@ export default function InventoryRegisterForm() {
         }));
     };
 
+    const handleAddBrand = () => {
+        const brand = newBrand.trim();
+        if (!brand) return;
+
+        if (!brands.includes(brand)) {
+            setBrands((prev) => [...prev, brand]);
+        }
+        setProductForm((prev) => ({ ...prev, brand }));
+        setNewBrand('');
+        setShowNewBrand(false);
+    };
+
     const handleAddProduct = (e) => {
         e.preventDefault();
 
-        // Validamos el encabezado y el producto actual contra los esquemas Zod
+        // Validamos el producto actual contra el esquema Zod
         // safeParse no lanza excepcion, retorna un objeto controlado
-        const headerResult = inventoryHeaderSchema.safeParse(headerData);
-        const productResult = inventoryProductSchema.safeParse(productForm);
+        const result = inventoryProductSchema.safeParse(productForm);
 
-        // Si alguna validacion falla, juntamos los errores de ambas por campo
-        if (!headerResult.success || !productResult.success) {
+        if (!result.success) {
             const fieldErrors = {};
 
-            headerResult.error?.issues.forEach((issue) => {
-                fieldErrors[issue.path[0]] = issue.message;
-            });
-
-            productResult.error?.issues.forEach((issue) => {
+            result.error.issues.forEach((issue) => {
                 fieldErrors[issue.path[0]] = issue.message;
             });
 
@@ -62,222 +99,334 @@ export default function InventoryRegisterForm() {
         // Si la validacion paso, limpiamos errores previos
         setErrors({});
 
-        setProductos((prev) => [
-            ...prev, 
-            { ...productResult.data, id: prev.length + 1 }
-        ]);
-        
-        setProductForm({ nombre: '', cantidad: '' });
+        // Cantidad total y valor total se calculan automaticamente a partir
+        // del batch que se esta registrando
+        const quantityNum = Number(result.data.quantity);
+        const unitValueNum = Number(result.data.unitValue);
+
+        const newProduct = {
+            ...result.data,
+            batch,
+            totalQuantity: quantityNum,
+            totalValue: quantityNum * unitValueNum,
+        };
+
+        setProducts((prev) => [...prev, newProduct]);
+
+        alert("Producto registrado correctamente");
+
+        setProductForm({
+            id: '',
+            brand: '',
+            name: '',
+            barcode: '',
+            custodian: '',
+            quantity: '',
+            minQuantity: '',
+            unitValue: '',
+            status: 'Disponible',
+            expirationDate: '',
+            description: '',
+            location: '',
+            image: [],
+        });
     };
 
     return (
-        <div className="w-full max-w-6xl mx-auto space-y-4">
+    
+        <div
+            className="min-h-screen w-full flex items-center justify-center bg-cover bg-center bg-fixed px-4 py-10"
+            style={{ backgroundImage: `url(${fondoInventory})` }}
+        >
 
-            {/* Contenedor Tarjeta Principal */}
-            <div className="w-full bg-[var(--color-secundary-950)]/85 backdrop-blur-md border border-[var(--color-tertiary-900)]/40 rounded-2xl p-10 md:p-14 lg:p-20 shadow-2xl space-y-10">
+            <div className="w-full max-w-6xl mx-auto space-y-4">
 
-                        {/* Encabezado */}
-                        <div className="flex items-center gap-4 border-b border-[var(--color-tertiary-900)]/40 pb-5">
-                            <div className="shrink-0 p-3 rounded-xl bg-[var(--color-tertiary-600)]/90 shadow-lg">
-                                <ClipboardCheck size={22} className="text-[var(--color-tertiary-950)]" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl md:text-2xl font-bold text-[var(--color-white)] tracking-wide">
-                                    Hoja de Inventarios
-                                </h1>
-                                <p className="text-xs text-[var(--color-tertiary-200)]/60 mt-1">
-                                    Registro general de inventario y detalle de productos
-                                </p>
-                            </div>
-                        </div>
+                {/* Contenedor Tarjeta Principal */}
+                <div className="w-full bg-[var(--color-secundary-950)]/85 backdrop-blur-md border border-[var(--color-tertiary-900)]/40 rounded-2xl p-10 md:p-14 lg:p-20 shadow-2xl space-y-10">
 
-                        {/* Formulario Principal */}
-                        <form onSubmit={handleAddProduct} className="space-y-10">
-
-                            {/* Sección 1: Datos Generales */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                                {/* Establecimiento */}
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Establecimiento
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <Store size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
-                                            type="text"
-                                            name="establecimiento"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="Nombre del local"
-                                            value={headerData.establecimiento}
-                                            onChange={handleHeaderChange}
-                                        />
+                            {/* Encabezado */}
+                            <div className="flex items-center justify-between gap-4 border-b border-[var(--color-tertiary-900)]/40 pb-5">
+                                <div className="flex items-center gap-4">
+                                    <div className="shrink-0 p-3 rounded-xl bg-[var(--color-tertiary-600)]/90 shadow-lg">
+                                        <ClipboardCheck size={22} className="text-[var(--color-tertiary-950)]" />
                                     </div>
-                                    {errors.establecimiento && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.establecimiento}</span>
-                                    )}
+                                    <div>
+                                        <h1 className="text-xl md:text-2xl font-bold text-[var(--color-white)] tracking-wide">
+                                            Registrar inventario
+                                        </h1>
+                                        <p className="text-xs text-[var(--color-tertiary-200)]/60 mt-1">
+                                            Registro general de inventario y detalle de productos
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Fecha */}
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Fecha
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <Calendar size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
-                                            type="text"
-                                            name="fecha"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="DD/MM/AAAA"
-                                            value={headerData.fecha}
-                                            onChange={handleHeaderChange}
-                                        />
-                                    </div>
-                                    {errors.fecha && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.fecha}</span>
-                                    )}
-                                </div>
+                                {/* "Ver todo" / listar -> vuelve al listado completo */}
+                                <div className="flex items-center gap-4">
+                                    <Button variant="secondary" size="sm" onClick={() => navigate("/listInventory")}>
+                                        Ver listado
+                                    </Button>
 
-                                {/* Departamento */}
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Departamento
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <Coffee size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
-                                            type="text"
-                                            name="departamento"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="Área / Depto"
-                                            value={headerData.departamento}
-                                            onChange={handleHeaderChange}
-                                        />
-                                    </div>
-                                    {errors.departamento && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.departamento}</span>
-                                    )}
-                                </div>
-
-                                {/* Empleado */}
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Empleado
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <User size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
-                                            type="text"
-                                            name="empleado"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="Tu nombre"
-                                            value={headerData.empleado}
-                                            onChange={handleHeaderChange}
-                                        />
-                                    </div>
-                                    {errors.empleado && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.empleado}</span>
-                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => navigate("/home")}
+                                        className="text-[var(--color-white)] hover:opacity-70 transition-opacity"
+                                        aria-label="Volver al inicio"
+                                    >
+                                        <ArrowLeft className="w-7 h-7" />
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Separador elegante */}
-                            <div className="relative py-1 flex items-center justify-center gap-3">
-                                <div className="flex-1 border-t border-[var(--color-tertiary-900)]/40" />
-                                <span className="flex items-center gap-2 text-xs uppercase tracking-wider text-[var(--color-tertiary-500)] font-semibold whitespace-nowrap">
-                                    <Coffee size={13} />
-                                    Agregar Ítems
-                                    <Coffee size={13} />
-                                </span>
-                                <div className="flex-1 border-t border-[var(--color-tertiary-900)]/40" />
-                            </div>
+                            {/* Formulario Principal, organizado en secciones para que el orden de los campos sea claro */}
+                            <form onSubmit={handleAddProduct} className="space-y-8">
 
-                            {/* Sección 2: Inputs de Producto */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Nombre del Producto
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <Package size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
+                                <section className="space-y-4">
+                                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-tertiary-400)]">
+                                        Identificación
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="ID / código único"
                                             type="text"
-                                            name="nombre"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="Ej. Café Arábica 500g"
-                                            value={productForm.nombre}
+                                            name="id"
+                                            variant="cafe"
+                                            value={productForm.id}
+                                            placeholder="Ej: 113"
+                                            htmlFor="inventory-id"
                                             onChange={handleProductChange}
+                                            error={errors.id}
                                         />
-                                    </div>
-                                    {errors.nombre && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.nombre}</span>
-                                    )}
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-1.5">
-                                        Cantidad (Mínimo 10)
-                                    </label>
-                                    <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 focus-within:border-[var(--color-tertiary-600)]/70 transition">
-                                        <Scale size={16} className="text-[var(--color-tertiary-500)] shrink-0" />
-                                        <input
-                                            type="number"
-                                            name="cantidad"
-                                            className="w-full bg-transparent text-[var(--color-tertiary-50)] placeholder-[var(--color-tertiary-100)]/30 text-xs outline-none"
-                                            placeholder="10"
-                                            value={productForm.cantidad}
+
+                                        <Input
+                                            label="Nombre del producto"
+                                            type="text"
+                                            name="name"
+                                            variant="cafe"
+                                            value={productForm.name}
+                                            placeholder="Ej: Café Arábica 500g"
+                                            htmlFor="inventory-name"
                                             onChange={handleProductChange}
+                                            error={errors.name}
                                         />
-                                    </div>
-                                    {errors.cantidad && (
-                                        <span className="text-[var(--color-tertiary-700)] text-[11px]">{errors.cantidad}</span>
-                                    )}
-                                </div>
-                            </div>
 
-                            {/* Botón de Acción */}
-                            <div className="flex items-center justify-between pt-1 gap-3 flex-wrap">
-                                <p className="flex items-center gap-1.5 text-[11px] text-[var(--color-tertiary-200)]/50">
-                                    <Info size={13} className="text-[var(--color-tertiary-500)]/70" />
-                                    Mínimo requerido: <span className="text-[var(--color-tertiary-200)] font-semibold">10 unidades</span>
-                                </p>
-                                <Button variant="primary" size="sm" type="submit">
-                                    + Añadir producto
-                                </Button>
-                            </div>
-                        </form>
+                                        <Input
+                                            label="Código de barras"
+                                            type="text"
+                                            name="barcode"
+                                            variant="cafe"
+                                            value={productForm.barcode}
+                                            placeholder="Ej: 172345678"
+                                            htmlFor="inventory-codigo-barras"
+                                            onChange={handleProductChange}
+                                            error={errors.barcode}
+                                        />
 
-                        {/* Sección 3: Historial / Lista */}
-                        {productos.length > 0 && (
-                            <div className="bg-[var(--color-black)]/30 p-4 rounded-xl border border-[var(--color-tertiary-900)]/40 space-y-3">
-                                <h3 className="text-xs font-semibold text-[var(--color-tertiary-200)] tracking-wider uppercase">
-                                    Productos Agregados ({productos.length}):
-                                </h3>
-                                <div className="max-h-40 overflow-y-auto pr-1">
-                                    <ul className="text-xs space-y-2">
-                                        {productos.map((p) => (
-                                            <li
-                                                key={p.id}
-                                                className="flex items-center justify-between p-2 rounded-lg bg-[var(--color-secundary-950)]/80 border border-[var(--color-tertiary-900)]/30 text-[var(--color-tertiary-100)]"
+                                        <Select
+                                            label="Marca"
+                                            name="brand"
+                                            variant="cafe"
+                                            value={productForm.brand}
+                                            htmlFor="inventory-brand"
+                                            options={brands.map((m) => ({ id: m, label: m }))}
+                                            onChange={handleProductChange}
+                                            error={errors.brand}
+                                        />
+
+                                        {showNewBrand ? (
+                                            <div className="flex items-end gap-2 md:col-span-2">
+                                                <Input
+                                                    label="Nueva marca"
+                                                    type="text"
+                                                    variant="cafe"
+                                                    value={newBrand}
+                                                    placeholder="Nombre de la marca"
+                                                    htmlFor="inventory-new-brand"
+                                                    onChange={(e) => setNewBrand(e.target.value)}
+                                                />
+                                                <Button variant="secondary" size="sm" type="button" onClick={handleAddBrand}>
+                                                    Agregar
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowNewBrand(true)}
+                                                className="w-80 h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-gray-300)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
                                             >
-                                                <span className="font-medium text-[var(--color-tertiary-50)]">{p.nombre}</span>
-                                                <span className="px-2 py-0.5 rounded bg-[var(--color-tertiary-900)]/40 text-[var(--color-tertiary-200)] text-[11px] font-mono">
-                                                    {p.cantidad} uds
-                                                </span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                                                <Plus size={14} />
+                                                Nueva marca
+                                            </button>
+                                        )}
+                                    </div>
+                                </section>
 
-                    {/* Franja final con lema, como en el diseño de referencia */}
-                    <div className="flex items-center justify-center gap-3 py-2 text-[var(--color-tertiary-200)]/50 text-xs">
-                        <Coffee size={13} className="text-[var(--color-tertiary-600)]" />
-                        <span>Calidad que se siente, inventario que se controla.</span>
-                        <Coffee size={13} className="text-[var(--color-tertiary-600)]" />
-                    </div>
+                                <section className="space-y-4">
+                                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-tertiary-400)]">
+                                        Responsable y existencias
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Select
+                                            label="Cuentadante"
+                                            name="custodian"
+                                            variant="cafe"
+                                            value={productForm.custodian}
+                                            htmlFor="inventory-custodian"
+                                            options={custodianOptions}
+                                            onChange={handleProductChange}
+                                            error={errors.custodian}
+                                        />
+
+                                        <Input
+                                            label="Valor unitario"
+                                            type="number"
+                                            name="unitValue"
+                                            variant="cafe"
+                                            value={productForm.unitValue}
+                                            placeholder="Ej: 5000"
+                                            htmlFor="inventory-valor-unitario"
+                                            onChange={handleProductChange}
+                                            error={errors.unitValue}
+                                        />
+
+                                        <Input
+                                            label="Cantidad (lote actual)"
+                                            type="number"
+                                            name="quantity"
+                                            variant="cafe"
+                                            value={productForm.quantity}
+                                            placeholder="10"
+                                            htmlFor="inventory-quantity"
+                                            onChange={handleProductChange}
+                                            error={errors.quantity}
+                                        />
+
+                                        <Input
+                                            label="Cantidad mínima"
+                                            type="number"
+                                            name="minQuantity"
+                                            variant="cafe"
+                                            value={productForm.minQuantity}
+                                            placeholder="Aviso de existencias bajas"
+                                            htmlFor="inventory-min-quantity"
+                                            onChange={handleProductChange}
+                                            error={errors.minQuantity}
+                                        />
+                                    </div>
+                                </section>
+
+                                <section className="space-y-4">
+                                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-tertiary-400)]">
+                                        Estado y vencimiento
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                                        <Select
+                                            label="Estado"
+                                            name="status"
+                                            variant="cafe"
+                                            value={productForm.status}
+                                            htmlFor="inventory-status"
+                                            options={statusOptions}
+                                            onChange={handleProductChange}
+                                            error={errors.status}
+                                        />
+
+                                        <Input
+                                            label="Fecha de vencimiento"
+                                            type="date"
+                                            name="expirationDate"
+                                            variant="cafe"
+                                            value={productForm.expirationDate}
+                                            htmlFor="inventory-fecha-vencimiento"
+                                            onChange={handleProductChange}
+                                            error={errors.expirationDate}
+                                        />
+
+                                        <div className="flex items-center gap-2.5 rounded-lg border border-[var(--color-tertiary-900)]/40 bg-[var(--color-black)]/30 px-3 py-2.5 text-[var(--color-tertiary-100)]/70 text-xs h-12">
+                                            Lote: {batch} (nuevo producto)
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section className="space-y-4">
+                                    <h2 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-tertiary-400)]">
+                                        Detalles adicionales
+                                    </h2>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <Textarea
+                                            label="Descripción"
+                                            name="description"
+                                            variant="cafe"
+                                            value={productForm.description}
+                                            placeholder="Describe el producto"
+                                            htmlFor="inventory-description"
+                                            onChange={handleProductChange}
+                                            error={errors.description}
+                                            
+                                        />
+
+                                        <Input
+                                            label="Ubicación (opcional)"
+                                            type="text"
+                                            name="location"
+                                            variant="cafe"
+                                            value={productForm.location}
+                                            placeholder="Ej: Bodega principal"
+                                            htmlFor="inventory-location"
+                                            onChange={handleProductChange}
+                                            error={errors.location}
+                                            fullWidth
+                                        />
+                                    </div>
+
+                                    <div className="grid justify-center">
+                                        <p className="text-center text-xs font-medium text-[var(--color-tertiary-100)]/80 mb-2">
+                                            Imagen del producto
+                                        </p>
+                                        <Imageinput
+                                            value={productForm.image}
+                                            onChange={(files) =>
+                                                setProductForm((prev) => ({ ...prev, image: files }))
+                                            }
+                                            multiple={false}
+                                            variant="fifteenth"
+                                        />
+                                    </div>
+                                </section>
+
+                               
+                                <div className="flex items-center justify-center pt-1 gap-3 flex-wrap">
+                                    <Button variant="primary" size="sm" type="submit">
+                                    <Plus size={16} />
+                                    Añadir producto
+                                </Button>
+                                </div>
+                            </form>
+
+                           
+                            {products.length > 0 && (
+                                <div className="bg-[var(--color-black)]/30 p-4 rounded-xl border border-[var(--color-tertiary-900)]/40 space-y-3">
+                                    <h3 className="text-xs font-semibold text-[var(--color-tertiary-200)] tracking-wider uppercase">
+                                        Productos Agregados ({products.length}):
+                                    </h3>
+                                    <div className="max-h-40 overflow-y-auto pr-1">
+                                        <ul className="text-xs space-y-2">
+                                            {products.map((p) => (
+                                                <li
+                                                    key={p.id}
+                                                    className="flex items-center justify-between p-2 rounded-lg bg-[var(--color-secundary-950)]/80 border border-[var(--color-tertiary-900)]/30 text-[var(--color-tertiary-100)]"
+                                                >
+                                                    <span className="font-medium text-[var(--color-tertiary-50)]">{p.name}</span>
+                                                    <span className="px-2 py-0.5 rounded bg-[var(--color-tertiary-900)]/40 text-[var(--color-tertiary-200)] text-[11px] font-mono">
+                                                        {p.quantity} uds
+                                                    </span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+            </div>
         </div>
     );
 }

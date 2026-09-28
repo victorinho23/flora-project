@@ -7,6 +7,7 @@ import { pizzas } from "@/features/products/data/pizzas";
 import { cafes } from "@/features/products/data/cafes";
 import { malteadas } from "@/features/products/data/malteadas";
 import { galletas } from "@/features/products/data/galletas";
+import { showSuccesAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 const availableDishes = [
     ...pizzas.map((p) => ({ ...p, id: `pizza-${p.id}` })),
@@ -106,36 +107,64 @@ export function OrderEditForm({ order }) {
             // Aqui luego va la llamada real al backend
             // const response = await updateOrder(order.id, result.data)
 
-            alert("Orden actualizada correctamente");
+            await showSuccesAlert({
+                title: "Orden actualizada",
+                text: "La orden fue actualizada correctamente",
+                timer: 3000,
+            });
             navigate(`/orderView/${order.id}`, {
                 state: { order: { ...order, tableNumber, notes, status, items: orderItems } },
             });
         } catch (error) {
             console.log("Error: ", error.message);
-            alert(error.message);
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
         }
     };
 
-    const handleCancelOrder = () => {
-        const confirmed = window.confirm(
-            "¿Seguro que deseas anular esta orden? Esta accion no se puede deshacer."
-        );
-        if (!confirmed) return;
-
-        // Aqui luego va la llamada real al backend
-        // await cancelOrder(order.id)
-
-        alert("La orden ha sido anulada correctamente");
-        navigate(`/orderView/${order.id}`, {
-            state: { order: { ...order, status: "CANCELADA" } },
+    const handleCancelOrder = async () => {
+        const result = await showConfirmDeleteAlert({
+            title: "¿Anular orden?",
+            text: "¿Seguro que deseas anular esta orden? Esta accion no se puede deshacer.",
+            confirmButtonText: "Anular",
         });
+
+        if (!result.isConfirmed) {
+            await showDeleteCancelAlert({
+                title: "Cancelado",
+                text: "La orden no fue anulada",
+                timer: 3000,
+            });
+            return;
+        }
+
+        try {
+            // Aqui luego va la llamada real al backend
+            // await cancelOrder(order.id)
+
+            await showDeleteSuccessAlert({
+                title: "Orden anulada",
+                text: "La orden ha sido anulada correctamente",
+                timer: 3000,
+            });
+            navigate(`/orderView/${order.id}`, {
+                state: { order: { ...order, status: "CANCELADA" } },
+            });
+        } catch (error) {
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
+        }
     };
 
     if (isClosed) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-bg-w px-4 text-center">
                 <p>Esta orden ya esta {order.status === "PAGADA" ? "pagada" : "cancelada"} y no puede modificarse.</p>
-                <Button variant="secondary" size="lgg" type="button" onClick={() => navigate("/createOrderS")}>
+                <Button variant="secondary" size="lgg" type="button" onClick={() => navigate("/createOrders")}>
                     Volver
                 </Button>
             </div>

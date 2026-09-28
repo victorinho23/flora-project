@@ -1,0 +1,33 @@
+[
+
+    {
+        "id":"NIT",
+        "label": "NIT"
+        
+    },
+
+    {
+        "id":"CC",
+        "label": "Cedúla de ciudadania"
+        
+    },
+
+    {
+        "id":"CE",
+        "label": "Cedúla de extranjeria"
+        
+    },
+
+    {
+        "id":"PPT",
+        "label": "Permiso por Proteccion Temporal"
+        
+    },
+
+    {
+        "id":"PEP",
+        "label": "Permiso Especial de permenencia"
+        
+    }
+
+]

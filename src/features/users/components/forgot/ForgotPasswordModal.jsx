@@ -78,14 +78,14 @@ export default function ForgotPasswordModal({ onClose }) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
 
-            {/** Fondo oscuro clickeable para cerrar */}
+            
             <div
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                className="absolute inset-0  backdrop-blur-sm"
                 onClick={onClose}
             />
 
-            {/** Card del modal */}
-            <div className="relative w-full max-w-md bg-fc-g950/95 backdrop-blur-xl border border-bd-w/10 rounded-2xl shadow-2xl p-8">
+           
+            <div className="relative w-full max-w-md bg-bg-s600/50 backdrop-blur-md border border-bd-w/10 rounded-2xl shadow-2xl p-8">
 
                 <button
                     onClick={onClose}
@@ -96,7 +96,7 @@ export default function ForgotPasswordModal({ onClose }) {
                 </button>
 
                 <h2 className="text-title text-bg-w font-bold mb-1">Recuperar contraseña</h2>
-                <p className="text-caption text-bg-w/50 mb-6">
+                <p className="text-caption text-bg-w/80 mb-6">
                     {step === 1 && "Ingresa tu correo para recibir un enlace"}
                     {step === 2 && "Ingresa el código que enviamos a tu correo"}
                     {step === 3 && "Crea tu nueva contraseña"}
@@ -108,7 +108,7 @@ export default function ForgotPasswordModal({ onClose }) {
                         <div
                             key={s}
                             className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                                s <= step ? "bg-br-t500" : "bg-bd-w/15"
+                                s <= step ? "bg-br-w" : "bg-bd-w/15"
                             }`}
                         />
                     ))}

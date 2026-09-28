@@ -1,89 +1,67 @@
 // Componente reutilizable que muestra un switch para activar o desactivar estados
-import {Switch} from "@/shared";
+import { Switch } from "@/shared";
 
+import Tablerowactions from "@/shared/components/Tablerowactions";
 
-// Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
-import UserRowActions from "../components/UserRowActions";
-
-
-// Definición de las columnas de la tabla de usuarios
-// Este arreglo suele usarse en librerías de tablas como TanStack Table
-export const ColumnsMenu = [
-
+export const createMenuColumns = ({ onView, onEdit, onDelete } = {}) => [
 
   // Columna ID
   {
-    accessorKey: "id", // Propiedad del objeto user que se mostrará en la columna
-    header: "Id",      // Título de la columna
+    accessorKey: "id",
+    header: "Id",
   },
-
 
   // Columna Nombre
   {
-    accessorKey: "name", // Campo del objeto user
-    header: "Nombre",    // Encabezado visible
+    accessorKey: "name",
+    header: "Nombre",
   },
 
-
-  // Columna Descripción
+  // Columna Descripcion
   {
     accessorKey: "description",
     header: "Descripción",
   },
 
+  // Columna Categoria
+  {
+    accessorKey: "category",
+    header: "Categoría",
+  },
 
   // Columna Precio
   {
     accessorKey: "price",
     header: "Precio",
+    cell: ({ row }) => `$${(row.original.price ?? 0).toLocaleString("es-CO")}`,
   },
-
 
   // Columna Estado (activo / inactivo)
   {
     accessorKey: "is_active",
     header: "Estado",
-
-
-    // Render personalizado de la celda
-    // Permite mostrar un componente en lugar de solo texto
     cell: ({ row }) => {
+      const dish = row.original;
 
-
-      // Se obtiene el objeto completo del usuario de la fila
-      const user = row.original;
-
-
-      // Función que se ejecuta cuando cambia el switch
       const handleChange = (value) => {
-
-
-        // value representa el nuevo estado del switch (true o false)
-        console.log("Actualizar estado del menu:", user.user_id, value);
-
-
-        // Aquí normalmente se llamaría una API para actualizar el estado
-        // updateUserStatus(user.user_id, value)
+        console.log("Actualizar estado del platillo:", dish.id, value);
       };
 
-
-      return (
-        // Componente reutilizable para mostrar el switch
-        <Switch
-          checked={user.is_active} // Estado actual del usuario
-          onChange={handleChange}  // Función que maneja el cambio
-        />
-      );
+      return <Switch checked={dish.is_active} onChange={handleChange} />;
     },
   },
 
-
-  // Columna de acciones (editar / eliminar)
   {
-    id: "actions", // No usa accessorKey porque no corresponde a un campo del usuario
-
-
-    // Renderiza el componente de acciones pasando el usuario completo
-    cell: ({ row }) => <UserRowActions user={row.original} />,
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <Tablerowactions
+        onView={onView && (() => onView(row.original))}
+        onEdit={onEdit && (() => onEdit(row.original))}
+        onDelete={onDelete && (() => onDelete(row.original))}
+      />
+    ),
   },
-];
+].filter((column) => column.id !== "actions" || onView || onEdit || onDelete);
+
+export const ColumnsMenu = createMenuColumns();

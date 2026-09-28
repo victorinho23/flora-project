@@ -20,7 +20,7 @@ export default function InventoryRowActions({item}){
     // Accion para editar el registro
     // Redirige a la pagina de edicion usando el id del registro
     const handleEdit = () => {
-        navigate(`/inventory/${item.id}/edit`);
+        navigate("/updateInventory");
     };
 
     // Accion para eliminar el registro

@@ -1,10 +1,6 @@
-// Componente que contiene los botones de acciones (editar y eliminar) para cada registro
-import InventoryRowActions from "../components/InventoryRowActions";
+import TableRowActions from "@/shared/components/TableRowActions";
 
-
-// Definición de las columnas de la tabla de inventario
-// Este arreglo suele usarse en librerías de tablas como TanStack Table
-export const InventoryColumns = [
+export const createInventoryColumns = ({ onView, onEdit, onDelete } = {}) => [
 
   // Columna ID
   {
@@ -14,87 +10,95 @@ export const InventoryColumns = [
 
   // Columna Marca
   {
-    accessorKey: "marca",
+    accessorKey: "brand",
     header: "Marca",
   },
 
   // Columna Nombre del producto
   {
-    accessorKey: "nombre",
+    accessorKey: "name",
     header: "Nombre del producto",
   },
 
   // Columna Codigo de barras
   {
-    accessorKey: "codigoBarras",
+    accessorKey: "barcode",
     header: "Codigo de barras",
   },
 
   // Columna Imagen
   {
-    accessorKey: "imagen",
+    accessorKey: "image",
     header: "Imagen",
     cell: ({ row }) =>
-      row.original.imagen ? (
+      row.original.image ? (
         <img
-          src={row.original.imagen}
-          alt={row.original.nombre}
+          src={row.original.image}
+          alt={row.original.name}
           className="w-10 h-10 object-cover rounded"
         />
       ) : (
-        <span className="text-xs text-gray-400">Sin imagen</span>
+        <span className="text-xs text-br-g400">Sin imagen</span>
       ),
   },
 
   // Columna Cantidad
   {
-    accessorKey: "cantidad",
+    accessorKey: "quantity",
     header: "Cantidad",
   },
 
   // Columna Cantidad total
   {
-    accessorKey: "cantidadTotal",
+    accessorKey: "totalQuantity",
     header: "Cantidad total",
   },
 
   // Columna Valor unitario
   {
-    accessorKey: "valorUnitario",
+    accessorKey: "unitValue",
     header: "Valor unitario",
     cell: ({ row }) =>
-      (row.original.valorUnitario ?? 0).toLocaleString("es-CO"),
+      (row.original.unitValue ?? 0).toLocaleString("es-CO"),
   },
 
   // Columna Valor total
   {
-    accessorKey: "valorTotal",
+    accessorKey: "totalValue",
     header: "Valor total",
     cell: ({ row }) =>
-      (row.original.valorTotal ?? 0).toLocaleString("es-CO"),
+      (row.original.totalValue ?? 0).toLocaleString("es-CO"),
   },
 
   // Columna Estado
   {
-    accessorKey: "estado",
+    accessorKey: "status",
     header: "Estado",
   },
 
   // Columna Fecha de vencimiento
   {
-    accessorKey: "fechaVencimiento",
+    accessorKey: "expirationDate",
     header: "Fecha de vencimiento",
   },
 
   // Columna Descripcion
   {
-    accessorKey: "descripcion",
+    accessorKey: "description",
     header: "Descripcion",
   },
 
-  // Columna de acciones (editar / eliminar)
   {
     id: "actions",
-    cell: ({ row }) => <InventoryRowActions item={row.original} />,
+    header: "Acciones",
+    cell: ({ row }) => (
+      <TableRowActions
+        onView={onView && (() => onView(row.original))}
+        onEdit={onEdit && (() => onEdit(row.original))}
+        onDelete={onDelete && (() => onDelete(row.original))}
+      />
+    ),
   },
-];
+].filter((column) => column.id !== "actions" || onView || onEdit || onDelete);
+
+export const InventoryColumns = createInventoryColumns();

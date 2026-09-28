@@ -8,6 +8,7 @@ export default function Select({
     value,
     variant = "p",
     options = [],
+    fullWidth = false, // Opcional: ocupa el 100% del contenedor en vez del w-80 fijo
 
 }){
    const variants = {
@@ -74,7 +75,7 @@ export default function Select({
             onChange={onChange}
             id="htmlFor"
             className={`
-                w-80
+                ${fullWidth ? "w-full" : "w-80"}
                 h-12
                 rounded-md
                 px-4

@@ -5,17 +5,20 @@ export default function Input({
     type = "text",
     variant="secondary",
     size="lg",
+    fullWidth = false, // Opcional: ocupa el 100% del contenedor en vez del w-80 fijo
     ...props
 
 }){
     const variants = {
         primary: `
             border border-brand
-            bg-yellow-950
+            bg-bg-s950
+            placeholder-fc-w
+            text-fc-w
         `,
         secondary: `
             border border-brand
-            bg-background
+            bg-bg-w
         `,
         tertiary: `
             border border-purple-950
@@ -91,7 +94,7 @@ export default function Input({
     }
 
     return(
-        <div className="w-80">
+        <div className={fullWidth ? "w-full" : "w-80"}>
             <label 
                 htmlFor={htmlFor}
                 className={`

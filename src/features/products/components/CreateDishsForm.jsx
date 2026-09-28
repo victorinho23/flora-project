@@ -4,6 +4,7 @@ import { Input, Select, Button, Imageinput, Textarea } from "@/shared";
 import { getDishCategories } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom";
 import { dishSchema } from "../../../shared/schemas/disheSchema";
+import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 export default function CreateDishsForm() {
     const navigate = useNavigate();
@@ -46,11 +47,18 @@ export default function CreateDishsForm() {
 
         try {
          
-            alert("Platillo registrado correctamente");
+            await showSuccesAlert({
+                title: "Platillo registrado",
+                text: "El platillo fue registrado correctamente",
+                timer: 3000,
+            });
             navigate("/viewDish");
         } catch (error) {
             console.log("Error: ", error.message);
-            alert(error.message);
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
         }
     };
 
@@ -62,7 +70,14 @@ export default function CreateDishsForm() {
         <div className="min-h-screen flex flex-col">
 
             <div className="w-full bg-bg-s700 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-s900/90 border border-bd-w/15">
-                <div className="w-8" />
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    type="button"
+                    onClick={() => navigate("/listMenu")}
+                >
+                    Ver listado
+                </Button>
                 <h1 className="text-title text-bg-w font-bold text-center">
                     Crear plato
                 </h1>

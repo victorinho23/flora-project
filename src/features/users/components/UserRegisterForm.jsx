@@ -6,7 +6,7 @@ import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import {useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
-import authicon from "@/assets/icons/usuario.png";
+import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
 
 
 /**
@@ -37,7 +37,9 @@ export default function UserRegisterForm(){
         userEmail: "",
         userEmailConfirm: "",
         userBusinessEmail: "",
+        userBusinessEmailConfirm: "",
         userPhone: "",
+        userPhoneSecondary: "",
         userDocumentTypes: "",
         userType: "",
         userDocumentNumber: "",
@@ -48,9 +50,14 @@ export default function UserRegisterForm(){
         userContractEndDate:"",
 
         isStaff: false,
-        isActive: false,
+        isActive: true,
         isSuperUser: false,
     });
+
+    // Los campos de correo empresarial y telefono secundario solo se
+    // muestran cuando el usuario presiona los botones "Agregar"
+    const [showBusinessEmail, setShowBusinessEmail] = useState(false);
+    const [showSecondaryPhone, setShowSecondaryPhone] = useState(false);
 
     const handleChange = (e) => {
         const {name, value, type, checked} = e.target;
@@ -59,13 +66,6 @@ export default function UserRegisterForm(){
             ...prev,
             [name]: type === "checkbox" ? checked: value,
         }))
-    };
-
-    const toggleActiveStatus = () => {
-        setFormData((prev) => ({
-            ...prev,
-            isActive: !prev.isActive,
-        }));
     };
 
     const handleSubmit = async (e) => {
@@ -79,17 +79,29 @@ export default function UserRegisterForm(){
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+            await showCreateUserErrorAlert({
+                title: "Error al crear usuario",
+                text: "Revisa los campos marcados en el formulario",
+                timer: 3000,
+            });
             return;
         }
 
         setErrors({});
 
         try{
-            alert("Usuario creado correctamente");
+            await showSuccesAlert({
+                title: "Usuario creado",
+                text: "El usuario fue creado correctamente",
+                timer: 3000,
+            });
             navigate("/viewUser")
         } catch(error){
             console.log("Error: ", error.message)
-            alert(error.message)
+            await showCreateUserErrorAlert({
+                text: error.message,
+                timer: 3000,
+            })
         }
     };
 
@@ -125,14 +137,25 @@ export default function UserRegisterForm(){
                     </h1>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => navigate("/home")}
-                    className="text-text-primary hover:opacity-70 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
-                    aria-label="Volver al inicio"
-                >
-                    <ArrowLeft className="w-8 h-8" />
-                </button>
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        type="button"
+                        onClick={() => navigate("/userList")}
+                    >
+                        Ver listado
+                    </Button>
+
+                    <button
+                        type="button"
+                        onClick={() => navigate("/home")}
+                        className="text-text-primary hover:opacity-70 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
+                        aria-label="Volver al inicio"
+                    >
+                        <ArrowLeft className="w-8 h-8" />
+                    </button>
+                </div>
             </div>
 
             {/** Contenido */}
@@ -212,18 +235,6 @@ export default function UserRegisterForm(){
                                 />
 
                                 <Input
-                                    name="userPassword"
-                                    type="password"
-                                    label="Contraseña"
-                                    value={formData.userPassword}
-                                    placeholder="Escribe tu contraseña"
-                                    htmlFor="user-password"
-                                    variant="cafe"
-                                    onChange={handleChange}
-                                    error={errors.userPassword}
-                                />
-
-                                <Input
                                     name="userEmailConfirm"
                                     type="email"
                                     label="Confirmar correo electronico"
@@ -233,6 +244,18 @@ export default function UserRegisterForm(){
                                     variant="cafe"
                                     onChange={handleChange}
                                     error={errors.userEmailConfirm}
+                                />
+
+                                <Input
+                                    name="userPassword"
+                                    type="password"
+                                    label="Contraseña"
+                                    value={formData.userPassword}
+                                    placeholder="Escribe tu contraseña"
+                                    htmlFor="user-password"
+                                    variant="cafe"
+                                    onChange={handleChange}
+                                    error={errors.userPassword}
                                 />
 
                                 <Input
@@ -248,18 +271,6 @@ export default function UserRegisterForm(){
                                 />
 
                                 <Input
-                                    name="userBusinessEmail"
-                                    type="email"
-                                    label="Correo empresarial"
-                                    value={formData.userBusinessEmail}
-                                    placeholder="Correo empresarial"
-                                    htmlFor="user-business-email"
-                                    variant="cafe"
-                                    onChange={handleChange}
-                                    error={errors.userBusinessEmail}
-                                />
-
-                                <Input
                                     name="userPhone"
                                     type="tel"
                                     label="Telefono"
@@ -270,6 +281,64 @@ export default function UserRegisterForm(){
                                     onChange={handleChange}
                                     error={errors.userPhone}
                                 />
+
+                                {showSecondaryPhone ? (
+                                    <Input
+                                        name="userPhoneSecondary"
+                                        type="tel"
+                                        label="Telefono secundario"
+                                        value={formData.userPhoneSecondary}
+                                        placeholder="Escribe un segundo numero de telefono"
+                                        htmlFor="user-phone-secondary"
+                                        variant="cafe"
+                                        onChange={handleChange}
+                                        error={errors.userPhoneSecondary}
+                                    />
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowSecondaryPhone(true)}
+                                        className="w-80 h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-gray-300)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+                                    >
+                                        + Teléfono secundario
+                                    </button>
+                                )}
+
+                                {showBusinessEmail ? (
+                                    <>
+                                        <Input
+                                            name="userBusinessEmail"
+                                            type="email"
+                                            label="Correo empresarial"
+                                            value={formData.userBusinessEmail}
+                                            placeholder="Correo empresarial"
+                                            htmlFor="user-business-email"
+                                            variant="cafe"
+                                            onChange={handleChange}
+                                            error={errors.userBusinessEmail}
+                                        />
+
+                                        <Input
+                                            name="userBusinessEmailConfirm"
+                                            type="email"
+                                            label="Confirmar correo empresarial"
+                                            value={formData.userBusinessEmailConfirm}
+                                            placeholder="Confirma el correo empresarial"
+                                            htmlFor="user-business-email-confirm"
+                                            variant="cafe"
+                                            onChange={handleChange}
+                                            error={errors.userBusinessEmailConfirm}
+                                        />
+                                    </>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowBusinessEmail(true)}
+                                        className="w-80 h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-gray-300)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+                                    >
+                                        + Correo empresarial
+                                    </button>
+                                )}
                             </div>
                         </section>
 
@@ -287,31 +356,18 @@ export default function UserRegisterForm(){
                                     error={errors.userContractStartDate}
                                 />
 
-                                <Input
-                                    name="userContractEndDate"
-                                    type="date"
-                                    label="Fecha fin contrato"
-                                    value={formData.userContractEndDate}
-                                    htmlFor="user-contract-end"
-                                    variant="cafe"
-                                    onChange={handleChange}
-                                    error={errors.userContractEndDate}
-                                />
-                            </div>
-
-                            {/* El estado vive dentro de la seccion de contrato porque
-                                conceptualmente es parte de la relacion contractual del
-                                usuario, no un dato aislado flotando al final del form */}
-                            <div className="pt-1">
-                                <Button
-                                    variant={formData.isActive ? "statusActive" : "statusInactive"}
-                                    size="lgg"
-                                    type="button"
-                                    onClick={toggleActiveStatus}
-                                >
-                                    <img className="w-4 h-4 brightness-0 invert" src={authicon} alt="" />
-                                    {formData.isActive ? "Estado Activo" : "Estado Inactivo"}
-                                </Button>
+                                {formData.userType !== "ADMIN" && (
+                                    <Input
+                                        name="userContractEndDate"
+                                        type="date"
+                                        label="Fecha fin contrato"
+                                        value={formData.userContractEndDate}
+                                        htmlFor="user-contract-end"
+                                        variant="cafe"
+                                        onChange={handleChange}
+                                        error={errors.userContractEndDate}
+                                    />
+                                )}
                             </div>
                         </section>
 
@@ -338,11 +394,7 @@ export default function UserRegisterForm(){
                                 />
                             </div>
                             {errors.userImage && (
-                                // FIX: "text-error text-" tenia una clase de tamaño
-                                // incompleta (cortada a la mitad), invalida en CSS.
-                                // Se completa a text-small, consistente con el resto
-                                // de mensajes de error del formulario.
-                                <span className="text-error text-small">{errors.userImage}</span>
+                                <span className="text-red-600 text-small">{errors.userImage}</span>
                             )}
                         </section>
 

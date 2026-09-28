@@ -1,97 +1,73 @@
-// Componente reutilizable que muestra un switch para activar o desactivar estados
-import {Switch} from "@/shared";
+import Tablerowactions from "@/shared/components/Tablerowactions";
 
+// Etiquetas legibles para cada estado real de la orden (RFADMIN26)
+const statusLabels = {
+  ACTIVA: "Activa",
+  LISTA_PARA_ENTREGA: "Lista para entrega",
+  PAGADA: "Pagada",
+  CANCELADA: "Cancelada",
+};
 
-// Componente que contiene los botones de acciones (editar y eliminar) para cada usuario
-import UserRowActions from "../components/UserRowActions";
-
-
-// Definición de las columnas de la tabla de usuarios
-// Este arreglo suele usarse en librerías de tablas como TanStack Table
-export const OrderColumns = [
-
+export const createOrderColumns = ({ onView, onEdit, onDelete } = {}) => [
 
   // Columna ID
   {
-    accessorKey: "id", // Propiedad del objeto user que se mostrará en la columna
-    header: "Id",      // Título de la columna
+    accessorKey: "id",
+    header: "Id",
   },
 
-
-  // Columna Nombre
+  // Columna Mesa
   {
-    accessorKey: "customer", // Campo del objeto user
-    header: "Nombre",    // Encabezado visible
+    accessorKey: "tableNumber",
+    header: "Mesa",
   },
 
+  // Columna Mesero
+  {
+    accessorKey: "waiter",
+    header: "Mesero",
+  },
 
-  // Columna producto
+  {
+    accessorKey: "customer",
+    header: "Nombre",
+  },
+
   {
     accessorKey: "product",
     header: "Producto",
   },
 
-
-  // Columna cantidad
+  // Columna Cantidad
   {
     accessorKey: "quantity",
     header: "Cantidad",
   },
 
-  
-  // Columna costo total
   {
     accessorKey: "total",
     header: "Total",
+    cell: ({ row }) => `$${(row.original.total ?? 0).toLocaleString("es-CO")}`,
   },
 
-
-
-  // Columna Estado (activo / inactivo)
+  // Columna Estado (Activa, lista para entrega, pagada, cancelada)
   {
-    accessorKey: "is_active",
+    accessorKey: "status",
     header: "Estado",
-
-
-    // Render personalizado de la celda
-    // Permite mostrar un componente en lugar de solo texto
-    cell: ({ row }) => {
-
-
-      // Se obtiene el objeto completo del usuario de la fila
-      const user = row.original;
-
-
-      // Función que se ejecuta cuando cambia el switch
-      const handleChange = (value) => {
-
-
-        // value representa el nuevo estado del switch (true o false)
-        console.log("Actualizar estado de las ordenes:", user.user_id, value);
-
-
-        // Aquí normalmente se llamaría una API para actualizar el estado
-        // updateUserStatus(user.user_id, value)
-      };
-
-
-      return (
-        // Componente reutilizable para mostrar el switch
-        <Switch
-          checked={user.is_active} // Estado actual del usuario
-          onChange={handleChange}  // Función que maneja el cambio
-        />
-      );
-    },
+    cell: ({ row }) => statusLabels[row.original.status] ?? row.original.status,
   },
 
-
-  // Columna de acciones (editar / eliminar)
   {
-    id: "actions", // No usa accessorKey porque no corresponde a un campo del usuario
-
-
-    // Renderiza el componente de acciones pasando el usuario completo
-    cell: ({ row }) => <UserRowActions user={row.original} />,
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => (
+      <Tablerowactions
+        onView={onView && (() => onView(row.original))}
+        onEdit={onEdit && (() => onEdit(row.original))}
+        onDelete={onDelete && (() => onDelete(row.original))}
+      />
+    ),
   },
-];
+].filter((column) => column.id !== "actions" || onView || onEdit || onDelete);
+
+export const OrderColumns = createOrderColumns();

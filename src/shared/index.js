@@ -7,6 +7,8 @@ export { default as DishDetailsLayout } from "./layouts/DishDetailsLayout"
 export { default as EditDishLayout } from "./layouts/EditDishLayout"
 export { default as OrderDetailsLayout } from "./layouts/OrderDetailsLayout"
 export { default as OrderEditLayout } from "./layouts/OrderEditLayout"
+export { default as SeeUsers } from "./layouts/SeeUsers"
+
 
 
 // Componentes

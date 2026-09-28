@@ -27,6 +27,14 @@ export default function Button ({
         statusActive: `bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-md transition-all duration-300`,
         statusInactive: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-300`,
         danger: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-200`,
+
+        kaki: `bg-br-p950 text-bg-w font-semibold shadow-md shadow-br-p950/35 hover:brightness-90 hover:shadow-lg hover:shadow-br-p950/50 active:scale-95 transition-all duration-200`,
+        kakiContorno: `bg-transparent border-2 border-br-p950 text-br-s900 font-semibold hover:bg-br-p950 hover:text-bg-w active:scale-95 transition-all duration-200`,
+
+        remolino: `overflow-hidden isolate bg-br-t500 text-bg-w after:absolute after:left-1/2 after:top-1/2 after:w-[300%] after:aspect-square after:-translate-x-1/2 after:-translate-y-1/2 after:-z-10 after:bg-[conic-gradient(from_0deg,var(--color-br-t800),var(--color-br-t500),var(--color-br-t400),var(--color-br-t500),var(--color-br-t800))] after:animate-spin after:[animation-duration:8s] hover:after:[animation-duration:2s]`,
+
+        satinado: `border border-br-t700 text-bg-w font-semibold [text-shadow:0_1px_2px_color-mix(in_srgb,var(--color-br-t950)_50%,transparent)] bg-[linear-gradient(100deg,var(--color-br-t600)_0%,var(--color-br-t500)_30%,var(--color-br-t400)_52%,var(--color-br-t300)_60%,var(--color-br-t400)_68%,var(--color-br-t600)_100%)] bg-[length:200%_100%] bg-left hover:bg-right shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-br-t100)_45%,transparent),inset_0_-6px_10px_-4px_color-mix(in_srgb,var(--color-br-t950)_45%,transparent)] hover:shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-br-t100)_60%,transparent),inset_0_-6px_10px_-4px_color-mix(in_srgb,var(--color-br-t950)_45%,transparent),0_6px_14px_-6px_color-mix(in_srgb,var(--color-br-t600)_60%,transparent)] transition-all duration-500`,
+
     };
 
     const sizes = {

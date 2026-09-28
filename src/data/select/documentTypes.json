@@ -7,6 +7,12 @@
     },
 
     {
+        "id":"CE",
+        "label": "Cedúla de extranjeria"
+        
+    },
+
+    {
         "id":"TI",
         "label": "Tarjeta de identidad"
         

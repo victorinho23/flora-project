@@ -6,19 +6,17 @@ export const supplierSchema = z.object({
         .min(3, "El nombre de la empresa debe tener minimo 3 caracteres")
         .max(80, "El nombre de la empresa es demasiado largo"),
 
-    nit: z
-        .string()
-        .min(5, "NIT invalido")
-        .max(20, "NIT demasiado largo"),
+    documentType: z.string().min(1, "Debe seleccionar un tipo de documento"),
 
-    contactName: z
+    documentNumber: z
         .string()
-        .min(3, "El nombre del contacto debe tener minimo 3 caracteres")
-        .max(60, "El nombre del contacto es demasiado largo"),
+        .regex(/^[0-9]{1,15}$/, "El numero de documento debe ser numerico y tener maximo 15 digitos"),
+
+    products: z.array(z.string()).optional(),
 
     phone: z
         .string()
-        .regex(/^[0-9]{10}$/, "El telefono debe tener 10 digitos"),
+        .regex(/^[0-9]{7,15}$/, "El telefono debe tener entre 7 y 15 digitos"),
 
     email: z
         .email()
@@ -26,10 +24,15 @@ export const supplierSchema = z.object({
 
     address: z
         .string()
-        .min(5, "La direccion es obligatoria")
-        .max(120, "La direccion es demasiado larga"),
+        .max(120, "La direccion es demasiado larga")
+        .optional(),
 
     category: z.string().min(1, "Debe seleccionar una categoria"),
+
+    observations: z
+        .string()
+        .max(300, "Las observaciones son demasiado largas")
+        .optional(),
 
     isActive: z.boolean(),
 })

@@ -8,7 +8,8 @@ import * as XLSX from "xlsx"
 export function generateExcelReport({
     headers,  // Array de encabezados de (columas)
     rows,     // Array de filas (array de arrays)
-    fileName = "user-report.xlsx" // Nombre del archivo de salida
+    fileName = "reporte.xlsx", // Nombre del archivo de salida
+    sheetName = "Datos" // Nombre de la pestaña dentro del Excel (a juego con el modulo)
 }) {
 
     // Estrcutura final de la hoja:
@@ -25,8 +26,8 @@ export function generateExcelReport({
     // Crea un nuevo libro de excel (workbook)
     const workbook = XLSX.utils.book_new();
 
-    // Agrega la hoja el libro con el nombre de "Usuarios"
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Usuarios");
+    // Agrega la hoja el libro con el nombre correspondiente al modulo
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
 
     // Genera y descarga el archivo Excel en el cliente
     XLSX.writeFile(workbook, fileName);

@@ -10,7 +10,8 @@ import autoTable from "jspdf-autotable";
 export function generatePdfReport ({
     headers,                        // Encabezado de la tabla (columnas)
     rows,                           // Datos (array de filas)
-    fileName = "user-report-pdf"    // Nombre del archivo de salida
+    fileName = "reporte.pdf",       // Nombre del archivo de salida
+    reportTitle = "Reporte"         // Titulo impreso en el PDF (a juego con el modulo)
 }) {
 
     // Inicializa el documento PDF 
@@ -18,7 +19,7 @@ export function generatePdfReport ({
 
     // Configuracion del titulo
     doc.setFontSize(16);
-    doc.text("Reporte de Usuarios", 14, 20); // Posicion (x,y)
+    doc.text(reportTitle, 14, 20); // Posicion (x,y)
 
     // Generacin de tabla automatica
     autoTable(doc, {

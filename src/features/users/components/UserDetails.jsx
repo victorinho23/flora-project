@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/shared";
 import authBg from "@/assets/icons/usuario.png";
 import userBg from "@/assets/images/Victor.jpeg";
+import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 
 const InfoField = ({ label, value }) => (
     <div className="w-80 bg-bg-s800/70 border border-bd-w/15 rounded-lg px-4 py-3 backdrop-blur-sm">
@@ -18,13 +19,36 @@ export function UserDetails({ user }) {
         navigate(`/userEdit`);
     };
 
-    const handleDelete = () => {
-        const confirmed = window.confirm("¿Seguro que deseas eliminar este usuario?");
-        if (!confirmed) return;
+    const handleDelete = async () => {
+        const result = await showConfirmDeleteAlert({
+            title: "¿Eliminar usuario?",
+            text: `Se eliminara el usuario ${user.userName}. Esta accion no se puede deshacer.`,
+        });
 
-        
-        console.log("Usuario eliminado:", user.id);
-        navigate(-1);
+        if (!result.isConfirmed) {
+            await showDeleteCancelAlert({
+                title: "Cancelado",
+                text: "El usuario no fue eliminado",
+                timer: 3000,
+            });
+            return;
+        }
+
+        try {
+            console.log("Usuario eliminado:", user.id);
+
+            await showDeleteSuccessAlert({
+                title: "Usuario eliminado",
+                text: `El usuario ${user.userName} fue eliminado correctamente`,
+                timer: 3000,
+            });
+            navigate(-1);
+        } catch (error) {
+            await showUnexpectedErrorAlert({
+                text: error.message,
+                timer: 3000,
+            });
+        }
     };
 
     return (

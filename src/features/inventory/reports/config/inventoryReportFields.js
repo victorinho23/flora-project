@@ -3,33 +3,58 @@
 
 export const inventoryReportFields = [
     {
-        key: "establecimiento",
-        label: "Establecimiento",
-        default: true,
-    },
-    {
-        key: "fecha",
-        label: "Fecha",
-        default: true,
-    },
-    {
-        key: "departamento",
-        label: "Departamento",
-        default: true,
-    },
-    {
-        key: "empleado",
-        label: "Empleado",
+        key: "id",
+        label: "ID",
         default: false,
     },
     {
-        key: "nombre",
-        label: "Producto",
+        key: "brand",
+        label: "Marca",
         default: true,
     },
     {
-        key: "cantidad",
+        key: "name",
+        label: "Nombre del producto",
+        default: true,
+    },
+    {
+        key: "barcode",
+        label: "Código de barras",
+        default: false,
+    },
+    {
+        key: "quantity",
         label: "Cantidad",
         default: true,
+    },
+    {
+        key: "totalQuantity",
+        label: "Cantidad total",
+        default: true,
+    },
+    {
+        key: "unitValue",
+        label: "Valor unitario",
+        default: true,
+    },
+    {
+        key: "totalValue",
+        label: "Valor total",
+        default: true,
+    },
+    {
+        key: "status",
+        label: "Estado",
+        default: true,
+    },
+    {
+        key: "expirationDate",
+        label: "Fecha de vencimiento",
+        default: false,
+    },
+    {
+        key: "description",
+        label: "Descripción",
+        default: false,
     },
 ];

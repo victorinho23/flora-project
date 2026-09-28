@@ -4,25 +4,25 @@
 export function buildInventoryReportDataset({
     inventory,          // Array de registros de inventario origen
     selectedFields,     // Campos seleccionados para el reporte [{key, label}]
-    scope,              // Alcance del reporte: "all" | "establecimiento" | "producto"
+    scope,              // Alcance del reporte: "all" | "brand" | "product"
     filterValue,        // Valor de filtro para el alcance elegido (si aplica)
 }) {
 
     // Copia inmutable del array original (evita mutaciones)
     let filteredInventory = [...inventory];
 
-    // Filtro por alcance: establecimiento o producto
-    if (scope === "establecimiento" && filterValue) {
+    // Filtro por alcance: marca o producto
+    if (scope === "brand" && filterValue) {
         filteredInventory = filteredInventory.filter((record) =>
-            record.establecimiento
+            record.brand
                 .toLowerCase()
                 .includes(filterValue.toLowerCase())
         );
     }
 
-    if (scope === "producto" && filterValue) {
+    if (scope === "product" && filterValue) {
         filteredInventory = filteredInventory.filter((record) =>
-            record.nombre.toLowerCase().includes(filterValue.toLowerCase())
+            record.name.toLowerCase().includes(filterValue.toLowerCase())
         );
     }
 
