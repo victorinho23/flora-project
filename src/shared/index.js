@@ -38,3 +38,4 @@ export {default as ToggleSwitch} from "./components/ToggleSwitch"
 // export {default as Navbar} from "./layouts/Navbar"
 export {default as Navbar} from "./layouts/Navbar"
 
+export {default as DetailModal} from "./components/DetailModal"

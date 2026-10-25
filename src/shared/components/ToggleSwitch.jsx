@@ -1,3 +1,5 @@
+// src/shared/components/ToggleSwitch.jsx
+// Interruptor sencillo con texto, se usa en gestion de permisos
 export default function ToggleSwitch({ checked, onChange, label }) {
     return (
         <label className="flex items-center gap-3 cursor-pointer select-none">
@@ -9,7 +11,7 @@ export default function ToggleSwitch({ checked, onChange, label }) {
                 className={`
                     relative w-11 h-6 rounded-full flex-shrink-0
                     transition-colors duration-300
-                    ${checked ? "bg-br-p700" : "bg-bd-w/30"}
+                    ${checked ? "bg-bg-t900" : "bg-bg-s300"}
                 `}
             >
                 <span
@@ -21,7 +23,7 @@ export default function ToggleSwitch({ checked, onChange, label }) {
                     `}
                 />
             </button>
-            <span className="text-bg-w font-semibold text-sm">
+            <span className="text-br-s950 font-semibold text-base">
                 {label}
             </span>
         </label>

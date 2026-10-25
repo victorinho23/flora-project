@@ -4,27 +4,13 @@ import {useState, useEffect} from "react";
 // Iconos para el encabezado y el cierre del modal
 import { FileText, X } from "lucide-react";
 
-// Caso de uso genérico que orquesta la generacion del reporte
 import { generateReport } from "../services/generateReport";
+import { showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
 
 // Componentes UI reutilizables (design system)
 import { Button, Input, Select } from "@/shared";
 import { Checkbox } from "@/shared";
 
-// ================== MODAL GENÉRICO DE REPORTES ==================
-// Antes este modal estaba fijo a usuarios (título, campos y datos de
-// usuarios sin importar desde qué página se abriera) -- por eso "Reportar
-// orden" terminaba descargando un reporte de usuarios. Ahora cada página
-// le pasa su propia configuración:
-//
-//   title          -> encabezado del modal, ej. "Generar reporte de órdenes"
-//   data           -> array de registros del módulo (orders, menu, etc.)
-//   fields         -> config de campos [{key, label, default}]
-//   fileNamePrefix -> prefijo del archivo descargado, ej. "orders-report"
-//   reportTitle    -> título impreso dentro del PDF
-//   sheetName      -> nombre de la pestaña del Excel
-//   filterField / filterLabel -> (opcional) habilita "Filtrar por..." usando
-//                                 esa propiedad del registro
 export default function ReportConfigModal ({
     isOpen,
     onClose,
@@ -36,6 +22,10 @@ export default function ReportConfigModal ({
     sheetName = "Datos",
     filterField,
     filterLabel = "Filtrar",
+    scopes,
+    idKey = "id",
+    filters = [],
+    dateRange,
 }){
 
     // Estado del formato de salida
@@ -45,23 +35,101 @@ export default function ReportConfigModal ({
 
     const [scope, setScope] = useState("all")
 
-    // Estado para filtro (documento, id, nombre, etc. según el módulo)
     const [filterValue, setFilterValue] = useState("");
+
+    const [range, setRange] = useState({ from: "", to: "" });
+
+    const [picked, setPicked] = useState([]);
+
+    const [pickSearch, setPickSearch] = useState("");
+
+    const [error, setError] = useState("");
+
+    // Valores de los filtros opcionales que se pueden combinar
+    const [extra, setExtra] = useState({});
 
     // Estado de campos seleccionados (inicializacion de lazy)
     const [selectedFields, setSelectedFields] = useState(() => fields.filter((f) => f.default) // Solo campos marcados por defecto
     );
 
-    // Si cambia el módulo (fields) mientras el modal existe, se refresca
-    // la selección por defecto para no arrastrar campos de otro módulo.
     useEffect(() => {
         setSelectedFields(fields.filter((f) => f.default));
         setScope("all");
         setFilterValue("");
+        setRange({ from: "", to: "" });
+        setPicked([]);
+        setPickSearch("");
+        setError("");
+        setExtra({});
     }, [fields]);
     
     // Control de render: si el modal no esta abierto, no se monta en el DOM
     if (!isOpen) return null;
+
+    const scopeOptions = scopes ?? [
+        { value: "all", label: "Todos los registros" },
+        ...(filterField ? [{ value: "filter", label: filterLabel, filter: (item, value) => String(item[filterField] ?? "") === String(value) }] : []),
+    ];
+
+    const activeScope = scopeOptions.find((option) => option.value === scope) ?? scopeOptions[0];
+
+    const changeScope = (value) => {
+        setScope(value);
+        setFilterValue("");
+        setRange({ from: "", to: "" });
+        setPicked([]);
+        setExtra({});
+        setError("");
+    };
+
+    const togglePicked = (id) => {
+        if (!activeScope.pick?.multiple) {
+            setPicked([id]);
+            return;
+        }
+        setPicked((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+    };
+
+    const pickableRecords = activeScope.pick
+        ? data.filter((item) => activeScope.pick.label(item).toLowerCase().includes(pickSearch.toLowerCase()))
+        : [];
+
+    // Revisa si la fecha del registro esta dentro del rango elegido
+    const inDateRange = (item, key) => {
+        const time = new Date(item[key]).getTime();
+        if (range.from && time < new Date(`${range.from}T00:00:00`).getTime()) return false;
+        if (range.to && time > new Date(`${range.to}T23:59:59`).getTime()) return false;
+        return true;
+    };
+
+    // Aplica los filtros opcionales y el rango de fechas sobre los registros
+    const applyExtra = (records) => records
+        .filter((item) => filters.every((filter) => !extra[filter.key] || filter.match(item, extra[filter.key])))
+        .filter((item) => !dateRange || inDateRange(item, dateRange.key));
+
+    const resolveRecords = () => applyExtra(resolveScope());
+
+    // Registros segun el tipo de reporte elegido (todos, filtrados o seleccionados)
+    const resolveScope = () => {
+        if (activeScope.pick) return data.filter((item) => picked.includes(item[idKey]));
+        if (activeScope.range) return data.filter((item) => inDateRange(item, activeScope.range));
+        if (activeScope.param || activeScope.value === "filter") return data.filter((item) => activeScope.filter(item, filterValue));
+        if (activeScope.filter) return data.filter((item) => activeScope.filter(item));
+        return data;
+    };
+
+    const validate = () => {
+        if (!selectedFields.length) return "Selecciona al menos un campo para el reporte.";
+        if (activeScope.pick && picked.length < (activeScope.pick.min ?? 1)) {
+            return (activeScope.pick.min ?? 1) > 1
+                ? `Selecciona al menos ${activeScope.pick.min} registros.`
+                : "Selecciona el registro que quieres incluir.";
+        }
+        if ((activeScope.param || activeScope.value === "filter") && !filterValue) return `Indica ${(activeScope.param?.label ?? filterLabel).toLowerCase()}.`;
+        if (activeScope.range && !range.from && !range.to) return "Indica al menos una fecha del rango.";
+        if (range.from && range.to && range.from > range.to) return "La fecha inicial debe ser anterior a la final.";
+        return "";
+    };
 
     // Hndler para activar/ desactivar campos del reporte
     const handleFieldToggle = (field) => {
@@ -85,63 +153,65 @@ export default function ReportConfigModal ({
     };
 
     // Handler principal para generar el reporte
-    const handleGenerateReport = () => {
-        // Invoca el caso de uso genérico con los datos de ESTE módulo
-        generateReport({
+    const handleGenerateReport = async () => {
+        const message = validate();
+        if (message) {
+            setError(message);
+            return;
+        }
+        setError("");
+        const generated = generateReport({
             format,
-            data,
+            data: resolveRecords(),
             selectedFields,
-            scope,
-            filterField,
-            filterValue,
+            scope: "all",
             fileNamePrefix,
             reportTitle,
             sheetName,
         });
+        if (!generated) {
+            await showErrorAlert({
+                title: "Sin resultados",
+                text: "No se encontraron resultados para los parámetros seleccionados.",
+                confirmButtonText: "Entendido",
+                timer: 3500,
+            });
+            return;
+        }
 
         // Cierra el modal despies de generar el reporte
         onClose();
+        await showSuccesAlert({
+            title: "Reporte generado",
+            text: "Reporte generado exitosamente",
+            timer: 2500,
+        });
     };
 
     return (
         // Overlay del modal
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             
-            {/** Contenedor del modal
-                FIX: bg-background-beige -> bg-bg-p50. La cadena de
-                --color-background-beige tenia un typo entre global.css y
-                semantic.css (semanmtic vs semantic) y nunca resolvia a un
-                color real -- el panel del modal quedaba TRANSPARENTE, por eso
-                el texto de la tabla de atras se veia "montado" encima de los
-                labels del modal (Formato del reporte, Alcance del reporte).
-                bg-bg-p50 es el token corto, sin ese typo en su cadena, mismo
-                color final (primary-50, crema) pero garantizado a funcionar.
+            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-bg-w border border-bd-s100 shadow-2xl">
 
-                Ahora ademas: borde + sombra fuerte para que el modal se
-                despegue claramente de lo que hay detrás, y max-h + scroll
-                para que no se corte en pantallas chicas. */}
-            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-bg-p50 border border-bd-p300 shadow-2xl">
-
-                {/** Encabezado: icono + título + botón de cerrar, con
-                    separador para distinguirlo del cuerpo del formulario. */}
-                <div className="flex items-center justify-between gap-4 px-6 py-5 border-b border-bd-p300">
+                <div className="flex items-center justify-between gap-4 px-6 py-5 bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-bg-p800 text-br-p50">
+                        <div className="p-2 rounded-lg bg-bg-w/10 ring-1 ring-bd-w/25 text-br-t100">
                             <FileText size={20} />
                         </div>
-                        <h2 className="text-lg font-semibold text-text-coffe">
+                        <h2 className="text-lg font-semibold text-bg-w">
                             {title}
                         </h2>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
                         onClick={onClose}
                         aria-label="Cerrar"
-                        className="p-1.5 rounded-md text-br-s600 hover:bg-bg-p200 hover:text-br-s900 transition-colors"
+                        className="p-1.5 rounded-md text-bg-w hover:bg-bg-w/15 transition-colors"
                     >
                         <X size={20} />
-                    </button>
+                    </Button>
                 </div>
 
                 {/** Cuerpo del formulario */}
@@ -149,7 +219,7 @@ export default function ReportConfigModal ({
 
                     {/** Seleccion de formato */}
                     <Select 
-                        variant="tenth"
+                        variant="latte"
                         fullWidth
                         label="Formato del reporte"
                         value={format}
@@ -162,11 +232,8 @@ export default function ReportConfigModal ({
 
                     {/** Seleccion de campos */}
                     <div>
-                        <p className="mb-2 text-sm font-medium text-text-coffe">Campos del reporte</p>
+                        <p className="mb-2 text-sm font-semibold text-br-s900">Campos del reporte</p>
                         
-                        {/** Grid de checkboxes estilo "chip": borde propio y
-                            fondo que cambia al marcarse, para que se note
-                            claramente cuáles están seleccionados. */}
                         <div className="grid grid-cols-2 gap-2">
                             {fields.map((field) => {
 
@@ -177,7 +244,7 @@ export default function ReportConfigModal ({
 
                                 return(
                                     <Checkbox
-                                      variant="tertiary"
+                                      variant="latte"
                                       key={field.key}  // Key unica para renderizado
                                       id={field.key}   // Id accesible
                                       name={field.key} // Nombre del campo
@@ -187,8 +254,8 @@ export default function ReportConfigModal ({
                                       className={`
                                         px-3 py-2 rounded-lg border transition-colors
                                         ${checked
-                                            ? "bg-bg-p200 border-bd-p400"
-                                            : "bg-bg-w border-bd-p200 hover:bg-bg-p100"}
+                                            ? "bg-bg-t50 border-bd-t900"
+                                            : "bg-bg-w border-bd-s300 hover:bg-bg-s50"}
                                       `}
                                     />
                                 );
@@ -196,24 +263,20 @@ export default function ReportConfigModal ({
                         </div>
                     </div>
 
-                    {/** Seleccion de alcance (el filtro solo se muestra si el
-                        módulo define filterField, ej. usuarios por documento) */}
                     <Select
-                        variant="tenth"
+                        variant="latte"
                         fullWidth
                         label="Alcance del reporte"
+                        htmlFor="report-scope"
                         value={scope}
-                        onChange={(e) => setScope(e.target.value)}
-                        options={[
-                            {label: "Todos los registros", value: "all"},
-                            ...(filterField ? [{label: filterLabel, value: "filter"}] : []),
-                        ]}
+                        onChange={(e) => changeScope(e.target.value)}
+                        options={scopeOptions.map((option) => ({ label: option.label, value: option.value }))}
                     />
 
                     {/** Campo condicional para el filtro */}
-                    {scope === "filter" && filterField && (
+                    {activeScope.value === "filter" && (
                         <Input
-                            variant="fifth"
+                            variant="latte"
                             fullWidth
                             label={filterLabel}
                             value={filterValue}
@@ -221,18 +284,89 @@ export default function ReportConfigModal ({
                             placeholder="Ingrese el valor a filtrar"
                         />
                     )}
+
+                    {activeScope.param && (
+                        <Select
+                            variant="latte"
+                            fullWidth
+                            label={activeScope.param.label}
+                            htmlFor="report-param"
+                            value={filterValue}
+                            onChange={(e) => setFilterValue(e.target.value)}
+                            options={activeScope.param.options}
+                        />
+                    )}
+
+                    {activeScope.range && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Input variant="latte" fullWidth type="date" label="Desde" htmlFor="report-from" value={range.from} onChange={(e) => setRange((prev) => ({ ...prev, from: e.target.value }))} />
+                            <Input variant="latte" fullWidth type="date" label="Hasta" htmlFor="report-to" value={range.to} onChange={(e) => setRange((prev) => ({ ...prev, to: e.target.value }))} />
+                        </div>
+                    )}
+
+                    {activeScope.pick && (
+                        <div className="space-y-2">
+                            <Input
+                                variant="latte"
+                                fullWidth
+                                label={activeScope.pick.multiple ? `Selecciona los registros${activeScope.pick.min > 1 ? ` (mínimo ${activeScope.pick.min})` : ""}` : "Selecciona un registro"}
+                                htmlFor="report-pick-search"
+                                value={pickSearch}
+                                onChange={(e) => setPickSearch(e.target.value)}
+                                placeholder="Buscar..."
+                            />
+                            <div className="max-h-48 overflow-y-auto rounded-lg border border-bd-s300 divide-y divide-bd-s100">
+                                {pickableRecords.map((item) => (
+                                    <Checkbox
+                                        key={item[idKey]}
+                                        id={`report-pick-${item[idKey]}`}
+                                        name="report-pick"
+                                        variant="latte"
+                                        label={activeScope.pick.label(item)}
+                                        checked={picked.includes(item[idKey])}
+                                        onChange={() => togglePicked(item[idKey])}
+                                        className="px-3 py-2 hover:bg-bg-t50"
+                                    />
+                                ))}
+                                {!pickableRecords.length && <p className="px-3 py-2 text-sm text-br-s800">Sin coincidencias</p>}
+                            </div>
+                            {activeScope.pick.multiple && <p className="text-sm text-br-s800">{picked.length} seleccionados</p>}
+                        </div>
+                    )}
+
+                    {/* Filtros opcionales del reporte */}
+                    {!activeScope.pick && filters.map((filter) => (
+                        <Select
+                            key={filter.key}
+                            variant="latte"
+                            fullWidth
+                            label={`${filter.label} (opcional)`}
+                            htmlFor={`report-${filter.key}`}
+                            value={extra[filter.key] ?? ""}
+                            onChange={(e) => setExtra((prev) => ({ ...prev, [filter.key]: e.target.value }))}
+                            options={filter.options}
+                        />
+                    ))}
+
+                    {/* Rango de fechas opcional */}
+                    {!activeScope.pick && dateRange && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Input variant="latte" fullWidth type="date" label={`${dateRange.label} desde (opcional)`} htmlFor="report-from" value={range.from} onChange={(e) => setRange((prev) => ({ ...prev, from: e.target.value }))} />
+                            <Input variant="latte" fullWidth type="date" label="Hasta (opcional)" htmlFor="report-to" value={range.to} onChange={(e) => setRange((prev) => ({ ...prev, to: e.target.value }))} />
+                        </div>
+                    )}
+
+                    {error && (
+                        <p className="text-sm inline-block px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
+                    )}
                 </div>
 
-                {/** Acciones del modal, con jerarquía clara entre las dos
-                    opciones (antes ambos botones eran "primary" iguales) */}
-                <div className="flex justify-end gap-3 px-6 py-4 border-t border-bd-p300 bg-bg-p100/60 rounded-b-2xl">
-                    {/** Boton cancelar: accion secundaria, menos énfasis */}
-                    <Button variant="secondary" onClick={onClose}>
+                <div className="flex flex-wrap justify-center sm:justify-end gap-3 px-6 py-4 border-t border-bd-s100 bg-bg-s50 rounded-b-2xl">
+                    <Button variant="crema" onClick={onClose}>
                         Cancelar
                     </Button>
 
-                    {/** Boton generar reportes: accion principal */}
-                    <Button variant="primary" onClick={handleGenerateReport}>
+                    <Button variant="espresso" onClick={handleGenerateReport}>
                         Generar reporte
                     </Button>
 

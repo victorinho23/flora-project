@@ -1,3 +1,5 @@
+// Datos de prueba del inventario mientras no hay backend
+// custodian guarda el id del usuario cuentadante y batch el numero de lote
 export const inventory = [
     {
         id: "001",
@@ -11,7 +13,11 @@ export const inventory = [
         totalValue: 250000,
         status: "Disponible",
         expirationDate: "22/12/2025",
-        description: "Cafe con miel"
+        description: "Cafe con miel",
+        custodian: "3",
+        minQuantity: 10,
+        batch: 1,
+        location: "Cocina"
     },
     {
         id: "002",
@@ -25,7 +31,11 @@ export const inventory = [
         totalValue: 250000,
         status: "Disponible",
         expirationDate: "22/12/2025",
-        description: "El cafe mas potente"
+        description: "El cafe mas potente",
+        custodian: "10",
+        minQuantity: 10,
+        batch: 1,
+        location: "Barra"
     },
     {
         id: "003",
@@ -39,7 +49,11 @@ export const inventory = [
         totalValue: 100000,
         status: "Disponible",
         expirationDate: "22/12/2025",
-        description: "Cafe normal con azucar"
+        description: "Cafe normal con azucar",
+        custodian: "1",
+        minQuantity: 10,
+        batch: 1,
+        location: "Bodega principal"
     },
     {
         id: "111",
@@ -53,7 +67,11 @@ export const inventory = [
         totalValue: 850000,
         status: "Disponible",
         expirationDate: "20/02/2026",
-        description: "Pizza hawaiana"
+        description: "Pizza hawaiana",
+        custodian: "3",
+        minQuantity: 10,
+        batch: 1,
+        location: "Cocina"
     },
     {
         id: "112",
@@ -67,7 +85,11 @@ export const inventory = [
         totalValue: 900000,
         status: "Disponible",
         expirationDate: "20/02/2026",
-        description: "Peperoni jamon y mas"
+        description: "Peperoni jamon y mas",
+        custodian: "10",
+        minQuantity: 10,
+        batch: 1,
+        location: "Barra"
     },
     {
         id: "113",
@@ -81,7 +103,11 @@ export const inventory = [
         totalValue: 900000,
         status: "Disponible",
         expirationDate: "20/02/2026",
-        description: "Pizza con deliciosos champiñones"
+        description: "Pizza con deliciosos champiñones",
+        custodian: "1",
+        minQuantity: 10,
+        batch: 1,
+        location: "Bodega principal"
     },
     {
         id: "121",
@@ -95,7 +121,11 @@ export const inventory = [
         totalValue: 100000,
         status: "Vencido",
         expirationDate: "Ya vencio",
-        description: "Galletas de vainilla"
+        description: "Galletas de vainilla",
+        custodian: "3",
+        minQuantity: 10,
+        batch: 1,
+        location: "Cocina"
     },
     {
         id: "122",
@@ -109,7 +139,11 @@ export const inventory = [
         totalValue: 150000,
         status: "Disponible",
         expirationDate: "22/12/2025",
-        description: "Galletas con chips de chocolate"
+        description: "Galletas con chips de chocolate",
+        custodian: "10",
+        minQuantity: 10,
+        batch: 1,
+        location: "Barra"
     },
     {
         id: "124",
@@ -121,8 +155,12 @@ export const inventory = [
         totalQuantity: 50,
         unitValue: 3000,
         totalValue: 150000,
-        status: "Averia",
+        status: "Avería",
         expirationDate: "22/12/2025",
-        description: "Galletas con dulce de bocadillo"
+        description: "Galletas con dulce de bocadillo",
+        custodian: "1",
+        minQuantity: 10,
+        batch: 1,
+        location: "Bodega principal"
     }
 ];

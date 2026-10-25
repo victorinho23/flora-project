@@ -5,9 +5,6 @@ import { buildReportDataset } from "../utils/buildReportDataset";
 import { generateExcelReport } from "./generateExcelReport";
 import { generatePdfReport } from "./generatePdfReport";
 
-// Caso de uso: orquestador GENERICO de generacion de reportes.
-// A diferencia de generateUserReport (fijo a usuarios), este sirve para
-// cualquier modulo: ordenes, menu, proveedores, usuarios, etc.
 // Patrón: Application Service (coordina utilidades y servicios)
 export function generateReport({
     format,             // "excel" | "pdf"
@@ -16,7 +13,7 @@ export function generateReport({
     scope,              // Alcance del reporte: "all" | "filter"
     filterField,        // Propiedad usada para filtrar (si scope === "filter")
     filterValue,        // Valor ingresado para filtrar
-    fileNamePrefix = "reporte", // Prefijo del nombre de archivo (a juego con el modulo)
+    fileNamePrefix = "reporte",
     reportTitle = "Reporte",    // Titulo mostrado dentro del PDF
     sheetName = "Datos",        // Nombre de la pestaña del Excel
 }) {
@@ -32,12 +29,18 @@ export function generateReport({
 
     // Validacion: evita generar archivos vacios
     if (!rows.length) {
-        alert("No hay datos para generar reporte");
-        return; // Corte de ejecución
+        return false; // Corte de ejecución
     }
 
-    // Generacion de timestamp para nombre unico de archivo (YYYY-MM-DD)
-    const timestamp = new Date().toDateString().slice(0, 10);
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+    const meta = {
+        company: "Flora · Cafetería y pizzería",
+        title: reportTitle,
+        user: "Administrador",
+        generatedAt: now.toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short" }),
+    };
 
     // Seleccion de estrategia de exportacion segun formato
     if (format === "excel") {
@@ -46,6 +49,7 @@ export function generateReport({
             rows,
             fileName: `${fileNamePrefix}-${timestamp}.xlsx`,
             sheetName,
+            meta,
         });
     }
 
@@ -55,6 +59,9 @@ export function generateReport({
             rows,
             fileName: `${fileNamePrefix}-${timestamp}.pdf`,
             reportTitle,
+            meta,
         });
     }
+
+    return true;
 }

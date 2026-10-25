@@ -6,300 +6,700 @@ export const users = [
         id: 1,
         username: "Victor Cortes",
         useremail: "vcortezcastrillon7a@gmail.com",
-        userphone: "3216304524"
+        userphone: "3216304524",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1007919013",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-02-02",
+        end_date: "",
+        business_email: "",
+        is_active: true
     },
     {
         id: 2,
         username: "Alejandra Gómez",
         useremail: "alegomez92@gmail.com",
-        userphone: "3104567891"
+        userphone: "3104567891",
+        usertype: "MESERO",
+        document_type: "CE",
+        document_number: "1015838026",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-03-03",
+        end_date: "2026-08-03",
+        business_email: "",
+        is_active: true
     },
     {
         id: 3,
         username: "Carlos Mendoza",
         useremail: "carlos.mendoza@outlook.com",
-        userphone: "3152345678"
+        userphone: "3152345678",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1023757039",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-04-04",
+        end_date: "",
+        business_email: "carlosmendoz@flora.com",
+        is_active: true
     },
     {
         id: 4,
         username: "Diana Restrepo",
         useremail: "dianarestrepo.dev@gmail.com",
-        userphone: "3209876543"
+        userphone: "3209876543",
+        usertype: "MESERO",
+        document_type: "PPT",
+        document_number: "1031676052",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-05-05",
+        end_date: "2026-10-05",
+        business_email: "",
+        is_active: true
     },
     {
         id: 5,
         username: "Eduardo Silva",
         useremail: "esilva_95@hotmail.com",
-        userphone: "3001234567"
+        userphone: "3001234567",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1039595065",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-06-06",
+        end_date: "2026-11-06",
+        business_email: "",
+        is_active: true
     },
     {
         id: 6,
         username: "Fernando Torrez",
         useremail: "fertorrez.design@gmail.com",
-        userphone: "3117654321"
+        userphone: "3117654321",
+        usertype: "MESERO",
+        document_type: "PEP",
+        document_number: "1047514078",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-07-07",
+        end_date: "2026-12-07",
+        business_email: "fertorrezdes@flora.com",
+        is_active: true
     },
     {
         id: 7,
         username: "Gabriela Meza",
         useremail: "gaby.meza23@gmail.com",
-        userphone: "3183456789"
+        userphone: "3183456789",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1055433091",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-08-08",
+        end_date: "2026-01-08",
+        business_email: "",
+        is_active: true
     },
     {
         id: 8,
         username: "Hugo Quintero",
         useremail: "hugoquintero_dev@outlook.com",
-        userphone: "3124560987"
+        userphone: "3124560987",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1063352104",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-09-09",
+        end_date: "2026-02-09",
+        business_email: "",
+        is_active: true
     },
     {
         id: 9,
         username: "Isabela Peña",
         useremail: "isapena.99@gmail.com",
-        userphone: "3165432109"
+        userphone: "3165432109",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1071271117",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-10-10",
+        end_date: "2026-03-10",
+        business_email: "isapena99@flora.com",
+        is_active: false
     },
     {
         id: 10,
         username: "Juan Camilo Rojas",
         useremail: "jcrojas.ingenieria@gmail.com",
-        userphone: "3223456781"
+        userphone: "3223456781",
+        usertype: "ADMIN",
+        document_type: "CE",
+        document_number: "1079190130",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-11-11",
+        end_date: "",
+        business_email: "",
+        is_active: true
     },
     {
         id: 11,
         username: "Katherine Delgado",
         useremail: "katedelgado.ph@hotmail.com",
-        userphone: "3017654329"
+        userphone: "3017654329",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1087109143",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-12-12",
+        end_date: "2026-05-12",
+        business_email: "",
+        is_active: true
     },
     {
         id: 12,
         username: "Luis Felipe Arias",
         useremail: "luis.arias.m@gmail.com",
-        userphone: "3148901234"
+        userphone: "3148901234",
+        usertype: "COCINERO",
+        document_type: "PPT",
+        document_number: "1095028156",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-01-13",
+        end_date: "2026-06-13",
+        business_email: "luisariasm@flora.com",
+        is_active: true
     },
     {
         id: 13,
         username: "Maria José Castro",
         useremail: "mariajose_c@outlook.com",
-        userphone: "3176543210"
+        userphone: "3176543210",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1102947169",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-02-14",
+        end_date: "2026-07-14",
+        business_email: "",
+        is_active: true
     },
     {
         id: 14,
         username: "Nicolás Ortega",
         useremail: "nicolasortega94@gmail.com",
-        userphone: "3132345678"
+        userphone: "3132345678",
+        usertype: "MESERO",
+        document_type: "PEP",
+        document_number: "1110866182",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-03-15",
+        end_date: "2026-08-15",
+        business_email: "",
+        is_active: true
     },
     {
         id: 15,
         username: "Olga Marina Ruiz",
         useremail: "olgaruiz.consultora@gmail.com",
-        userphone: "3198765432"
+        userphone: "3198765432",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1118785195",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-04-16",
+        end_date: "2026-09-16",
+        business_email: "olgaruizcons@flora.com",
+        is_active: true
     },
     {
         id: 16,
         username: "Pablo Andrés Villa",
         useremail: "pablovilla.90@hotmail.com",
-        userphone: "3234567890"
+        userphone: "3234567890",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1126704208",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-05-17",
+        end_date: "2026-10-17",
+        business_email: "",
+        is_active: true
     },
     {
         id: 17,
         username: "Valentina Marín",
         useremail: "valemarin.m@gmail.com",
-        userphone: "3045678901"
+        userphone: "3045678901",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1134623221",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-06-18",
+        end_date: "",
+        business_email: "",
+        is_active: true
     },
     {
         id: 18,
         username: "Ricardo Gutiérrez",
         useremail: "ricardogutierrez.ing@gmail.com",
-        userphone: "3023456789"
+        userphone: "3023456789",
+        usertype: "MESERO",
+        document_type: "CE",
+        document_number: "1142542234",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-07-19",
+        end_date: "2026-12-19",
+        business_email: "ricardogutie@flora.com",
+        is_active: false
     },
     {
         id: 19,
         username: "Sofia Bermúdez",
         useremail: "sofiabermudez.co@outlook.com",
-        userphone: "3056789012"
+        userphone: "3056789012",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1150461247",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-08-20",
+        end_date: "2026-01-20",
+        business_email: "",
+        is_active: true
     },
     {
         id: 20,
         username: "Tomás Hernández",
         useremail: "tomashernandez_97@gmail.com",
-        userphone: "3156789012"
+        userphone: "3156789012",
+        usertype: "MESERO",
+        document_type: "PPT",
+        document_number: "1158380260",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-09-21",
+        end_date: "2026-02-21",
+        business_email: "",
+        is_active: true
     },
     {
         id: 21,
         username: "Valeria Espinoza",
         useremail: "valeria.espinoza.dev@gmail.com",
-        userphone: "3108901234"
+        userphone: "3108901234",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1166299273",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-10-22",
+        end_date: "2026-03-22",
+        business_email: "valeriaespin@flora.com",
+        is_active: true
     },
     {
         id: 22,
         username: "Walter Alexander Gil",
         useremail: "walter_gil93@hotmail.com",
-        userphone: "3123456789"
+        userphone: "3123456789",
+        usertype: "COCINERO",
+        document_type: "PEP",
+        document_number: "1174218286",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-11-23",
+        end_date: "2026-04-23",
+        business_email: "",
+        is_active: true
     },
     {
         id: 23,
         username: "Ximena Suárez",
         useremail: "ximenasuarez.arq@gmail.com",
-        userphone: "3145678901"
+        userphone: "3145678901",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1182137299",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-12-24",
+        end_date: "2026-05-24",
+        business_email: "",
+        is_active: true
     },
     {
         id: 24,
         username: "Yeferson Blandón",
         useremail: "yefersonblandon@outlook.com",
-        userphone: "3167890123"
+        userphone: "3167890123",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1190056312",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-01-25",
+        end_date: "",
+        business_email: "yefersonblan@flora.com",
+        is_active: true
     },
     {
         id: 25,
         username: "Zoraida Palacios",
         useremail: "zoraidapalacios.admin@gmail.com",
-        userphone: "3189012345"
+        userphone: "3189012345",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1197975325",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-02-26",
+        end_date: "2026-07-26",
+        business_email: "",
+        is_active: true
     },
     {
         id: 26,
         username: "Andrés Felipe Tobón",
         useremail: "andrestobon_91@gmail.com",
-        userphone: "3201234567"
+        userphone: "3201234567",
+        usertype: "COCINERO",
+        document_type: "CE",
+        document_number: "1205894338",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-03-27",
+        end_date: "2026-08-27",
+        business_email: "",
+        is_active: true
     },
     {
         id: 27,
         username: "Beatriz Elena Monsalve",
         useremail: "beatrizmonsalve.m@hotmail.com",
-        userphone: "3225678901"
+        userphone: "3225678901",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1213813351",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-04-01",
+        end_date: "2026-09-01",
+        business_email: "beatrizmonsa@flora.com",
+        is_active: false
     },
     {
         id: 28,
         username: "Christian David Niño",
         useremail: "christian.nino.dev@gmail.com",
-        userphone: "3007654321"
+        userphone: "3007654321",
+        usertype: "MESERO",
+        document_type: "PPT",
+        document_number: "1221732364",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-05-02",
+        end_date: "2026-10-02",
+        business_email: "",
+        is_active: true
     },
     {
         id: 29,
         username: "Daniela Fernanda Cruz",
         useremail: "danielacruz.96@outlook.com",
-        userphone: "3012345678"
+        userphone: "3012345678",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1229651377",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-06-03",
+        end_date: "2026-11-03",
+        business_email: "",
+        is_active: true
     },
     {
         id: 30,
         username: "Esteban Ramírez",
         useremail: "estebanramirez.m@gmail.com",
-        userphone: "3048901234"
+        userphone: "3048901234",
+        usertype: "MESERO",
+        document_type: "PEP",
+        document_number: "1237570390",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-07-04",
+        end_date: "2026-12-04",
+        business_email: "estebanramir@flora.com",
+        is_active: true
     },
     {
         id: 31,
         username: "Fabiola Patricia Real",
         useremail: "fabiolajreal@gmail.com",
-        userphone: "3113456789"
+        userphone: "3113456789",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1245489403",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-08-05",
+        end_date: "",
+        business_email: "",
+        is_active: true
     },
     {
         id: 32,
         username: "Gonzalo Alberto Jaramillo",
         useremail: "gonzalojaramillo_90@hotmail.com",
-        userphone: "3135678901"
+        userphone: "3135678901",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1253408416",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-09-06",
+        end_date: "2026-02-06",
+        business_email: "",
+        is_active: true
     },
     {
         id: 33,
         username: "Helena María Correa",
         useremail: "helenacorrea.co@gmail.com",
-        userphone: "3178901234"
+        userphone: "3178901234",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1261327429",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-10-07",
+        end_date: "2026-03-07",
+        business_email: "helenacorrea@flora.com",
+        is_active: true
     },
     {
         id: 34,
         username: "Iván René Valenciano",
         useremail: "ivanvalenciano.92@outlook.com",
-        userphone: "3192345678"
+        userphone: "3192345678",
+        usertype: "MESERO",
+        document_type: "CE",
+        document_number: "1269246442",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-11-08",
+        end_date: "2026-04-08",
+        business_email: "",
+        is_active: true
     },
     {
         id: 35,
         username: "Juliana Andrea Cadavid",
         useremail: "julianacadavid.ph@gmail.com",
-        userphone: "3215678901"
+        userphone: "3215678901",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1277165455",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-12-09",
+        end_date: "2026-05-09",
+        business_email: "",
+        is_active: true
     },
     {
         id: 36,
         username: "Kevin Mauricio Solano",
         useremail: "kevinsolano.ing@gmail.com",
-        userphone: "3238901234"
+        userphone: "3238901234",
+        usertype: "COCINERO",
+        document_type: "PPT",
+        document_number: "1285084468",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-01-10",
+        end_date: "2026-06-10",
+        business_email: "kevinsolanoi@flora.com",
+        is_active: false
     },
     {
         id: 37,
         username: "Laura Camila Vargas",
         useremail: "lauravargas_98@hotmail.com",
-        userphone: "3102345678"
+        userphone: "3102345678",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1293003481",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-02-11",
+        end_date: "2026-07-11",
+        business_email: "",
+        is_active: true
     },
     {
         id: 38,
         username: "Mateo Alejandro Henao",
         useremail: "mateohenao.dev@gmail.com",
-        userphone: "3125678901"
+        userphone: "3125678901",
+        usertype: "ADMIN",
+        document_type: "PEP",
+        document_number: "1300922494",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-03-12",
+        end_date: "",
+        business_email: "",
+        is_active: true
     },
     {
         id: 39,
         username: "Natalia Andrea Giraldo",
         useremail: "natigiraldo_co@outlook.com",
-        userphone: "3142345678"
+        userphone: "3142345678",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1308841507",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-04-13",
+        end_date: "2026-09-13",
+        business_email: "natigiraldo_@flora.com",
+        is_active: true
     },
     {
         id: 40,
         username: "Oscar Eduardo Muñoz",
         useremail: "oscarmunoz93@gmail.com",
-        userphone: "3168901234"
+        userphone: "3168901234",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1316760520",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-05-14",
+        end_date: "2026-10-14",
+        business_email: "",
+        is_active: true
     },
     {
         id: 41,
         username: "Paula Cristina Londoño",
         useremail: "paulalondono.ph@gmail.com",
-        userphone: "3182345678"
+        userphone: "3182345678",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1324679533",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-06-15",
+        end_date: "2026-11-15",
+        business_email: "",
+        is_active: true
     },
     {
         id: 42,
         username: "Santiago José Bedoya",
         useremail: "santiagobedoya95@hotmail.com",
-        userphone: "3205678901"
+        userphone: "3205678901",
+        usertype: "MESERO",
+        document_type: "CE",
+        document_number: "1332598546",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-07-16",
+        end_date: "2026-12-16",
+        business_email: "santiagobedo@flora.com",
+        is_active: true
     },
     {
         id: 43,
         username: "Tatiana Maria Zapata",
         useremail: "tatiazapata.m@gmail.com",
-        userphone: "3228901234"
+        userphone: "3228901234",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1340517559",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-08-17",
+        end_date: "2026-01-17",
+        business_email: "",
+        is_active: true
     },
     {
         id: 44,
         username: "Ulises Alberto Cardona",
         useremail: "ulisescardona_91@outlook.com",
-        userphone: "3002345678"
+        userphone: "3002345678",
+        usertype: "MESERO",
+        document_type: "PPT",
+        document_number: "1348436572",
+        address: "Avenida 30 de Agosto #45-10, Pereira",
+        start_date: "2025-09-18",
+        end_date: "2026-02-18",
+        business_email: "",
+        is_active: true
     },
     {
         id: 45,
         username: "Vanessa Alejandra Rúa",
         useremail: "vanessarua.dev@gmail.com",
-        userphone: "3015678901"
+        userphone: "3015678901",
+        usertype: "ADMIN",
+        document_type: "CC",
+        document_number: "1356355585",
+        address: "Calle 19 #6-25, Santa Rosa de Cabal",
+        start_date: "2025-10-19",
+        end_date: "",
+        business_email: "vanessaruade@flora.com",
+        is_active: false
     },
     {
         id: 46,
         username: "William de Jesús Hoyos",
         useremail: "williamhoyos.ing@gmail.com",
-        userphone: "3042345678"
+        userphone: "3042345678",
+        usertype: "MESERO",
+        document_type: "PEP",
+        document_number: "1364274598",
+        address: "Carrera 15 #3-80, Dosquebradas",
+        start_date: "2025-11-20",
+        end_date: "2026-04-20",
+        business_email: "",
+        is_active: true
     },
     {
         id: 47,
         username: "Yuri Tatiana Serna",
         useremail: "yuriserna_94@hotmail.com",
-        userphone: "3115678901"
+        userphone: "3115678901",
+        usertype: "COCINERO",
+        document_type: "CC",
+        document_number: "1372193611",
+        address: "Manzana 3 Casa 9, La Graciela",
+        start_date: "2025-12-21",
+        end_date: "2026-05-21",
+        business_email: "",
+        is_active: true
     },
     {
         id: 48,
         username: "Zulma Yaneth Durango",
         useremail: "zulmadurango.co@gmail.com",
-        userphone: "3132345678"
+        userphone: "3132345678",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1380112624",
+        address: "Calle 50 #12-14, Pereira",
+        start_date: "2025-01-22",
+        end_date: "2026-06-22",
+        business_email: "zulmadurango@flora.com",
+        is_active: true
     },
     {
         id: 49,
         username: "Diego Armando Forlán",
         useremail: "diegoforlan92@outlook.com",
-        userphone: "3175678901"
+        userphone: "3175678901",
+        usertype: "MESERO",
+        document_type: "CC",
+        document_number: "1388031637",
+        address: "Calle 12 #34-56, Pereira",
+        start_date: "2025-02-23",
+        end_date: "2026-07-23",
+        business_email: "",
+        is_active: true
     },
     {
         id: 50,
         username: "Carolina Andrea Ossa",
         useremail: "caroossa.dev@gmail.com",
-        userphone: "3198901234"
+        userphone: "3198901234",
+        usertype: "COCINERO",
+        document_type: "CE",
+        document_number: "1395950650",
+        address: "Carrera 8 #21-40, Dosquebradas",
+        start_date: "2025-03-24",
+        end_date: "2026-08-24",
+        business_email: "",
+        is_active: true
     }
 ];

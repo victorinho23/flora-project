@@ -1,10 +1,13 @@
+// src/features/products/components/CreateDishsForm.jsx
+// Formulario para agregar un platillo al menu
 import { useState, useEffect } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Input, Select, Button, Imageinput, Textarea } from "@/shared";
+import { Input, Select, Button, Imageinput, Textarea, Navbar } from "@/shared";
 import { getDishCategories } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom";
 import { dishSchema } from "../../../shared/schemas/disheSchema";
 import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import fotoFondo from "@/assets/images/fondo-dish.png";
+import { menu } from "@/features/users/data/menu";
 
 export default function CreateDishsForm() {
     const navigate = useNavigate();
@@ -12,6 +15,7 @@ export default function CreateDishsForm() {
     const [errors, setErrors] = useState({});
     const [categories, setCategories] = useState([]);
 
+    // Estado del formulario, el platillo queda habilitado por defecto
     const [formData, setFormData] = useState({
         dishName: "",
         dishPrice: "",
@@ -21,6 +25,7 @@ export default function CreateDishsForm() {
         isEnabled: true,
     });
 
+    // Actualiza el campo que cambio
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -29,6 +34,7 @@ export default function CreateDishsForm() {
         }));
     };
 
+    // Valida el formulario, revisa que no se repita el nombre en la categoria y confirma el registro
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -40,6 +46,14 @@ export default function CreateDishsForm() {
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+            return;
+        }
+
+        // No pueden existir dos platillos con el mismo nombre en la misma categoria
+        const categoryLabel = categories.find((category) => category.id === result.data.dishCategory)?.label ?? result.data.dishCategory;
+        const duplicated = menu.some((item) => item.name.trim().toLowerCase() === result.data.dishName.trim().toLowerCase() && item.category === categoryLabel);
+        if (duplicated) {
+            setErrors({ dishName: "Ya existe un platillo con este nombre en la misma categoría" });
             return;
         }
 
@@ -62,6 +76,7 @@ export default function CreateDishsForm() {
         }
     };
 
+    // Carga las categorias del select
     useEffect(() => {
         getDishCategories().then(setCategories);
     }, []);
@@ -69,44 +84,38 @@ export default function CreateDishsForm() {
     return (
         <div className="min-h-screen flex flex-col">
 
-            <div className="w-full bg-bg-s700 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-s900/90 border border-bd-w/15">
-                <Button
-                    variant="secondary"
-                    size="sm"
-                    type="button"
-                    onClick={() => navigate("/listMenu")}
-                >
-                    Ver listado
-                </Button>
-                <h1 className="text-title text-bg-w font-bold text-center">
-                    Crear plato
-                </h1>
+            <Navbar
+                variant="banda"
+                image={fotoFondo}
+                title="Crear plato"
+                onBack={() => navigate("/home")}
+                actions={
+                    <>
+                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listMenu")}>
+                            Ver listado
+                        </Button>
+                    </>
+                }
+            />
 
-                <Button
-                    type="button"
-                    onClick={() => navigate("/home")}
-                    className="text-bg-w hover:text-bg-w/70 transition-colors"
-                    aria-label="Volver"
-                >
-                    <ArrowLeft className="w-6 h-6" />
-                </Button>
-            </div>
-
-            <div className="flex-1 flex justify-center items-center px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+            <div className="flex-1 flex justify-center items-center px-4 sm:px-8 py-6 xl:py-4">
                 <form
                     onSubmit={handleSubmit}
-                    className="w-full mx-auto  max-w-7xl flex flex-col lg:flex-row gap-6 lg:gap-10 w-1000"
+                    className="w-full max-w-7xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start gap-6 bajo:gap-4 [&_.w-80]:w-full"
                 >
 
-                    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-1 lg:min-w-0 pt-25 pr-25">
-
+                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] p-4 sm:p-5 bajo:sm:p-4 bajo:[&_textarea]:h-48">
+                        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
+                            <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
+                            Datos del plato
+                        </h2>
                         <Input
                             type="text"
                             name="dishName"
                             label="Nombre del platillo"
                             placeholder="Escribe el nombre del plato"
                             htmlFor="dish-name"
-                            variant="cafe"
+                            variant="latte"
                             value={formData.dishName}
                             onChange={handleChange}
                             error={errors.dishName}
@@ -118,7 +127,7 @@ export default function CreateDishsForm() {
                             label="Precio"
                             placeholder="Escribe el precio"
                             htmlFor="dish-price"
-                            variant="cafe"
+                            variant="latte"
                             value={formData.dishPrice}
                             onChange={handleChange}
                             error={errors.dishPrice}
@@ -133,13 +142,13 @@ export default function CreateDishsForm() {
                                 options={categories}
                                 onChange={handleChange}
                                 error={errors.dishCategory}
-                                variant="cafe"
+                                variant="latte"
                             />
                             <Button
                                 type="button"
                                 onClick={() => navigate("/configuration")}
-                                className="text-sm text-br-w hover:underline self-start"
-                                variant="cafe"
+                                className="text-sm font-semibold text-br-t950 hover:underline self-start"
+                                variant="enlace"
                             >
                                  Crear nueva categoria
                             </Button>
@@ -150,39 +159,38 @@ export default function CreateDishsForm() {
                             label="Descripcion"
                             placeholder="Describe el plato: ingredientes, preparacion, etc."
                             htmlFor="dish-description"
-                            variant="cafe"
+                            variant="latte"
                             value={formData.dishDescription}
                             onChange={handleChange}
                             error={errors.dishDescription}
                         />
-
                     </div>
 
-                    <div className="flex flex-col gap-4 sm:gap-6 lg:flex-1 lg:min-w-0 ">
+                    <div className="flex flex-col gap-5 items-center">
 
-                        <p className="text-caption text-secondary text-bg-w">
-                            Foto del plato
-                        </p>
-
-                        {/* Caja de imagen: altura fija, sin depender de nada externo */}
-                        <div className="flex items-center justify-center bg-bg-s900/50 border border-bd-w/15 rounded-2xl h-150 w-fit p-4">
+                        <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] p-4 sm:p-5 bajo:sm:p-4 items-center">
+                            <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
+                                <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
+                                Foto del plato
+                            </h2>
                             <Imageinput
                                 value={formData.dishImage}
                                 onChange={(files) =>
                                     setFormData((prev) => ({ ...prev, dishImage: files }))
                                 }
                                 multiple={false}
-                                variant="fifteenth"
+                                variant="latte"
+                                formats={["png", "jpg", "jpeg", "webp"]}
+                                maxSizeMB={5}
                             />
                         </div>
                         {errors.dishImage && (
-                            <span className="text-red-400 text-sm">{errors.dishImage}</span>
+                            <span className="inline-block rounded bg-red-50 px-2 py-0.5 text-red-900 font-medium text-sm">{errors.dishImage}</span>
                         )}
 
-                        {/* Los botones viven en su propio bloque, fuera y debajo de la caja de imagen */}
-                        <div className="flex gap-4">
+                        <div className="flex flex-wrap justify-center gap-4">
                             <Button
-                                variant="secondary"
+                                variant="crema"
                                 size="lgg"
                                 type="button"
                                 onClick={() => navigate(-1)}
@@ -191,7 +199,7 @@ export default function CreateDishsForm() {
                             </Button>
 
                             <Button
-                                variant="primary"
+                                variant="espresso"
                                 size="lgg"
                                 type="submit"
                             >

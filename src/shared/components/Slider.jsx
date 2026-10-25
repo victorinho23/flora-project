@@ -20,7 +20,7 @@ export default function Slider({ products, interval = 3000 }) {
                 style={{ transform: `translateX(-${position * 100}%)` }}
             >
                 {products.map((product) => (
-                    <div key={product.id} className="min-w-full flex justify-center">
+                    <div key={product.id} className="w-full shrink-0 min-w-0 flex justify-center">
                         <Card product={product} variant="coffe" />
                     </div>
                 ))}

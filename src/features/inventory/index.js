@@ -1,3 +1,4 @@
+// Punto de exportacion del modulo de inventario
 export { default as InventoryRegisterForm } from "./components/InventoryRegisterForm";
 export { default as InventoryListPage } from "./pages/InventoryListPage.jsx";
 export { default as InventoryUpdatePage } from "./pages/InventoryUpdatePage.jsx";

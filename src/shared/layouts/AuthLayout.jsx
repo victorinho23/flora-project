@@ -1,13 +1,36 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import authBg from "@/assets/images/cafe.png";
-// TODO: cambia esta ruta por la de tu logo real
 import logo from "@/assets/icons/flora-icon.svg";
 import { Input, Button, Select, Checkbox } from "@/shared";
 import { getDocumentTypes } from "../../services/selectServices";
 import { loginSchema } from "../schemas/userSchema";
 import { ForgotPasswordModal } from "../../features/users";
 import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
+import fotoFondo from "@/assets/images/cafe.png";
+import { users } from "@/features/users/data/users";
+
+// Intentos fallidos permitidos y minutos de bloqueo
+const MAX_ATTEMPTS = 3;
+const LOCK_MINUTES = 15;
+
+// Lee los intentos y bloqueos guardados por correo
+const readLock = () => {
+    try {
+        return JSON.parse(localStorage.getItem("flora-login-lock")) ?? {};
+    } catch {
+        return {};
+    }
+};
+
+// Guarda los intentos y bloqueos
+const writeLock = (value) => {
+    try {
+        localStorage.setItem("flora-login-lock", JSON.stringify(value));
+    } catch {
+        return;
+    }
+};
 
 export default function AuthLayout() {
     const navigate = useNavigate();
@@ -44,9 +67,46 @@ export default function AuthLayout() {
         // Evita que el formulario recargue la pagina
         e.preventDefault();
 
+        const email = formData.userEmail.trim().toLowerCase();
+        // Si la cuenta esta bloqueada no deja intentar hasta que pase el tiempo
+        const locks = readLock();
+        const lock = locks[email];
+        if (lock?.until && lock.until > Date.now()) {
+            const minutes = Math.ceil((lock.until - Date.now()) / 60000);
+            await showCreateUserErrorAlert({
+                title: "Cuenta bloqueada",
+                text: `Superaste los ${MAX_ATTEMPTS} intentos permitidos. Intenta de nuevo en ${minutes} minuto(s) o pide al administrador que desbloquee la cuenta.`,
+                timer: 5000,
+            });
+            return;
+        }
+
         // Validamos los datos del formulario contra el esquema Zod
         // safeParse no lanza excepcion, retorna un objeto controlado
         const result = loginSchema.safeParse(formData);
+
+        // Solo usuarios registrados y activos pueden entrar
+        const account = users.find((user) => user.useremail.toLowerCase() === email);
+        const credentialsError = !account
+            ? "El correo no está registrado en el sistema"
+            : !account.is_active
+                ? "La cuenta está inhabilitada. Comunícate con el administrador"
+                : null;
+
+        if (result.success && credentialsError) {
+            // Suma el intento fallido y bloquea al llegar al limite
+            const attempts = (lock?.attempts ?? 0) + 1;
+            const blocked = attempts >= MAX_ATTEMPTS;
+            writeLock({ ...locks, [email]: blocked ? { attempts: 0, until: Date.now() + LOCK_MINUTES * 60000 } : { attempts } });
+            await showCreateUserErrorAlert({
+                title: blocked ? "Cuenta bloqueada" : "No se pudo iniciar sesión",
+                text: blocked
+                    ? `Se bloqueó el acceso durante ${LOCK_MINUTES} minutos por ${MAX_ATTEMPTS} intentos fallidos consecutivos.`
+                    : `${credentialsError}. Intento ${attempts} de ${MAX_ATTEMPTS}.`,
+                timer: 4000,
+            });
+            return;
+        }
 
         // Si la validacion falla
         if (!result.success) {
@@ -62,7 +122,7 @@ export default function AuthLayout() {
 
             setErrors(fieldErrors);
             await showCreateUserErrorAlert({
-                title: "Error al crear usuario",
+                title: "No se pudo iniciar sesión",
                 text: "Revisa los campos marcados en el formulario",
                 timer: 3000,
             });
@@ -71,6 +131,7 @@ export default function AuthLayout() {
 
         // Si la validacion pasa limpiamos errores previos
         setErrors({});
+        writeLock({ ...locks, [email]: { attempts: 0 } });
 
         // Activamos estado de envio (util para deshabilitar el boton)
         // setIsSubmmiting(true);
@@ -85,8 +146,8 @@ export default function AuthLayout() {
 
             // Feedback basico al usuario
             await showSuccesAlert({
-                title: "Usuario registrado",
-                text: "El usuario fue registrado correctamente",
+                title: "Bienvenido",
+                text: "Inicio de sesión exitoso",
                 timer: 3000,
             });
 
@@ -114,32 +175,15 @@ export default function AuthLayout() {
         <>
             
             <div
-                className="min-h-screen w-full flex justify-center items-center p-4 md:p-10"
-                style={{
-                    backgroundImage: `url(${authBg})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                }}
+                className="min-h-screen w-full flex justify-center items-center p-4 md:p-10 bg-bg-s950 bg-cover bg-center bg-fixed bg-[linear-gradient(160deg,color-mix(in_srgb,var(--color-bg-s950)_80%,transparent)_0%,color-mix(in_srgb,var(--color-bg-s900)_62%,transparent)_55%,color-mix(in_srgb,var(--color-bg-t950)_72%,transparent)_100%),var(--foto)]" style={{ "--foto": `url(${fotoFondo})` }}
             >
                 
                 <div
-                    className="relative overflow-hidden w-full max-w-300 min-h-180 border border-white/70 rounded-[20px] shadow-[0_0_15px_white]"
+                    className="relative overflow-hidden w-full max-w-300 min-h-180 rounded-[28px] bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 shadow-[0_30px_60px_-28px_color-mix(in_srgb,var(--color-bg-s950)_80%,transparent)]"
                 >
                     
-                    <div
-                        className="absolute inset-0 blur-md scale-110 b"
-                        style={{
-                            backgroundImage: `url(${authBg})`,
-                            backgroundSize: "cover",
-                            backgroundPosition: "center",
-                        }}
-                    />
-
                     
-                    <div className="absolute inset-0 bg-black/20" />
-
-                    
-                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-180 p-8 md:p-14">
+                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 min-h-180 p-5 sm:p-8 md:p-14">
 
                         
                         <section className="flex flex-col">
@@ -160,14 +204,13 @@ export default function AuthLayout() {
                         </section>
 
               
-                        <section className="flex items-center justify-center lg:justify-end">
+                        <section className="flex items-center justify-center lg:justify-end mt-20">
                             <form
                                 className="w-full max-w-md flex flex-col items-center gap-4
-                                           rounded-[16px] border border-white/30 bg-coffe/50
-                                           backdrop-blur-md shadow-2xl px-8 py-10"
+                                           rounded-[20px] bg-bg-w shadow-2xl px-5 sm:px-8 py-10 [&_.w-80]:w-full [&_.w-80]:max-w-80"
                                 onSubmit={handleSubmit}
                             >
-                                <h1 className="mb-4 text-title text-text-primary font-bold">
+                                <h1 className="mb-4 text-title text-br-s950 font-bold">
                                     Inicio de Sesión
                                 </h1>
 
@@ -177,7 +220,7 @@ export default function AuthLayout() {
                                     value={formData.userEmail}
                                     placeholder="Escribe tu Correo Electronico"
                                     htmlFor="user-email"
-                                    variant="primary"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userEmail}
                                 />
@@ -187,54 +230,35 @@ export default function AuthLayout() {
                                     type="password"
                                     placeholder="Escribe tu contraseña"
                                     htmlFor="user-password"
-                                    variant="primary"
+                                    variant="latte"
                                     value={formData.userPassword}
                                     onChange={handleChange}
                                     error={errors.userPassword}
                                 />
 
-                                <button
+                                <Button
                                     type="button"
                                     onClick={() => setShowForgotPassword(true)}
-                                    className="w-80 text-right text-white text-xs hover:underline -mt-2"
+                                    className="w-80 text-right text-br-t900 text-sm font-semibold hover:underline -mt-2"
                                 >
                                     ¿Olvidaste tu contraseña?
-                                </button>
+                                </Button>
 
-                                <Select
-                                    label="Tipos de documento"
-                                    name="userDocumentTypes"
-                                    htmlFor="userDocumentTypes"
-                                    variant = "fourteenth"
-                                    options={documentTypes}
-                                    value={formData.userDocumentTypes}
-                                    onChange={handleChange}
-                                    error={errors.userDocumentTypes}
-                                />
 
-                                <Input
-                                    name="userDocumentNumber"
-                                    type="text"
-                                    placeholder="Escribe tu numero de documento"
-                                    htmlFor="user-document-number"
-                                    variant="primary"
-                                    value={formData.userDocumentNumber}
-                                    onChange={handleChange}
-                                    error={errors.userDocumentNumber}
-                                />
-
-                                <Checkbox
-                                    className="min-w-80 w-80 mt-2 text-white shrink-0"
+                               <Checkbox
+                                    className="w-full max-w-80 mt-2 shrink-0"
                                     id="isActive"
                                     name="isActive"
                                     label="Al hacer click aceptas las condiciones de uso, la politica de privacidad y de cookies de Flora."
                                     checked={formData.isActive}
                                     onChange={handleChange}
-                                    variant="primary"
+                                    variant="latte"
+                                    error={errors.isActive}
                                 />
 
                                 <div className="mt-4">
-                                    <Button variant="primary" size="mdl" type="submit">
+                                    <Button variant="espresso" size="mdl" type="submit"
+                                    >
                                         Continuar
                                     </Button>
                                 </div>

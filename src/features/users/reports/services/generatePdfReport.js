@@ -11,19 +11,32 @@ export function generatePdfReport ({
     headers,                        // Encabezado de la tabla (columnas)
     rows,                           // Datos (array de filas)
     fileName = "reporte.pdf",       // Nombre del archivo de salida
-    reportTitle = "Reporte"         // Titulo impreso en el PDF (a juego con el modulo)
+    reportTitle = "Reporte",
+    meta = {},
 }) {
 
     // Inicializa el documento PDF 
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: headers.length > 6 ? "landscape" : "portrait" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    doc.setFillColor(45, 31, 21);
+    doc.rect(0, 0, pageWidth, 20, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13);
+    doc.text(meta.company ?? "Flora", 14, 13);
+    doc.setFontSize(9);
+    doc.text(meta.generatedAt ?? "", pageWidth - 14, 13, { align: "right" });
+    doc.setTextColor(45, 31, 21);
 
     // Configuracion del titulo
     doc.setFontSize(16);
-    doc.text(reportTitle, 14, 20); // Posicion (x,y)
+    doc.text(reportTitle, 14, 32); // Posicion (x,y)
+    doc.setFontSize(10);
+    doc.text(`Generado por: ${meta.user ?? ""}   ·   Fecha y hora: ${meta.generatedAt ?? ""}   ·   Registros: ${rows.length}`, 14, 39);
 
     // Generacin de tabla automatica
     autoTable(doc, {
-        startY: 30,     // Posicion incial deba del titulo
+        startY: 45,     // Posicion incial deba del titulo
 
         head: [headers],    // Encabezados (debe ser array de arrays)
         body: rows,         // Filas del reporte
@@ -32,7 +45,7 @@ export function generatePdfReport ({
 
         // Estilos del encabezado
         headStyles : {
-            fillColor: [33, 150, 243],   // Color fondo (RGB)
+            fillColor: [131, 69, 4],   // Color fondo (RGB)
             textColor: 255,              // Color del texto
             fontSize: 11
         },

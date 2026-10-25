@@ -1,19 +1,18 @@
 // src/features/inventory/pages/InventoryListPage.jsx
+import InventoryDetailModal from "../components/InventoryDetailModal";
 
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Bell, ArrowLeft } from "lucide-react";
+import { Package, Bell, Search } from "lucide-react";
+import { showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
 
-import { DataTable, Button } from "../../../shared";
-import { createInventoryColumns } from "../table/InventoryColumns";
+import { DataTable, Button, Navbar } from "../../../shared";
+import { createInventoryColumns, inventoryFilters, inventoryInitialSort } from "../table/InventoryColumns";
 import { inventory } from "../data/inventory";
 import InventoryReportModal from "../reports/components/InventoryReportModal";
 
-import authBg from "@/assets/images/white.jpg";
-import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
 
-const METAL = "bg-[linear-gradient(180deg,var(--color-br-t50)_0%,var(--color-br-t300)_45%,var(--color-br-t500)_55%,var(--color-br-t400)_100%)] bg-clip-text text-transparent";
-const PANEL = "border-2 border-bd-t500 bg-bg-g950/95 backdrop-blur-xl shadow-[0_0_15px_var(--color-tertiary-400),0_0_35px_color-mix(in_srgb,var(--color-tertiary-400)_40%,transparent),0_20px_40px_-12px_rgb(0_0_0/0.6)]";
 
 export default function InventoryListPage () {
 
@@ -21,117 +20,84 @@ export default function InventoryListPage () {
     const [rows, setRows] = useState(inventory);
     const navigate = useNavigate();
 
-    const handleView = (item) => navigate("/detailsInventory", { state: { id: item.id } });
-    const handleEdit = (item) => navigate("/updateInventory", { state: { search: item.name } });
+    const [selectedId, setSelectedId] = useState(null);
 
-    const handleDelete = async (item) => {
-        const result = await showConfirmDeleteAlert({
-            title: "¿Eliminar producto?",
-            text: `Se eliminara el producto ${item.name}. Esta accion no se puede deshacer.`,
-        });
+    const handleView = (item) => setSelectedId(item.id);
+    const handleEdit = (item) => navigate("/editInventory", { state: { item } });
 
-        if (!result.isConfirmed) {
-            await showDeleteCancelAlert({
-                title: "Cancelado",
-                text: "El producto no fue eliminado",
-                timer: 3000,
-            });
+    // Campana: avisa que productos estan por debajo de su cantidad minima
+    const notifyLowStock = async () => {
+        const low = rows.filter((item) => Number(item.quantity) < Number(item.minQuantity ?? 0));
+        if (!low.length) {
+            await showSuccesAlert({ title: "Existencias al día", text: "Ningún producto está por debajo de su cantidad mínima.", timer: 2500 });
             return;
         }
-
-        try {
-            setRows((prev) => prev.filter((row) => row.id !== item.id));
-
-            await showDeleteSuccessAlert({
-                title: "Producto eliminado",
-                text: `El producto ${item.name} fue eliminado correctamente`,
-                timer: 3000,
-            });
-        } catch (error) {
-            await showUnexpectedErrorAlert({
-                text: error.message,
-                timer: 3000,
-            });
-        }
+        await showErrorAlert({
+            title: "Existencias bajas",
+            text: low.map((item) => `${item.name}: ${item.quantity} (mínimo ${item.minQuantity})`).join(" · "),
+            confirmButtonText: "Entendido",
+            timer: 6000,
+        });
     };
 
+
+
     const columns = useMemo(
-        () => createInventoryColumns({ onView: handleView, onEdit: handleEdit, onDelete: handleDelete }),
+        () => createInventoryColumns({ onView: handleView, onEdit: handleEdit, onStatusChange: (item, status) => setRows((prev) => prev.map((i) => (i.id === item.id ? { ...i, status } : i))) }),
         []
     );
 
     const totalItems = rows.length;
 
-    return(
-        <div
-            className="p-6 md:p-10 bg-fixed min-h-screen"
-            style={{
-                backgroundImage: `url(${authBg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-            }}
-        >
+    return (
+        <div className="p-6 md:p-10 min-h-screen bg-bg-p500 bg-fixed bg-[radial-gradient(50rem_32rem_at_100%_-5%,color-mix(in_srgb,var(--color-bg-t300)_40%,transparent),transparent_60%),radial-gradient(46rem_30rem_at_-5%_105%,color-mix(in_srgb,var(--color-bg-s300)_50%,transparent),transparent_62%),linear-gradient(160deg,var(--color-bg-p400)_0%,var(--color-bg-p600)_55%,var(--color-bg-s200)_100%)]">
             <div className="w-full space-y-6">
+                <Navbar
+                    variant="foto"
+                    navigation
+                    image={fotoFondo}
+                    icon={Package}
+                    title="Inventario"
+                    subtitle="Administra las existencias de todas las sucursales."
+                    onBack={() => navigate("/createInventory")}
+                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    actions={
+                        <>
+                            <Button size="sm" variant="crema" aria-label="Existencias bajas" onClick={notifyLowStock}>
+                                <Bell size={18} />
+                            </Button>
 
-                <div className={`flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl p-5 ${PANEL}`}>
-                    <div className="flex items-center gap-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate("/createInventory")}
-                            className="text-bg-w hover:text-bg-g300 transition-colors"
-                            aria-label="Volver"
-                        >
-                            <ArrowLeft className="w-7 h-7" />
-                        </button>
+                            <Button size="sm" variant="crema" onClick={() => navigate("/detailsInventory")}>
+                                <Search size={16} />
+                                Consultar producto
+                            </Button>
 
-                        <div className="p-3 rounded-lg bg-bg-g900 border border-bd-t500/60">
-                            <svg width="0" height="0" className="absolute" aria-hidden="true">
-                                <defs>
-                                    <linearGradient id="metalCaramelo" x1="0" y1="2" x2="0" y2="22" gradientUnits="userSpaceOnUse">
-                                        <stop offset="0%" style={{ stopColor: "var(--color-br-t50)" }} />
-                                        <stop offset="45%" style={{ stopColor: "var(--color-br-t300)" }} />
-                                        <stop offset="55%" style={{ stopColor: "var(--color-br-t500)" }} />
-                                        <stop offset="100%" style={{ stopColor: "var(--color-br-t400)" }} />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <Package size={26} color="url(#metalCaramelo)" />
-                        </div>
-                        <div>
-                            <h1 className={`text-2xl font-bold ${METAL}`}>
-                                Inventario
-                            </h1>
-                            <p className="text-sm text-bg-g300">Administra las existencias de todas las sucursales.</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                        <Button size="sm" variant="remolino" aria-label="Notificaciones">
-                            <Bell size={18} />
-                        </Button>
-
-                        <Button size="sm" variant="remolino" onClick={() => setIsReportModalOpen(true)}>
-                            Generar reporte
-                        </Button>
-                    </div>
-                </div>
+                            <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
+                                Generar reporte
+                            </Button>
+                        </>
+                    }
+                />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className={`rounded-lg text-center px-6 py-3 ${PANEL}`}>
-                        <p className="text-xs text-bg-g300">Total de productos</p>
-                        <p className={`text-lg font-semibold ${METAL}`}>
-                            {totalItems}
-                        </p>
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                        <p className="text-sm font-medium text-bg-w">Total de productos</p>
+                        <p className="text-2xl font-bold text-bg-w">{totalItems}</p>
                     </div>
                 </div>
 
-                <DataTable variant="fifteenth" data={rows} columns={columns} />
-
+                <DataTable variant="cafe" data={rows} columns={columns} filters={inventoryFilters(rows)} initialSort={inventoryInitialSort} />
             </div>
+            <InventoryDetailModal
+                item={rows.find((i) => i.id === selectedId)}
+                onClose={() => setSelectedId(null)}
+                onEdit={handleEdit}
+            />
 
             <InventoryReportModal
                 isOpen={isReportModalOpen}
                 onClose={() => setIsReportModalOpen(false)}
+                data={rows}
             />
         </div>
     )

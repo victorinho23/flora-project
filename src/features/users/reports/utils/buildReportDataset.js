@@ -1,9 +1,8 @@
 //  Funcion utilitaria para constuir el dataset de un reporte (tabla)
 // Patron: transformacion de datos (input -> output listo para exportar)
-// Generica: sirve para usuarios, ordenes, menu, proveedores, etc.
 
 export function buildReportDataset({
-    data,                // Array de registros origen (cualquier modulo)
+    data,
     selectedFields,      // Campos seleccionados para el reporte [{key, label}]
     scope,               // Alcance del reporte: "all" | "filter"
     filterField,         // Propiedad del registro usada para filtrar (si aplica)
@@ -29,6 +28,7 @@ export function buildReportDataset({
 
     const rows = filteredData.map((item) => selectedFields.map((field) => {
         const value = item[field.key] // Acceso dinamico a la propiedad
+        if (field.format) return field.format(value, item);
 
         // Normalizacin: evita undefined o null en el reporte
         return value ?? "";

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// src/shared/schemas/disheSchema.js
+// Reglas para crear un platillo
 export const dishSchema = z.object({
     dishName: z
         .string()
@@ -23,6 +25,7 @@ export const dishSchema = z.object({
     dishImage: z.array(z.any()).optional(),
 });
 
+// Reglas para actualizar un platillo, la descripcion es opcional
 export const dishUpdateSchema = z.object({
     dishName: z
         .string()

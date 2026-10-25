@@ -1,3 +1,4 @@
+// Punto de exportacion del modulo de usuarios (formularios, tablas, reportes y esquemas)
 export { UserDetails } from "./components/UserDetails.jsx";
 export {default as UserRegisterForm } from "./components/UserRegisterForm";
 export {default as UserListPage } from "./pages/UserListPage.jsx";

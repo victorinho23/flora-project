@@ -4,7 +4,8 @@ import {
   getCoreRowModel,        // Modelo base de filas (sin filtros ni paginación)
   flexRender,             // Permite renderizar contenido dinámico de columnas
   getPaginationRowModel,  // Modelo de filas con paginación
-  getFilteredRowModel     // Modelo de filas filtradas
+  getFilteredRowModel,    // Modelo de filas filtradas
+  getSortedRowModel
 } from "@tanstack/react-table"
 
 
@@ -12,222 +13,28 @@ import {
 import { useState } from "react"
 
 
-// Botón reutilizable del sistema de componentes
-import { Button } from "@/shared"
+// Componentes reutilizables del sistema (boton, buscador, select e input)
+import { Button, SearchField, Select, Input } from "@/shared"
 
 const tableVariants = {
-    // ---- Variantes CLARAS (panel color crema/blanco, texto oscuro) ----
-    fifth: {
-        panel: "bg-bg-w/95 backdrop-blur-xl", header: "bg-bg-p200 text-text-inverse",
-        row: "hover:bg-bg-p100/80", rowText: "text-text-inverse", zebra: "bg-bg-p50/60",
-        border: "border-bd-p300", inputBg: "bg-bg-w", inputText: "text-text-inverse",
-        inputPlaceholder: "placeholder:text-br-s400", selectBg: "bg-bg-w", selectText: "text-text-inverse",
-        footerText: "text-br-s700",
-    btnPrimary: "primary", btnSecondary: "fifth",
+    cafe: {
+        panel: "bg-bg-s950 border-t-[5px] border-t-bd-t800 rounded-2xl shadow-[0_26px_50px_-24px_color-mix(in_srgb,var(--color-bg-s950)_80%,transparent)] border-t-[5px]! border-t-bd-t800! rounded-2xl!", header: "text-bg-w bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 [&_th_svg]:text-bg-w",
+        row: "hover:bg-bg-s800", rowText: "text-bg-w", zebra: "bg-bg-s900",
+        border: "border-bg-w/10", inputBorder: "border-bd-p400", inputBg: "bg-bg-s900", inputText: "text-bg-w",
+        inputPlaceholder: "placeholder:text-br-p300", selectBg: "bg-bg-s900 [&_option]:bg-bg-s900 [&_option]:text-bg-w", selectText: "text-bg-w",
+        footerText: "text-br-p100",
+        btnPrimary: "caramelo", btnSecondary: "crema",
+        field: "cafe",
     },
-    seventh: {
-        panel: "bg-bg-p50/96 backdrop-blur-xl", header: "bg-bg-p950 text-br-w",
-        row: "hover:bg-bg-p500", rowText: "text-text-primary", rowBg: "bg-bg-p700",
-        border: "border-bd-p400", inputBg: "bg-bg-w", inputText: "text-br-s900",
-        inputPlaceholder: "placeholder:text-br-s700", selectBg: "bg-bg-w", selectText: "text-br-s900",
-        footerText: "text-br-s700",
-    btnPrimary: "kaki", btnSecondary: "kakiContorno",
-    },
-    eighth: {
-        panel: "bg-transparent shadow-xl", header: "bg-bg-t600 text-br-p50",
-        row: "hover:bg-bg-t100/70", rowText: " text-center text-br-t600", zebra: "",
-        border: "border-bd-t400 border", inputBg: "bg-bg-w", inputText: "text-br-s900",
-        inputPlaceholder: "placeholder:text-br-t500", selectBg: "bg-bg-w", selectText: "text-br-s900",
-        footerText: "text-br-t600",
-    btnPrimary: "fifth", btnSecondary: "fifth",
-    },
-    ninth: {
-        panel: "bg-bg-w/94 backdrop-blur-xl", header: "bg-bg-g100 text-text-inverse",
-        row: "hover:bg-bg-g50/80", rowText: "text-text-secondary", zebra: "bg-bg-g50/70",
-        border: "border-bd-g300", inputBg: "bg-bg-w", inputText: "text-text-secondary",
-        inputPlaceholder: "placeholder:text-text-muted", selectBg: "bg-bg-w", selectText: "text-text-secondary",
-        footerText: "text-text-secondary",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    tenth: {
-        panel: "bg-bg-w shadow-sm", header: "bg-bg-w text-text-inverse shadow-sm",
-        row: "hover:bg-bd-g50", rowText: "text-text-secondary", zebra: "bg-bg-g50/80",
-        border: "border-bd-g200", inputBg: "bg-bg-w", inputText: "text-text-secondary",
-        inputPlaceholder: "placeholder:text-text-muted", selectBg: "bg-bg-w", selectText: "text-text-secondary",
-        footerText: "text-text-secondary",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    eleventh: {
-        panel: "bg-bg-p100/95 backdrop-blur-xl", header: "bg-bg-p700 text-br-p50",
-        row: "hover:bg-bg-p200/70", rowText: "text-text-inverse", zebra: "bg-bg-p50/70",
-        border: "border-bd-p500", inputBg: "bg-bg-w", inputText: "text-text-inverse",
-        inputPlaceholder: "placeholder:text-br-s400", selectBg: "bg-bg-w", selectText: "text-text-inverse",
-        footerText: "text-br-s800",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    twelfth: {
-        panel: "bg-bg-w/94 backdrop-blur-lg", header: "bg-bg-g50 text-text-inverse",
-        row: "hover:bg-bd-g50/80", rowText: "text-text-secondary", zebra: "bg-bg-g50/60",
-        border: "border-bd-g300", inputBg: "bg-bg-w", inputText: "text-text-secondary",
-        inputPlaceholder: "placeholder:text-text-muted", selectBg: "bg-bg-w", selectText: "text-text-secondary",
-        footerText: "text-text-secondary",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    thirteenth: {
-        panel: "bg-bg-t50/96 backdrop-blur-xl", header: "bg-bg-w text-br-t700 shadow-sm",
-        row: "hover:bg-br-t50/70", rowText: "text-text-inverse", zebra: "bg-bg-t100/50",
-        border: "border-bd-t600", inputBg: "bg-bg-w", inputText: "text-br-t900",
-        inputPlaceholder: "placeholder:text-br-t500", selectBg: "bg-bg-w", selectText: "text-br-t900",
-        footerText: "text-br-t800",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    nineteenth: {
-        panel: "bg-bg-p100/96 backdrop-blur-xl shadow-lg", header: "bg-bg-p800 text-br-p50",
-        row: "hover:bg-bg-p200/70", rowText: "text-text-inverse", zebra: "bg-bg-p50/60",
-        border: "border-bd-p400", inputBg: "bg-bg-w", inputText: "text-text-inverse",
-        inputPlaceholder: "placeholder:text-br-s400", selectBg: "bg-bg-w", selectText: "text-text-inverse",
-        footerText: "text-br-s800",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-    seventeenth: {
-        panel: "bg-bg-w/90 backdrop-blur-2xl", header: "bg-bg-w text-text-inverse",
-        row: "hover:bg-bg-w/60", rowText: "text-text-inverse", zebra: "bg-bg-w/40",
-        border: "border-bd-g200", inputBg: "bg-bg-w", inputText: "text-text-inverse",
-        inputPlaceholder: "placeholder:text-text-muted", selectBg: "bg-bg-w", selectText: "text-text-inverse",
-        footerText: "text-text-secondary",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-
-    // ---- Variantes OSCURAS (panel oscuro, texto claro) ----
-    fourth: {
-        panel: "bg-bg-s900/95 backdrop-blur-xl", header: "bg-bg-s950 text-br-p100",
-        row: "hover:bg-bg-s800/80", rowText: "text-br-p100", zebra: "bg-bg-s800/40",
-        border: "border-bd-s600", inputBg: "bg-bg-s950/90", inputText: "text-br-p50",
-        inputPlaceholder: "placeholder:text-br-p400", selectBg: "bg-bg-s950/90", selectText: "text-br-p50",
-        footerText: "text-br-p200",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    sixth: {
-        panel: "bg-bg-s950/94 backdrop-blur-xl", header: "bg-bg-t800 text-br-t100",
-        row: "hover:bg-br-t700/25", rowText: "text-br-t100", zebra: "bg-bg-t900/20",
-        border: "border-br-t600", inputBg: "bg-bg-s950/90", inputText: "text-br-t100",
-        inputPlaceholder: "placeholder:text-br-t300", selectBg: "bg-bg-s950/90", selectText: "text-br-t100",
-        footerText: "text-br-t200",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    fourteenth: {
-        panel: "bg-bg-s900/94 backdrop-blur-xl", header: "bg-bg-s900 text-text-primary",
-        row: "hover:bg-bg-s700/80", rowText: "text-br-p100", zebra: "bg-bg-s800/40",
-        border: "border-bd-g700", inputBg: "bg-bg-s950/90", inputText: "text-text-primary",
-        inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-s950/90", selectText: "text-text-primary",
-        footerText: "text-br-g200",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-
-   fifteenth: {
-    panel: "bg-bg-g950/95 border-2! border-br-t300! shadow-[0_0_0_1px_var(--color-br-t500),0_0_8px_var(--color-br-t400),0_0_20px_var(--color-br-t500),0_0_45px_color-mix(in_srgb,var(--color-br-t500)_60%,transparent),inset_0_0_12px_color-mix(in_srgb,var(--color-br-t400)_50%,transparent)]!",
-    header: "bg-bg-g950 [&_th]:bg-[linear-gradient(180deg,var(--color-br-t50)_0%,var(--color-br-t300)_45%,var(--color-br-t500)_55%,var(--color-br-t400)_100%)] [&_th]:bg-clip-text [&_th]:text-transparent [&_th_svg]:text-br-t300",
-    row: "hover:bg-bg-w/10", rowText: "text-br-t100", zebra: "bg-bg-w/5",
-    border: "border-bd-w/20", inputBg: "bg-bg-g900/90", inputText: "text-text-primary",
-    inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-g900/90", selectText: "text-text-primary",
-    footerText: "text-br-g300",
-    btnPrimary: "remolino", btnSecondary: "remolino",
-},
-    sixteenth: {
-        panel: "bg-bg-g950/95 backdrop-blur-xl", header: "bg-bg-g950 text-br-t400",
-        row: "hover:bg-br-t500/15", rowText: "text-br-g100", zebra: "bg-br-t500/5",
-        border: "border-br-t500", inputBg: "bg-bg-g900/90", inputText: "text-br-g100",
-        inputPlaceholder: "placeholder:text-br-g500", selectBg: "bg-bg-g900/90", selectText: "text-br-g100",
-        footerText: "text-br-t300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    eighteenth: {
-        panel: "bg-bg-g950/96 backdrop-blur-xl", header: "bg-bg-g950 text-br-t400",
-        row: "hover:bg-br-t600/15", rowText: "text-br-g100", zebra: "bg-br-t600/5",
-        border: "border-br-t600", inputBg: "bg-bg-g900/90", inputText: "text-br-g100",
-        inputPlaceholder: "placeholder:text-br-g500", selectBg: "bg-bg-g900/90", selectText: "text-br-g100",
-        footerText: "text-br-t300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    twentieth: {
-        panel: "bg-bg-g900/95 backdrop-blur-xl", header: "bg-bg-g900 text-text-primary",
-        row: "hover:bg-bg-g800/80", rowText: "text-br-g100", zebra: "bg-bg-g800/40",
-        border: "border-bd-g700", inputBg: "bg-bg-g950/90", inputText: "text-text-primary",
-        inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-g950/90", selectText: "text-text-primary",
-        footerText: "text-br-g300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    twentyFirst: {
-        panel: "bg-gradient-to-br from-bg-g950/95 to-bg-s800/95 backdrop-blur-xl",
-        header: "bg-gradient-to-r from-bg-g950 to-bg-s800 text-text-primary",
-        row: "hover:bg-bg-s700/60", rowText: "text-br-p100", zebra: "bg-bg-s800/25",
-        border: "border-bd-s600", inputBg: "bg-bg-g950/90", inputText: "text-text-primary",
-        inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-g950/90", selectText: "text-text-primary",
-        footerText: "text-br-g300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    twentySecond: {
-        panel: "bg-bg-g900/95 backdrop-blur-xl", header: "bg-bg-g900 text-text-primary",
-        row: "hover:bg-bg-g800/80", rowText: "text-br-g100", zebra: "bg-bg-g800/30",
-        border: "border-bd-g700", inputBg: "bg-bg-g950/90", inputText: "text-text-primary",
-        inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-g950/90", selectText: "text-text-primary",
-        footerText: "text-br-g300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-    twentyThird: {
-        panel: "bg-bg-g950/95 backdrop-blur-xl", header: "bg-bg-g950 text-text-primary",
-        row: "hover:bg-br-t500/15", rowText: "text-br-g100", zebra: "bg-br-t500/5",
-        border: "border-br-t500/60", inputBg: "bg-bg-g900/90", inputText: "text-text-primary",
-        inputPlaceholder: "placeholder:text-br-g400", selectBg: "bg-bg-g900/90", selectText: "text-text-primary",
-        footerText: "text-br-t300",
-    btnPrimary: "fifth", btnSecondary: "cuar",
-    },
-
-    // ---- Variante por defecto: se usa cuando no se pasa "variant" ----
-    // Pensada para funcionar tanto sola sobre la foto de fondo como dentro
-    // de una tarjeta clara (bg-white/95) como en Inventario/Proveedores.
     default: {
-        panel: "bg-bg-w shadow-sm", header: "bg-bg-g50 text-text-secondary",
-        row: "hover:bg-bg-g50", rowText: "text-text-secondary", zebra: "bg-bg-g50/70",
-        border: "border-bd-g200", inputBg: "bg-bg-w", inputText: "text-text-secondary",
-        inputPlaceholder: "placeholder:text-text-muted", selectBg: "bg-bg-w", selectText: "text-text-secondary",
-        footerText: "text-text-muted",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-
-    twentyFourth: {
-        // "Marfil clásico" v2: panel BLANCO real (no crema), header casi
-        // negro, texto gris oscuro nítido -- antes todo vivía en el mismo
-        // rango café/kaki apagado y se sentía "lavado" sobre la foto.
-        panel: "bg-bg-w/97", header: "bg-bg-s950 text-bg-w",
+        panel: "bg-bg-w shadow-sm", header: "bg-bg-g50 text-bg-g950",
         row: "hover:bg-bg-g50", rowText: "text-bg-g900", zebra: "bg-bg-g50/70",
-        border: "border-bd-g200", inputBg: "bg-bg-w", inputText: "text-bg-g900",
-        inputPlaceholder: "placeholder:text-bg-g400", selectBg: "bg-bg-w", selectText: "text-bg-g900",
-        footerText: "text-bg-g700",
-    btnPrimary: "primary", btnSecondary: "fifth",
+        border: "border-bd-g200", inputBorder: "border-bd-g600", inputBg: "bg-bg-w", inputText: "text-bg-g900",
+        inputPlaceholder: "placeholder:text-br-g700", selectBg: "bg-bg-w", selectText: "text-bg-g900",
+        footerText: "text-bg-g800",
+        btnPrimary: "espresso", btnSecondary: "crema",
+        field: "latte",
     },
-    twentyFifth: {
-        // "Gris claro" v2: mismo ajuste -- blanco real + casi negro + texto
-        // gris oscuro, para que nada quede en el mismo tono apagado.
-        panel: "bg-bg-w/97", header: "bg-bg-g950 text-bg-w",
-        row: "hover:bg-bg-g50", rowText: "text-bg-g900", zebra: "bg-bg-g50/70",
-        border: "border-bd-g300", inputBg: "bg-bg-w", inputText: "text-bg-g900",
-        inputPlaceholder: "placeholder:text-bg-g400", selectBg: "bg-bg-w", selectText: "text-bg-g900",
-        footerText: "text-bg-g700",
-    btnPrimary: "primary", btnSecondary: "fifth",
-    },
-
-    // ---- OSCURAS con botones CLAROS (2) ----
-    twentySixth: {
-        // "Café profundo": panel café casi negro, botones crema sólidos
-        panel: "bg-bg-s950/95 backdrop-blur-xl", header: "bg-bg-s900 text-br-p100",
-        row: "hover:bg-bg-s800/70", rowText: "text-br-p100", zebra: "bg-bg-s800/35",
-        border: "border-bd-s700", inputBg: "bg-bg-s900/80", inputText: "text-br-p50",
-        inputPlaceholder: "placeholder:text-br-p400", selectBg: "bg-bg-s900/80", selectText: "text-br-p50",
-        footerText: "text-br-p200",
-    btnPrimary: "cuar", btnSecondary: "sex",
-    },
-
 };
 
 
@@ -236,10 +43,21 @@ const tableVariants = {
 // Recibe:
 // - data: datos que se mostrarán
 // - columns: configuración de columnas
-export default function DataTable({ data, columns, variant }) {
+// Filtro de cada columna: soporta rango de fechas, listas (como productos) y valores exactos
+const matchesFilter = (row, columnId, value) => {
+  const cell = row.getValue(columnId);
+  if (value && typeof value === "object") {
+    const time = new Date(cell).getTime();
+    if (value.from && time < new Date(`${value.from}T00:00:00`).getTime()) return false;
+    if (value.to && time > new Date(`${value.to}T23:59:59`).getTime()) return false;
+    return true;
+  }
+  if (Array.isArray(cell)) return cell.map(String).includes(String(value));
+  return String(cell) === String(value);
+};
 
-  // Si la variante pedida no existe (o no se pasó ninguna), se usa "default"
-  // para garantizar que SIEMPRE haya un set de colores coherente y legible.
+export default function DataTable({ data, columns, variant, filters = [], dateFilter, initialSort = [], emptyText = "No hay elementos registrados" }) {
+
   const v = tableVariants[variant] || tableVariants.default;
 
 
@@ -255,6 +73,34 @@ export default function DataTable({ data, columns, variant }) {
   // ================== ESTADO DEL FILTRO GLOBAL ==================
   // Se usa para el buscador de la tabla
   const [globalFilter, setGlobalFilter] = useState("")
+
+  // Filtros por columna que se eligen en los select de arriba
+  const [columnFilters, setColumnFilters] = useState([])
+
+  // Orden por defecto que manda cada pagina (alfabetico o por fecha)
+  const [sorting, setSorting] = useState(initialSort)
+
+  const filterValue = (id) => columnFilters.find((filter) => filter.id === id)?.value
+
+  // Guarda o quita un filtro y vuelve a la primera pagina
+  const setFilter = (id, value) => {
+    setColumnFilters((prev) => {
+      const rest = prev.filter((filter) => filter.id !== id)
+      const empty = value === "" || value === undefined || (typeof value === "object" && !value.from && !value.to)
+      return empty ? rest : [...rest, { id, value }]
+    })
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }))
+  }
+
+  // Boton de limpiar: quita filtros y busqueda
+  const clearFilters = () => {
+    setColumnFilters([])
+    setGlobalFilter("")
+  }
+
+  const hasFilters = columnFilters.length > 0 || globalFilter !== ""
+
+  const dateRange = dateFilter ? filterValue(dateFilter.column) ?? {} : {}
 
 
   // ================== CONFIGURACIÓN DE LA TABLA ==================
@@ -272,8 +118,23 @@ export default function DataTable({ data, columns, variant }) {
     // Estado controlado de la tabla
     state: {
       globalFilter,
-      pagination
+      pagination,
+      columnFilters,
+      sorting
     },
+
+    defaultColumn: {
+      filterFn: matchesFilter
+    },
+
+    onColumnFiltersChange: setColumnFilters,
+
+    onSortingChange: setSorting,
+
+    // Evita que la tabla vuelva a la pagina 1 cada vez que se edita un dato
+    autoResetPageIndex: false,
+
+    getSortedRowModel: getSortedRowModel(),
 
 
     // Función que se ejecuta cuando cambia la paginación
@@ -298,11 +159,6 @@ export default function DataTable({ data, columns, variant }) {
 
 
   return (
-    /* ================== TARJETA UNIFICADA ==================
-       Todo (buscador, tabla y paginación) vive dentro de UN solo panel
-       sólido/opaco. Así el texto nunca "flota" directo sobre la foto de
-       fondo de la página -> el contraste queda garantizado siempre,
-       tal como en una hoja de cálculo impresa. */
     <div className={`rounded-xl border shadow-xl overflow-hidden ${v.panel} ${v.border}`}>
 
 
@@ -310,36 +166,88 @@ export default function DataTable({ data, columns, variant }) {
       {/* Barra superior con buscador y selector de filas */}
 
 
-      <div className="flex items-center justify-between gap-4 p-4">
+      <div className="flex flex-wrap items-center justify-center sm:justify-between gap-4 p-4">
 
 
         {/* ================== BUSCADOR ================== */}
         {/* Filtra todas las columnas de la tabla */}
-        <input
-          type="text"
-          placeholder="Buscar..."
+        <SearchField
           value={globalFilter ?? ""}
-          onChange={(e) => setGlobalFilter(e.target.value)}
-          className={`border rounded px-3 py-2 w-64 ${v.border} ${v.inputBg} ${v.inputText} ${v.inputPlaceholder}`}
+          onChange={setGlobalFilter}
+          placeholder="Buscar..."
+          variant={v.field}
+          size="field"
+          className="w-full sm:w-64"
         />
 
 
         {/* ================== SELECTOR DE FILAS ================== */}
         {/* Permite cambiar cuántas filas se muestran por página */}
-        <select
+        <Select
+          variant={v.field}
+          size="md"
+          placeholder={false}
+          htmlFor="table-page-size"
           value={table.getState().pagination.pageSize}
           onChange={(e) => table.setPageSize(Number(e.target.value))}
-          className={`border rounded px-2 py-2 ${v.border} ${v.selectBg} ${v.selectText}`}
-        >
-          {[5, 7, 10, 20, 50].map(size => (
-            <option key={size} value={size}>
-              {size} filas
-            </option>
-          ))}
-        </select>
+          options={[5, 7, 10, 20, 50].map((size) => ({ value: size, label: `${size} filas` }))}
+        />
 
 
       </div>
+
+      {/* FILTROS POR COLUMNA Y RANGO DE FECHAS */}
+      {(filters.length > 0 || dateFilter) && (
+        <div className="flex flex-wrap items-end justify-center gap-3 px-4 pb-4">
+          {filters.map((filter) => (
+            <Select
+              key={filter.column}
+              variant={v.field}
+              size="md"
+              placeholder={filter.label}
+              htmlFor={`table-filter-${filter.column}`}
+              value={filterValue(filter.column) ?? ""}
+              onChange={(e) => setFilter(filter.column, e.target.value)}
+              options={filter.options}
+            />
+          ))}
+
+          {/* Rango de fechas: desde y hasta */}
+          {dateFilter && (
+            <>
+              <Input
+                type="date"
+                label={`${dateFilter.label} desde`}
+                htmlFor="table-date-from"
+                variant={v.field}
+                size="md"
+                width="w-full sm:w-44"
+                value={dateRange.from ?? ""}
+                onChange={(e) => setFilter(dateFilter.column, { ...dateRange, from: e.target.value })}
+              />
+              <Input
+                type="date"
+                label="Hasta"
+                htmlFor="table-date-to"
+                variant={v.field}
+                size="md"
+                width="w-full sm:w-44"
+                value={dateRange.to ?? ""}
+                onChange={(e) => setFilter(dateFilter.column, { ...dateRange, to: e.target.value })}
+              />
+            </>
+          )}
+
+          <Button
+            size="md"
+            variant={v.btnSecondary}
+            onClick={clearFilters}
+            disabled={!hasFilters}
+          >
+            Limpiar filtros
+          </Button>
+        </div>
+      )}
 
 
       {/* ================== TABLA ================== */}
@@ -400,6 +308,7 @@ export default function DataTable({ data, columns, variant }) {
 
 
               <tr
+               key={row.id}
                className={`transition-colors duration-150 ${v.row} ${v.rowText} ${v.rowBg ?? (rowIndex % 2 === 1 ? v.zebra : "")}`}
               >
 
@@ -430,6 +339,15 @@ export default function DataTable({ data, columns, variant }) {
             ))}
 
 
+            {/* Mensaje cuando no hay registros o los filtros no encuentran nada */}
+            {table.getRowModel().rows.length === 0 && (
+              <tr>
+                <td colSpan={table.getVisibleLeafColumns().length} className={`p-6 text-center font-medium ${v.rowText}`}>
+                  {data.length === 0 ? emptyText : "Sin resultados para los filtros aplicados"}
+                </td>
+              </tr>
+            )}
+
           </tbody>
 
 
@@ -437,14 +355,11 @@ export default function DataTable({ data, columns, variant }) {
       </div>
 
 
-      {/* ================== PIE DE TARJETA ==================
-          Footer + "Ir a página" comparten el mismo fondo/borde superior
-          para que se sientan parte de la misma tarjeta, no piezas sueltas. */}
       <div className={`border-t p-4 space-y-3 ${v.border}`}>
 
 
         {/* ================== FOOTER ================== */}
-        <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center justify-center sm:justify-between flex-wrap gap-2">
 
 
           {/* ================== INFORMACIÓN ================== */}
@@ -456,7 +371,7 @@ export default function DataTable({ data, columns, variant }) {
 
 
           {/* ================== CONTROLES DE PAGINACIÓN ================== */}
-          <div className={`flex items-center gap-2 ${v.footerText}`}>
+          <div className={`flex flex-wrap items-center justify-center gap-2 ${v.footerText}`}>
 
 
             {/* Ir a la primera página */}
@@ -518,33 +433,32 @@ export default function DataTable({ data, columns, variant }) {
 
         {/* ================== IR A PÁGINA ================== */}
         {/* Permite navegar directamente a una página específica */}
-        <div className={`flex items-center gap-2 text-sm ${v.footerText}`}>
+        <div className={`flex items-center justify-center sm:justify-start gap-2 text-sm ${v.footerText}`}>
 
 
           <span>Ir a página:</span>
 
 
-          <input
+          <Input
             type="number"
-
+            variant={v.field}
+            size="sm"
+            width="w-20"
+            htmlFor="table-go-to-page"
+            min={1}
+            max={table.getPageCount()}
 
             // Página actual (se muestra +1 porque el índice empieza en 0)
             defaultValue={table.getState().pagination.pageIndex + 1}
 
-
             onChange={(e) => {
-
 
               // Convierte el número ingresado en índice de página
               const page = e.target.value ? Number(e.target.value) - 1 : 0
 
-
               // Cambia la página
               table.setPageIndex(page)
             }}
-
-
-            className={`border rounded px-2 py-1 w-16 ${v.border} ${v.inputBg} ${v.inputText}`}
           />
 
 

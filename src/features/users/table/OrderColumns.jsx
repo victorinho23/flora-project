@@ -1,14 +1,8 @@
 import Tablerowactions from "@/shared/components/Tablerowactions";
 
-// Etiquetas legibles para cada estado real de la orden (RFADMIN26)
-const statusLabels = {
-  ACTIVA: "Activa",
-  LISTA_PARA_ENTREGA: "Lista para entrega",
-  PAGADA: "Pagada",
-  CANCELADA: "Cancelada",
-};
+import { orderStatusLabels as statusLabels } from "../reports/config/orderReportFields";
 
-export const createOrderColumns = ({ onView, onEdit, onDelete } = {}) => [
+export const createOrderColumns = ({ onView, onEdit } = {}) => [
 
   // Columna ID
   {
@@ -29,19 +23,9 @@ export const createOrderColumns = ({ onView, onEdit, onDelete } = {}) => [
   },
 
   {
-    accessorKey: "customer",
-    header: "Nombre",
-  },
-
-  {
-    accessorKey: "product",
-    header: "Producto",
-  },
-
-  // Columna Cantidad
-  {
-    accessorKey: "quantity",
-    header: "Cantidad",
+    accessorKey: "createdAt",
+    header: "Fecha",
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" }),
   },
 
   {
@@ -64,10 +48,34 @@ export const createOrderColumns = ({ onView, onEdit, onDelete } = {}) => [
       <Tablerowactions
         onView={onView && (() => onView(row.original))}
         onEdit={onEdit && (() => onEdit(row.original))}
-        onDelete={onDelete && (() => onDelete(row.original))}
       />
     ),
   },
-].filter((column) => column.id !== "actions" || onView || onEdit || onDelete);
+].filter((column) => column.id !== "actions" || onView || onEdit);
 
 export const OrderColumns = createOrderColumns();
+
+// Filtros de la tabla de ordenes: mesa, estado y mesero
+export const orderFilters = (orders) => [
+  {
+    column: "tableNumber",
+    label: "Todas las mesas",
+    options: [...new Set(orders.map((order) => order.tableNumber))].sort((a, b) => a - b).map((table) => ({ value: String(table), label: `Mesa ${table}` })),
+  },
+  {
+    column: "status",
+    label: "Todos los estados",
+    options: Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
+  },
+  {
+    column: "waiter",
+    label: "Todos los meseros",
+    options: [...new Set(orders.map((order) => order.waiter))].sort().map((waiter) => ({ value: waiter, label: waiter })),
+  },
+];
+
+// Filtro por rango de fechas de la orden
+export const orderDateFilter = { column: "createdAt", label: "Fecha" };
+
+// Orden por defecto: de la mas reciente a la mas antigua
+export const orderInitialSort = [{ id: "createdAt", desc: true }];

@@ -11,6 +11,9 @@ export const suppliers = [
         address: "Cra 45 #12-30, Medellín",
         category: "Café y granos",
         isActive: true,
+        documentType: "NIT",
+        products: ["001", "002", "003"],
+        observations: "Entrega los lunes y jueves.",
     },
     {
         id: 2,
@@ -22,6 +25,9 @@ export const suppliers = [
         address: "Calle 30 #8-45, Rionegro",
         category: "Lácteos",
         isActive: true,
+        documentType: "NIT",
+        products: ["121", "122"],
+        observations: "",
     },
     {
         id: 3,
@@ -33,6 +39,9 @@ export const suppliers = [
         address: "Cra 70 #34-12, Medellín",
         category: "Panadería",
         isActive: true,
+        documentType: "NIT",
+        products: ["121", "122", "124"],
+        observations: "",
     },
     {
         id: 4,
@@ -44,6 +53,9 @@ export const suppliers = [
         address: "Autopista Sur #22-08, Itagüí",
         category: "Frutas y verduras",
         isActive: false,
+        documentType: "NIT",
+        products: [],
+        observations: "Inactivo por incumplimiento en entregas.",
     },
     {
         id: 5,
@@ -55,6 +67,9 @@ export const suppliers = [
         address: "Cra 52 #78-90, Medellín",
         category: "Empaques",
         isActive: true,
+        documentType: "NIT",
+        products: [],
+        observations: "",
     },
     {
         id: 6,
@@ -66,6 +81,9 @@ export const suppliers = [
         address: "Calle 10 #43-21, Envigado",
         category: "Bebidas",
         isActive: true,
+        documentType: "NIT",
+        products: ["002"],
+        observations: "",
     },
     {
         id: 7,
@@ -77,6 +95,9 @@ export const suppliers = [
         address: "Cra 65 #40-15, Medellín",
         category: "Carnes",
         isActive: false,
+        documentType: "NIT",
+        products: ["111", "112", "113"],
+        observations: "Suspendido temporalmente.",
     },
     {
         id: 8,
@@ -88,6 +109,9 @@ export const suppliers = [
         address: "Calle 50 #25-60, Medellín",
         category: "Especias",
         isActive: true,
+        documentType: "NIT",
+        products: ["113"],
+        observations: "",
     },
     {
         id: 9,
@@ -99,6 +123,9 @@ export const suppliers = [
         address: "Cra 48 #15-33, Bello",
         category: "Aseo e insumos",
         isActive: true,
+        documentType: "NIT",
+        products: [],
+        observations: "",
     },
     {
         id: 10,
@@ -110,5 +137,8 @@ export const suppliers = [
         address: "Cra 33 #7-22, Sabaneta",
         category: "Repostería",
         isActive: true,
+        documentType: "NIT",
+        products: ["122", "124"],
+        observations: "",
     },
 ];

@@ -1,3 +1,4 @@
+// Punto de exportacion del modulo de productos (datos y formularios de platillos y ordenes)
 export { cafes } from "./data/cafes";
 export { pizzas } from "./data/pizzas";
 export { malteadas } from "./data/malteadas";

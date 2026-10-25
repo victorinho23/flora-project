@@ -283,6 +283,14 @@ const router = createBrowserRouter([
         ],
     },
     {
+        path: "/editSupplier",
+        element: <SupplierRegisterForm/>,
+    },
+    {
+        path: "/editInventory",
+        element: <InventoryRegisterForm/>,
+    },
+    {
         path: "/listInventory",
         element: <InventoryListPage/>,
         children: [

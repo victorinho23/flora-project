@@ -3,6 +3,7 @@ import pepperoni from "@/assets/images/pepperoni.png";
 import cuatro from "@/assets/images/cuatro.png";
 import verduras from "@/assets/images/vegetariana.png";
 
+// Datos de prueba de las pizzas que se muestran en el menu y en las ordenes
 export const pizzas = [
     {
         id:1,

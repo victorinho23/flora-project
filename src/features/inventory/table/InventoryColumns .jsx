@@ -1,6 +1,6 @@
 import TableRowActions from "@/shared/components/TableRowActions";
 
-export const createInventoryColumns = ({ onView, onEdit, onDelete } = {}) => [
+export const createInventoryColumns = ({ onView, onEdit } = {}) => [
 
   // Columna ID
   {
@@ -95,10 +95,9 @@ export const createInventoryColumns = ({ onView, onEdit, onDelete } = {}) => [
       <TableRowActions
         onView={onView && (() => onView(row.original))}
         onEdit={onEdit && (() => onEdit(row.original))}
-        onDelete={onDelete && (() => onDelete(row.original))}
       />
     ),
   },
-].filter((column) => column.id !== "actions" || onView || onEdit || onDelete);
+].filter((column) => column.id !== "actions" || onView || onEdit);
 
 export const InventoryColumns = createInventoryColumns();

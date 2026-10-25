@@ -17,7 +17,7 @@ export const IconButton = React.forwardRef(function IconButton(
         onClick,
         disabled = false,
         className = "",
-        variant = "default",
+        variant = "primary",
 
         //Tamaños
         hitSize = 48, // px (área táctil)
@@ -42,19 +42,9 @@ export const IconButton = React.forwardRef(function IconButton(
     `;
 
     const variants = {
-        default: `
-            text-neutral-700
-            hover:bg-neutral-400
-            focus-visible:ring-neutral-400
-        `,
-        ghost: `
-            text-neutral-600
-            hover:bg-neutral-100
-            focus-visible:ring-neutral-300
-        `,
         primary: `
             text-white
-            hover:bg-white
+            hover:bg-bg-w/15
             focus-visible:ring-neutral-300
             w-10
         `
@@ -68,7 +58,7 @@ export const IconButton = React.forwardRef(function IconButton(
             disabled={disabled}
             onClick={onClick}
             className={clsx(baseStyles, variants[variant], className, {
-                "bg-neutral-300": isActive,
+                "bg-bg-w/15": isActive,
             })}
             styles={{
                 width: `${hitSize}px`,

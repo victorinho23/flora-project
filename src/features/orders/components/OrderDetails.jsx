@@ -1,15 +1,8 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/shared";
+import { Button, Navbar } from "@/shared";
 import { useNavigate } from "react-router-dom";
 import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
-
-const InfoField = ({ label, value }) => (
-    <div className="w-full bg-bg-s800/70 border border-bd-w/15 rounded-lg px-4 py-3 backdrop-blur-sm">
-        <p className="text-caption text-bg-w/60 mb-1">{label}</p>
-        <p className="text-body text-bg-w font-medium">{value || "—"}</p>
-    </div>
-);
+import fotoFondo from "@/assets/images/fondo-orders.png";
 
 const STATUS_LABELS = {
     ACTIVA: "Activa",
@@ -19,10 +12,10 @@ const STATUS_LABELS = {
 };
 
 const STATUS_COLORS = {
-    ACTIVA: "bg-green-600",
-    LISTA_PARA_ENTREGA: "bg-blue-600",
-    CANCELADA: "bg-red-600",
-    PAGADA: "bg-gray-600",
+    ACTIVA: "bg-green-900",
+    LISTA_PARA_ENTREGA: "bg-blue-900",
+    CANCELADA: "bg-red-900",
+    PAGADA: "bg-gray-800",
 };
 
 export function OrderDetails({ order }) {
@@ -39,8 +32,6 @@ export function OrderDetails({ order }) {
     const canEdit = status !== "PAGADA" && status !== "CANCELADA";
 
     const handleEdit = () => {
-        // Se manda la orden completa por state, para que OrderEditLayout no dependa
-        // de encontrarla en el mock fijo (funciona con ordenes dinamicas tambien)
         navigate(`/orderEdit/${order.id}`, {
             state: { order: { ...order, status } },
         });
@@ -83,33 +74,35 @@ export function OrderDetails({ order }) {
     return (
         <div className="min-h-screen flex flex-col">
 
-            <div className="w-full bg-bg-s700 flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-s900/90 border border-bd-w/15">
-                <div className="w-8" />
-                <h1 className="text-title text-bg-w font-bold text-center">
-                    Detalle de la orden
-                </h1>
-                <Button
-                    type="button"
-                    onClick={() => navigate(-1)}
-                    className="text-bg-w hover:text-bg-w/70 transition-colors"
-                    aria-label="Volver"
-                >
-                    <ArrowLeft className="w-6 h-6" />
-                </Button>
-            </div>
+            <Navbar
+                variant="banda"
+                image={fotoFondo}
+                title="Detalle de la orden"
+                onBack={() => navigate(-1)}
+                backSide="right"
+            />
 
             <div className="flex-1 flex justify-center px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
                 <div className="w-full max-w-4xl flex flex-col gap-6">
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <InfoField label="ID de orden" value={order.id} />
-                        <InfoField label="Mesa" value={order.tableNumber} />
-                        <InfoField label="Mesero responsable" value={order.waiterName} />
+                        <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full">
+                            <p className="text-sm font-medium text-br-s800 mb-1">ID de orden</p>
+                            <div className="text-base font-semibold text-br-s950 break-words">{order.id || "—"}</div>
+                        </div>
+                        <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full">
+                            <p className="text-sm font-medium text-br-s800 mb-1">Mesa</p>
+                            <div className="text-base font-semibold text-br-s950 break-words">{order.tableNumber || "—"}</div>
+                        </div>
+                        <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full">
+                            <p className="text-sm font-medium text-br-s800 mb-1">Mesero responsable</p>
+                            <div className="text-base font-semibold text-br-s950 break-words">{order.waiterName || "—"}</div>
+                        </div>
                     </div>
 
                     <div
                         className={`
-                            flex items-center gap-2 w-fit
+                            flex items-center gap-2 w-fit self-center sm:self-start
                             px-5 py-3 rounded-lg font-semibold text-white
                             ${STATUS_COLORS[status]}
                         `}
@@ -118,39 +111,42 @@ export function OrderDetails({ order }) {
                         {STATUS_LABELS[status]}
                     </div>
 
-                    <div className="bg-bg-s800/60 border border-bd-w/15 rounded-xl p-4 flex flex-col gap-3">
-                        <p className="text-caption text-bg-w/60">Platillos</p>
+                    <div className="bg-bg-s50 border border-bd-s100 rounded-xl p-4 flex flex-col gap-3">
+                        <p className="text-sm text-br-s800">Platillos</p>
                         {order.items.map((item) => (
                             <div
                                 key={item.dishId}
-                                className="flex items-center justify-between bg-bg-s900/50 rounded-lg p-3"
+                                className="flex items-center justify-between bg-bg-w border border-bd-s100 rounded-lg p-3"
                             >
                                 <div>
-                                    <p className="text-bg-w font-semibold">{item.dishName}</p>
-                                    <p className="text-bg-w/60 text-sm">
+                                    <p className="text-br-s950 font-semibold">{item.dishName}</p>
+                                    <p className="text-br-s800 text-sm">
                                         Cantidad: {item.quantity} × ${Number(item.price).toLocaleString()}
                                     </p>
                                 </div>
-                                <p className="text-bg-w font-bold">
+                                <p className="text-br-t900 font-bold">
                                     ${(Number(item.price) * item.quantity).toLocaleString()}
                                 </p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="flex items-center justify-between bg-bg-s800/60 border border-bd-w/15 rounded-lg px-4 py-3">
-                        <span className="text-bg-w font-semibold">Total</span>
-                        <span className="text-bg-w font-bold text-lg">
+                    <div className="flex items-center justify-between border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-lg px-4 py-3">
+                        <span className="text-br-s950 font-semibold">Total</span>
+                        <span className="text-br-t900 font-bold text-lg">
                             ${total.toLocaleString()}
                         </span>
                     </div>
 
                     {order.notes && (
-                        <InfoField label="Observaciones" value={order.notes} />
+                        <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full">
+                            <p className="text-sm font-medium text-br-s800 mb-1">Observaciones</p>
+                            <div className="text-base font-semibold text-br-s950 break-words">{order.notes || "—"}</div>
+                        </div>
                     )}
 
                     {canEdit && (
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex flex-col items-center sm:flex-row gap-4">
                             <Button
                                 variant="danger"
                                 size="lgg"
@@ -160,7 +156,7 @@ export function OrderDetails({ order }) {
                                 Anular orden
                             </Button>
                             <Button
-                                variant="primary"
+                                variant="espresso"
                                 size="lgg"
                                 type="button"
                                 onClick={handleEdit}

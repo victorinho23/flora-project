@@ -1,90 +1,27 @@
+// src/shared/components/Input.jsx
+// Campo de texto reutilizable con label, variantes y mensaje de error
 export default function Input({
     label,
     error,
     htmlFor,
     type = "text",
-    variant="secondary",
+    variant="latte",
     size="lg",
-    fullWidth = false, // Opcional: ocupa el 100% del contenedor en vez del w-80 fijo
+    fullWidth = false,
+    width,
     ...props
 
 }){
     const variants = {
-        primary: `
-            border border-brand
-            bg-bg-s950
-            placeholder-fc-w
-            text-fc-w
-        `,
-        secondary: `
-            border border-brand
-            bg-bg-w
-        `,
-        tertiary: `
-            border border-purple-950
-        
-        `,
-
-        fourth: `
-            bg-transparent
-            border border-white
-            text-white
-            placeholder-text-primary 
-        `,
-
-        fifth: `bg-bg-w border border-bd-g400 text-text-inverse focus:border-fc-p700`,
-        sixth: `bg-transparent border-2 border-br-p700 text-text-inverse focus:bg-bg-p50`,
-        seventh: `bg-br-p200 border border-br-p400 text-text-inverse`,
-        eighth: `bg-bg-w border-2 border-br-t500 text-text-inverse focus:shadow-[0_0_10px_var(--color-br-t400)]/40`,
-        ninth: `bg-bg-w/40 backdrop-blur-md border border-bd-g200 text-text-inverse`,
-        tenth: `bg-bg-w border border-bd-g100 shadow-md text-text-inverse focus:shadow-lg`,
-        eleventh: `bg-br-p300 border border-br-p500 text-text-inverse`,
-        twelfth: `bg-transparent border-b-2 border-bd-g300 text-text-inverse rounded-none focus:border-fc-p700`,
-        thirteenth: `bg-bg-w border-2 border-br-t600 text-text-inverse focus:border-br-t700`,
-
-        fourteenth: `bg-bg-s900 border border-bd-g700 text-text-primary focus:ring-2 focus:ring-fc-p600`,
-        fifteenth: `bg-transparent border border-bd-w/30 text-text-primary focus:border-br-t400 focus:shadow-[0_0_12px_var(--color-br-t400)]/50`,
-        sixteenth: `bg-bg-g950 border-2 border-br-t500 text-text-primary focus:shadow-[0_0_15px_var(--color-br-t500)]/60`,
-        seventeenth: `bg-bg-w/10 backdrop-blur-md border border-bd-w/20 text-text-primary`,
-        eighteenth: `bg-transparent border-2 border-br-t600 text-br-t400`,
-        nineteenth: `bg-bg-p100 border border-bd-p300 text-text-inverse`,
-        twentieth: `bg-bg-g900 border border-bd-g700 text-text-primary`,
-        twentyFirst: `bg-gradient-to-br from-bg-g950 to-bg-s800 border border-bd-s600 text-text-primary`,
-        twentySecond: `bg-bg-g900 text-text-primary shadow-[inset_2px_2px_6px_rgba(0,0,0,0.5),inset_-2px_-2px_6px_rgba(255,255,255,0.05)]`,
-        twentyThird: `bg-bg-g950 border border-br-t500/50 text-text-primary`,
-
-        cafe: `bg-bg-s900 border border-bg-w/40 text-bg-w placeholder-bg-w/50 shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)] placeholder-white`,
+        latte: `bg-bg-w border border-bd-s400 text-br-s950 placeholder:text-br-s500 shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200`,
+        cafe: `bg-bg-s900 border border-bd-p400 text-bg-w placeholder:text-br-p300 [color-scheme:light] [&::-webkit-calendar-picker-indicator]:invert focus:border-bd-t300 focus:ring-2 focus:ring-fc-t200`,
+        caramelo: `bg-bg-t50 border border-bd-t900 text-br-t900 font-bold shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200`,
     }
 
-    // ===== NUEVO: color del label, uno por cada variante =====
     const labelColors = {
-        primary: `text-secondary`,
-        secondary: `text-secondary`,
-        tertiary: `text-secondary`,
-        fourth: `text-white`,
-
-        fifth: `text-text-inverse`,
-        sixth: `text-text-inverse`,
-        seventh: `text-text-inverse`,
-        eighth: `text-text-inverse`,
-        ninth: `text-text-inverse`,
-        tenth: `text-text-inverse`,
-        eleventh: `text-text-inverse`,
-        twelfth: `text-text-inverse`,
-        thirteenth: `text-text-inverse`,
-
-        fourteenth: `text-text-primary`,
-        fifteenth: `text-text-primary`,
-        sixteenth: `text-text-primary`,
-        seventeenth: `text-text-primary`,
-        eighteenth: `text-br-t400`,
-        nineteenth: `text-text-inverse`,
-        twentieth: `text-text-primary`,
-        twentyFirst: `text-text-primary`,
-        twentySecond: `text-text-primary`,
-        twentyThird: `text-text-primary`,
-
-        cafe: `text-bg-w`,
+        latte: `text-br-s900 text-sm! font-semibold`,
+        cafe: `text-br-p100 text-sm! font-semibold`,
+        caramelo: `text-br-s900 text-sm! font-semibold`,
     }
 
     const sizes = {
@@ -94,7 +31,7 @@ export default function Input({
     }
 
     return(
-        <div className={fullWidth ? "w-full" : "w-80"}>
+        <div className={width ?? (fullWidth ? "w-full" : "w-80")}>
             <label 
                 htmlFor={htmlFor}
                 className={`
@@ -107,7 +44,7 @@ export default function Input({
             {label} 
             </label>
 
-            <div className="relative h-10 grid items-center">
+            <div className="relative grid items-center">
                 <div 
                     className="absolute inset-0"   
                     onMouseDown={(e) =>{
@@ -123,17 +60,17 @@ export default function Input({
                     className={`
                         relative w-full rounded-md border text-body
                         transition-all duration-300
-                        focus:outline-none px-4 focus:ring-2 focus:ring-ring focus:ring-brand
+                        focus:outline-none ${size === "sm" ? "px-2" : "px-4"} focus:ring-2 focus:ring-ring focus:ring-brand
                         ${variants[variant]}
                         ${sizes[size]}
-                        ${error ? "border border-red-800": "border border-border"}
+                        ${error ? "border-2 border-red-800!" : "border"}
                     `}
                     {...props}
                 />
 
                 <div>
                     {error && (
-                        <p className="text-caption text-red-800 place-self-start">{error}</p>
+                        <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
                     )}
                 </div>
             </div>

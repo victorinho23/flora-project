@@ -1,24 +1,21 @@
+// src/features/users/components/UserDetails.jsx
+// Pagina de detalle de un usuario en modo solo lectura
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/shared";
+import { Button, Navbar } from "@/shared";
 import authBg from "@/assets/icons/usuario.png";
 import userBg from "@/assets/images/Victor.jpeg";
 import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
-
-const InfoField = ({ label, value }) => (
-    <div className="w-80 bg-bg-s800/70 border border-bd-w/15 rounded-lg px-4 py-3 backdrop-blur-sm">
-        <p className="text-caption text-bg-w/60 mb-1">{label}</p>
-        <p className="text-body text-bg-w font-medium">{value || "—"}</p>
-    </div>
-);
+import fotoFondo from "@/assets/images/fondo-users.png";
 
 export function UserDetails({ user }) {
     const navigate = useNavigate();
 
+    // Lleva a editar la cuenta
     const handleEdit = () => {
         navigate(`/userEdit`);
     };
 
+    // Pide confirmacion antes de quitar el usuario
     const handleDelete = async () => {
         const result = await showConfirmDeleteAlert({
             title: "¿Eliminar usuario?",
@@ -52,48 +49,70 @@ export function UserDetails({ user }) {
     };
 
     return (
-        <div className="grid items-center justify-center relative min-h-screen">
+        <div className="relative min-h-screen grid grid-cols-1 xl:grid-cols-[auto_auto] xl:justify-center content-start gap-x-16 gap-y-6 p-5 sm:p-8">
 
-            <div className="flex items-center justify-between absolute top-5 left-5 right-5">
-                <div className="flex">
-                    <img className="w-32 h-32" src={authBg} alt="usuario" />
-                    <h1 className="mx-auto my-12 ml-10 mt-22 text-title text-text-primary font-bold flex align-center underline">
-                        Detalles de usuario
-                    </h1>
+            <Navbar
+                variant="banda"
+                image={fotoFondo}
+                avatar={authBg}
+                title="Detalles de usuario"
+                onBack={() => navigate("/userCreate")}
+                backSide="right"
+                className="rounded-2xl shadow-lg xl:col-span-2"
+            />
+
+            <div className="flex flex-col sm:flex-row gap-6 xl:col-start-1">
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Nombre</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userName || "—"}</div>
+                </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Tipo de documento</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userDocumentTypeLabel || "—"}</div>
+                </div>
+            </div>
+
+            <div className="grid gap-4 xl:col-start-1">
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Numero de documento</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userDocumentNumber || "—"}</div>
+                </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Tipo de usuario</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userTypeLabel || "—"}</div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:col-start-1">
+
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Correo electronico</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userEmail || "—"}</div>
+                </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Direccion</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userAddress || "—"}</div>
                 </div>
 
-                <button
-                    type="button"
-                    onClick={() => navigate("/userCreate")}
-                    className="text-text-primary hover:opacity-70 transition-opacity"
-                    aria-label="Volver a crear usuario"
-                >
-                    <ArrowLeft className="w-12 h-12" />
-                </button>
-            </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Correo empresarial</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userBusinessEmail || "—"}</div>
+                </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Fecha inicio contrato</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userContractStartDate || "—"}</div>
+                </div>
 
-            <div className="flex gap-6 mt-45 absolute top-0 left-46">
-                <InfoField label="Nombre" value={user.userName} />
-                <InfoField label="Tipo de documento" value={user.userDocumentTypeLabel} />
-            </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Telefono</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userPhone || "—"}</div>
+                </div>
+                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
+                    <p className="text-sm font-medium text-br-s800 mb-1">Fecha fin contrato</p>
+                    <div className="text-base font-semibold text-br-s950 break-words">{user.userContractEndDate || "—"}</div>
+                </div>
 
-            <div className="grid gap-4 absolute top-65 left-46">
-                <InfoField label="Numero de documento" value={user.userDocumentNumber} />
-                <InfoField label="Tipo de usuario" value={user.userTypeLabel} />
-            </div>
-
-            <div className="grid grid-cols-2 absolute top-135 left-45 gap-6">
-
-                <InfoField label="Correo electronico" value={user.userEmail} />
-                <InfoField label="Direccion" value={user.userAddress} />
-
-                <InfoField label="Correo empresarial" value={user.userBusinessEmail} />
-                <InfoField label="Fecha inicio contrato" value={user.userContractStartDate} />
-
-                <InfoField label="Telefono" value={user.userPhone} />
-                <InfoField label="Fecha fin contrato" value={user.userContractEndDate} />
-
-                <div className="col-span-2 flex justify-start">
+                <div className="md:col-span-2 flex justify-center sm:justify-start">
                     <div
                         className={`
                             flex items-center gap-2
@@ -101,7 +120,7 @@ export function UserDetails({ user }) {
                             rounded-lg
                             font-semibold
                             text-white
-                            ${user.isActive ? "bg-green-600" : "bg-red-600"}
+                            ${user.isActive ? "bg-green-900" : "bg-red-900"}
                         `}
                     >
                         <span className="w-2.5 h-2.5 rounded-full bg-white/80" />
@@ -111,9 +130,9 @@ export function UserDetails({ user }) {
 
             </div>
 
-            <div className="flex flex-col items-center gap-4 absolute top-80 left-300">
+            <div className="flex flex-col items-center gap-4 xl:col-start-2 xl:row-start-2 xl:row-span-3">
 
-                <div className="w-120 h-120 flex items-center justify-center ">
+                <div className="w-full max-w-120 aspect-square flex items-center justify-center rounded-3xl overflow-hidden ring-4 ring-bd-t300 shadow-[0_24px_50px_-24px_color-mix(in_srgb,var(--color-bg-t950)_80%,transparent)]">
                     {user.imageUrl ? (
                         <img
                             src={user.imageUrl}
@@ -121,11 +140,11 @@ export function UserDetails({ user }) {
                             className="w-full h-full object-cover"
                         />
                     ) : (
-                        <img className="w-120 h-120 mb-50" src={userBg} alt="sin foto" />
+                        <img className="w-full h-full object-cover" src={userBg} alt="sin foto" />
                     )}
                 </div>
 
-                <div className="flex items-center gap-3 w-120">
+                <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-120">
                     <Button
                         variant="primary"
                         size="lgg"

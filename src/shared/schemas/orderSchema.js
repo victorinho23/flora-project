@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// src/shared/schemas/orderSchema.js
+// Reglas para crear una orden
 export const orderSchema = z.object({
     tableNumber: z
         .string()
@@ -20,6 +22,7 @@ export const orderSchema = z.object({
 });
 
 
+// Reglas para actualizar una orden
 export const orderUpdateSchema = z.object({
     tableNumber: z
         .string()

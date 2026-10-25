@@ -1,7 +1,8 @@
 import { useParams, useLocation } from "react-router-dom";
 import { OrderEditForm } from "@/features/orders/components/OrderEditForm.jsx";
-import ordersBg from "@/assets/images/fondo-orders.png";
 
+// src/shared/layouts/OrderEditLayout.jsx
+// Ordenes de prueba para cuando se entra directo por la URL
 const mockOrders = [
     {
         id: "ORD-001",
@@ -30,31 +31,23 @@ const mockOrders = [
     },
 ];
 
+// Toma la orden que llega por navegacion o la busca por id
 export default function OrderEditLayout() {
     const { id } = useParams();
     const location = useLocation();
 
-    // Si la orden viaja por state (viniendo de OrderDetails), se usa esa;
-    // si no, se busca en el mock (por ejemplo, si entraste directo por la URL)
     const order = location.state?.order || mockOrders.find((o) => o.id === id);
 
     if (!order) {
         return (
-            <div className="min-h-screen bg-bg-s900 flex items-center justify-center text-bg-w">
-                <p>No se encontro la orden solicitada.</p>
+            <div className="min-h-screen flex items-center justify-center p-6 bg-bg-p500 bg-fixed bg-[radial-gradient(50rem_32rem_at_100%_-5%,color-mix(in_srgb,var(--color-bg-t300)_40%,transparent),transparent_60%),radial-gradient(46rem_30rem_at_-5%_105%,color-mix(in_srgb,var(--color-bg-s300)_50%,transparent),transparent_62%),linear-gradient(160deg,var(--color-bg-p400)_0%,var(--color-bg-p600)_55%,var(--color-bg-s200)_100%)]">
+                <p className="border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] px-8 py-6 text-br-s950 font-semibold">No se encontro la orden solicitada.</p>
             </div>
         );
     }
 
     return (
-        <div
-            className="min-h-screen w-full"
-            style={{
-                backgroundImage: `url(${ordersBg})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-            }}
-        >
+        <div className="min-h-screen w-full bg-bg-p500 bg-fixed bg-[radial-gradient(50rem_32rem_at_100%_-5%,color-mix(in_srgb,var(--color-bg-t300)_40%,transparent),transparent_60%),radial-gradient(46rem_30rem_at_-5%_105%,color-mix(in_srgb,var(--color-bg-s300)_50%,transparent),transparent_62%),linear-gradient(160deg,var(--color-bg-p400)_0%,var(--color-bg-p600)_55%,var(--color-bg-s200)_100%)]">
             <OrderEditForm order={order} />
         </div>
     );
