@@ -3,6 +3,7 @@ import fresa from "@/assets/images/fresa.png";
 import vainilla from "@/assets/images/vainilla.png";
 import cafe from "@/assets/images/mal-cafe.png";
 
+// Datos de prueba de las malteadas que se muestran en el menu y en las ordenes
 export const malteadas = [
     {
         id:1,

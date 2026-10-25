@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Esquema de un producto de inventario, segun RFADMIN08
+// Esquema de un producto de inventario
 export const inventoryProductSchema = z.object({
     id: z.string().min(1, "El ID es obligatorio"),
 

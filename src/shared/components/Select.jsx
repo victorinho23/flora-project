@@ -6,50 +6,27 @@ export default function Select({
     name, 
     onChange,
     value,
-    variant = "p",
+    variant = "latte",
     options = [],
-    fullWidth = false, // Opcional: ocupa el 100% del contenedor en vez del w-80 fijo
+    fullWidth = false,
+    placeholder = "Seleccione una opcion",
+    size = "lg",
 
 }){
    const variants = {
-        // ===== Ya existentes, sin tocar =====
-        p: { label: `text-text-primary`, control: ``, optionText: `text-primary`, optionBg: `` },
-        s: { label: `text-text-ligth-coffe`, control: ``, optionText: `text-primary`, optionBg: `` },
-
-        // ===== CLARAS (4-13) =====
-        fourth: { label: `text-text-inverse`, control: `bg-bg-p50 border border-bd-g300 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-p50` },
-        fifth: { label: `text-text-inverse`, control: `bg-bg-w border border-bd-g400 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        sixth: { label: `text-text-inverse`, control: `bg-transparent border-2 border-br-p700 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        seventh: { label: `text-text-inverse`, control: `bg-br-p200 border border-br-p400 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-br-p200` },
-        eighth: { label: `text-text-inverse`, control: `bg-bg-w border-2 border-br-t500 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        ninth: { label: `text-text-inverse`, control: `bg-bg-w/40 backdrop-blur-md border border-bd-g200 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        tenth: { label: `text-text-inverse`, control: `bg-bg-w border border-bd-g100 shadow-md text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        eleventh: { label: `text-text-inverse`, control: `bg-br-p300 border border-br-p500 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-br-p300` },
-        twelfth: { label: `text-text-inverse`, control: `bg-transparent border-b-2 border-bd-g300 text-text-inverse rounded-none`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-        thirteenth: { label: `text-text-inverse`, control: `bg-bg-w border-2 border-br-t600 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-w` },
-
-        // ===== OSCURAS (14-23) =====
-        fourteenth: { label: `text-text-primary`, control: `bg-bg-s900 border border-bd-g700 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-s900` },
-        fifteenth: { label: `text-text-primary`, control: `bg-transparent border border-bd-w/30 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
-        sixteenth: { label: `text-text-primary`, control: `bg-bg-g950 border-2 border-br-t500 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
-        seventeenth: { label: `text-text-primary`, control: `bg-bg-w/10 backdrop-blur-md border border-bd-w/20 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
-        eighteenth: { label: `text-br-t400`, control: `bg-transparent border-2 border-br-t600 text-br-t400`, optionText: `text-br-t400`, optionBg: `bg-bg-g950` },
-        nineteenth: { label: `text-text-inverse`, control: `bg-bg-p100 border border-bd-p300 text-text-inverse`, optionText: `text-text-inverse`, optionBg: `bg-bg-p100` },
-        twentieth: { label: `text-text-primary`, control: `bg-bg-g900 border border-bd-g700 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g900` },
-        twentyFirst: { label: `text-text-primary`, control: `bg-gradient-to-br from-bg-g950 to-bg-s800 border border-bd-s600 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
-        twentySecond: { label: `text-text-primary`, control: `bg-bg-g900 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g900` },
-        twentyThird: { label: `text-text-primary`, control: `bg-bg-g950 border border-br-t500/50 text-text-primary`, optionText: `text-text-primary`, optionBg: `bg-bg-g950` },
-
-        // ===== NUEVA: café con texto blanco y borde glow =====
-        cafe: {
-            label: `text-bg-w`,
-            control: `bg-bg-s800 border border-bg-w/40 text-bg-w shadow-[0_0_10px_rgba(255,255,255,0.15)] focus:border-bg-w/70 focus:shadow-[0_0_16px_rgba(255,255,255,0.3)]`,
-            optionText: `text-bg-w`,
-            optionBg: `bg-bg-s800`
-        },
+        latte: { label: `text-br-s900 text-sm! font-semibold`, control: `bg-bg-w border border-bd-s400 text-br-s950 shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200 focus:outline-none`, optionText: `text-br-s950`, optionBg: `bg-bg-w` },
+        cafe: { label: `text-br-p100 text-sm! font-semibold`, control: `bg-bg-s900 border border-bd-p400 text-bg-w focus:border-bd-t300 focus:ring-2 focus:ring-fc-t200 focus:outline-none`, optionText: `text-bg-w`, optionBg: `bg-bg-s900` },
     }
 
-    const v = variants[variant] ?? variants.p;
+    // Tamaños: lg para formularios y md para filtros y tablas
+    const sizes = {
+        lg: `h-12 px-4`,
+        md: `h-10 px-3`,
+    }
+
+    const width = fullWidth ? "w-full" : size === "md" ? "w-full sm:w-auto" : "w-80"
+
+    const v = variants[variant] ?? variants.latte;
 
     return(
         <div>
@@ -73,12 +50,11 @@ export default function Select({
             name={name}
             value={value}
             onChange={onChange}
-            id="htmlFor"
+            id={htmlFor}
             className={`
-                ${fullWidth ? "w-full" : "w-80"}
-                h-12
+                ${width}
+                ${sizes[size] ?? sizes.lg}
                 rounded-md
-                px-4
                 border
                 hover:border-2
                 hover:border-focus-border
@@ -87,10 +63,12 @@ export default function Select({
             `}
         >
 
-        <option className={`${v.optionText} ${v.optionBg}`} value="">Seleccione una opcion</option>  
+        {placeholder !== false && (
+            <option className={`${v.optionText} ${v.optionBg}`} value="">{placeholder}</option>
+        )}
 
         {options.map ((opt)=> (
-            <option className={`${v.optionText} ${v.optionBg}`} key = {opt.value} value= {opt.value}>
+            <option className={`${v.optionText} ${v.optionBg}`} key={opt.value ?? opt.id} value={opt.value ?? opt.id}>
                 {opt.label}
             </option>
 
@@ -98,7 +76,7 @@ export default function Select({
 
         </select>
         {error && (
-                <p className="text-caption text-red-800 place-self-start mt-1">{error}</p>
+                <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
             )}
 
 

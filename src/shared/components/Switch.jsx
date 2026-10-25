@@ -33,14 +33,16 @@ export default function Switch ({
         // Calcula el nuevo estado (invierte el valor actual)
         const newValue = !isActive;
 
-        // Actualize el esatdo interno 
-        setIsActive(newValue);
-
         // Si existe un callback onChange, se ejecuta
         // enviando el nuevo valor al componente padre
 
+        // Actualize el esatdo interno 
+        setIsActive(newValue);
+
         if(onChange){
-            onChange(newValue)
+            Promise.resolve(onChange(newValue)).then((accepted) => {
+                if (accepted === false) setIsActive(!newValue);
+            });
         }
     };
 
@@ -62,6 +64,7 @@ export default function Switch ({
 
         // Boton que funciona como switch 
         <button
+            type="button"
             onClick={handleToggle} // Evento que cambia el estado
             disabled = {disabled} // Permite deshabilitar el boton
             className={`
@@ -75,7 +78,7 @@ export default function Switch ({
                 ${sizes[size]}
 
                 // Color dependiedo del estado
-                ${isActive ? "bg-green-500" : "bg-gary-300"}
+                ${isActive ? "bg-green-600" : "bg-bg-p600"}
 
                 // Estilo cuando esta deshabilitado 
                 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -104,10 +107,10 @@ export default function Switch ({
 
             {/** Icono que cambia dependienmdo del estado activo inactivo */}
             {isActive ? (
-                <Check size ={12} className= "text-green-600" /> 
+                <Check size ={12} className= "text-green-800" /> 
             ) :
                 (
-                    <X size={12} className="text-gray-500" />
+                    <X size={12} className="text-gray-700" />
                 )
             }
         </span>

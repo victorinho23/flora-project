@@ -4,28 +4,10 @@
 import {useRef, useState, useEffect, useMemo}  from "react"
 import {Infinity as InfinityLoader} from "ldrs/react"
 import "ldrs/react/Infinity.css"
+import { showErrorAlert } from "@/shared/services/alertService"
 
 const dropZoneVariants = {
-    fourth: "border-bd-g300 bg-bg-p50 text-text-inverse",
-    fifth: "border-bd-g400 bg-bg-w text-text-inverse",
-    sixth: "border-br-p700 bg-transparent text-text-inverse",
-    seventh: "border-br-p400 bg-br-p200 text-text-inverse",
-    eighth: "border-br-t500 bg-bg-w text-text-inverse hover:shadow-[0_0_10px_var(--color-br-t400)]/40",
-    ninth: "border-bd-g200 bg-bg-w/40 backdrop-blur-md text-text-inverse",
-    tenth: "border-bd-g100 bg-bg-w shadow-md text-text-inverse",
-    eleventh: "border-br-p500 bg-br-p300 text-text-inverse",
-    twelfth: "border-bd-g300 bg-transparent text-text-inverse",
-    thirteenth: "border-br-t600 bg-bg-w text-text-inverse",
-    fourteenth: "border-bd-g700 bg-bg-s900 text-text-primary",
-    fifteenth: "border-bd-w/30 bg-transparent text-text-primary hover:shadow-[0_0_12px_var(--color-br-t400)]/50",
-    sixteenth: "border-br-t500 bg-bg-g950 text-text-primary hover:shadow-[0_0_15px_var(--color-br-t500)]/60",
-    seventeenth: "border-bd-w/20 bg-bg-w/10 backdrop-blur-md text-text-primary",
-    eighteenth: "border-br-t600 bg-transparent text-br-t400",
-    nineteenth: "border-bd-p300 bg-bg-p100 text-text-inverse",
-    twentieth: "border-bd-g700 bg-bg-g900 text-text-primary",
-    twentyFirst: "border-bd-s600 bg-gradient-to-br from-bg-g950 to-bg-s800 text-text-primary",
-    twentySecond: "border-transparent bg-bg-g900 text-text-primary shadow-[inset_2px_2px_6px_rgba(0,0,0,0.5)]",
-    twentyThird: "border-br-t500/50 bg-bg-g950 text-text-primary",
+    latte: "border-bd-t800 bg-bg-t50 text-br-t950 font-semibold max-w-[calc(100vw-5rem)] max-h-[calc(100vw-5rem)] hover:bg-bg-t100",
 };
 
 export default function ImageInput({
@@ -33,6 +15,8 @@ export default function ImageInput({
     onChange,
     multiple = false,
     variant,
+    formats = ["jpg", "jpeg", "png"],
+    maxSizeMB = 2,
 })  {
     const inputRef = useRef();
     const [isLoading, setIsLoading] = useState(false)
@@ -56,6 +40,18 @@ export default function ImageInput({
         setIsLoading(true);
 
         const list = Array.from(files);
+        // Revisa formato y tamano antes de aceptar la imagen
+        const invalid = list.find((file) => !formats.includes(file.name.split(".").pop().toLowerCase()) || file.size > maxSizeMB * 1024 * 1024);
+        if (invalid) {
+            setIsLoading(false);
+            await showErrorAlert({
+                title: "Imagen no válida",
+                text: `Solo se permiten archivos ${formats.join(", ")} de máximo ${maxSizeMB} MB.`,
+                confirmButtonText: "Entendido",
+                timer: 3500,
+            });
+            return;
+        }
         await new Promise((r) => setTimeout(r,500));
 
         const data = multiple ? [...value, ...list] : [list[0]];
@@ -78,7 +74,7 @@ export default function ImageInput({
     };
 
     return(
-        <div className="w-fit self-start flex items-center gap-2">
+        <div className="w-fit self-center mx-auto flex items-center justify-center gap-2">
             {value.map((file, i) => (
                 <div 
                     key={i} 
@@ -106,7 +102,7 @@ export default function ImageInput({
 
             <div onClick={() => !isLoading && inputRef.current.click()}
                 className={`
-                    w-120 h-120 flex-shrink-0 border-2 border-dashed rounded
+                    w-120 h-120 xl:w-[min(30rem,calc(100dvh-19rem))] xl:h-[min(30rem,calc(100dvh-19rem))] flex-shrink-0 border-2 border-dashed rounded
                     flex items-center justify-center cursor-pointer
                     transition-all duration-300
                     ${variant ? dropZoneVariants[variant] : ""}
@@ -122,7 +118,7 @@ export default function ImageInput({
                         color="black"
                     />
                 ) : (
-                    <span className="text-sm text-center"> <span>Cargar imagen <br /></span>Formato permitido solo: jpg, jpeg, png</span>
+                    <span className="text-sm text-center"> <span>Cargar imagen <br /></span>Formato permitido solo: {formats.join(", ")} · máx. {maxSizeMB} MB</span>
                     
                 )}
             </div>
@@ -132,7 +128,7 @@ export default function ImageInput({
                 type="file"
                 hidden
                 multiple={multiple}
-                accept="image/*"
+                accept={formats.map((format) => `.${format}`).join(",")}
                 onChange={(e) => handleFiles(e.target.files)}
             />
 

@@ -47,8 +47,7 @@ export const userSchema = z.object({
 
     userPassword: z
     .string()
-    .min(8, "Contraseña debe tener minimo 8 caracteres")
-    .max(10, "Contraseña debe tener maximo 10 caracteres")
+    .length(10, "La contraseña debe tener exactamente 10 caracteres")
     .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
     .regex(/[a-z]/, "Debe contener al menos una minuscula")
     .regex(/[0-9]/, "Debe contener al menos un numero")
@@ -119,9 +118,15 @@ export const userSchema = z.object({
 
 export const loginSchema = z.object({
     userEmail: z.email(),
-    userPassword: z.string().min(8, "Contraseña debe tener minimo 8 caracteres"),
-    userDocumentTypes: z.string().min(1, "Debe seleccionar un tipo de documento"),
-    userDocumentNumber: z.string().min(5, "Numero de documento invalido"),
+    userPassword: z
+    .string()
+    .length(10, "La contraseña debe tener exactamente 10 caracteres")
+    .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
+    .regex(/[a-z]/, "Debe contener al menos una minuscula")
+    .regex(/[0-9]/, "Debe contener al menos un numero")
+    .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
+//     userDocumentTypes: z.string().min(1, "Debe seleccionar un tipo de documento"),
+//     userDocumentNumber: z.string().min(5, "Numero de documento invalido"),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -134,9 +139,12 @@ export const verifyTokenSchema = z.object({
 
 export const resetPasswordSchema = z.object({
     newPassword: z
-        .string()
-        .min(8, "Contraseña debe tener minimo 8 caracteres")
-        .max(10, "Contraseña debe tener maximo 10 caracteres"),
+    .string()
+    .length(10, "La contraseña debe tener exactamente 10 caracteres")
+    .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
+    .regex(/[a-z]/, "Debe contener al menos una minuscula")
+    .regex(/[0-9]/, "Debe contener al menos un numero")
+    .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
     confirmPassword: z.string().min(8, "Confirma tu contraseña"),
 })
 .refine(

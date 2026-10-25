@@ -3,6 +3,7 @@ import avena from "@/assets/images/avena.png";
 import mantequilla from "@/assets/images/mantequilla.png";
 import limon from "@/assets/images/limon.png";
 
+// Datos de prueba de las galletas que se muestran en el menu y en las ordenes
 export const galletas = [
     {
         id:1,

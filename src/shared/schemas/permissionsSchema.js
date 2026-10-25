@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// src/shared/schemas/permissionsSchema.js
+// Reglas para guardar los permisos de un usuario o grupo
 export const permissionsSchema = z
     .object({
         targetUser: z.string().optional(),

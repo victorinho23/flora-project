@@ -1,11 +1,10 @@
 // Configuracion de los campos disponibles para el reporte de inventario
-// Mismo patron que userReportFields: key = propiedad del registro, label = texto visible
 
 export const inventoryReportFields = [
     {
         key: "id",
         label: "ID",
-        default: false,
+        default: true,
     },
     {
         key: "brand",
@@ -20,7 +19,7 @@ export const inventoryReportFields = [
     {
         key: "barcode",
         label: "Código de barras",
-        default: false,
+        default: true,
     },
     {
         key: "quantity",
@@ -50,11 +49,11 @@ export const inventoryReportFields = [
     {
         key: "expirationDate",
         label: "Fecha de vencimiento",
-        default: false,
+        default: true,
     },
     {
         key: "description",
         label: "Descripción",
-        default: false,
+        default: true,
     },
 ];

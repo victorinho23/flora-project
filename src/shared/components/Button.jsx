@@ -11,35 +11,21 @@ export default function Button ({
 
     const variants = {
         // Para fondos claros:
+        espresso: `bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 text-bg-w font-semibold shadow-md hover:shadow-lg hover:brightness-125 active:scale-95 transition-all duration-200`,
+        caramelo: `bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 text-bg-w font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200`,
+        enlace: `bg-transparent text-br-t950 text-sm font-semibold underline-offset-4 hover:underline`,
+        crema: `bg-bg-w text-br-s950 font-semibold border border-bd-s300 shadow-sm hover:bg-bg-t50 hover:border-bd-s500 active:scale-95 transition-all duration-200`,
         primary: `bg-bg-s800 text-bg-w hover:bg-bg-s950 active:scale-95 shadow-md transition-all duration-200`,
-        fifth: `bg-br-t600 text-bg-w hover:bg-br-t700 active:scale-95 shadow-md shadow-br-t600/30 transition-all duration-200`,
-
-        // Para fondos oscuros
-        secondary: `bg-br-p900 text-bg-p50 hover:bg-br-p950 active:scale-95 shadow-md transition-all duration-200`,
-        tertiary: "bg-transparent text-text-primary hover:bg-brand-button-hover border border-0.5  rounded-[5px]  shadow-[0_0_3px_white] ",
-        cuar: `bg-br-p200 text-bg-s900 hover:bg-br-p300
-        active:scale-95 transition-all duration-200`,
-        sex: ` bg-transparent border border-bg-w/30 text-bg-w hover:border-br-t400 hover:shadow-[0_0_15px_var(--color-br-t400)]/50 hover:bg-bg-w/5 active:scale-95 transition-all duration-300`,
-        
-        // Funciona para ambos fondos
-        sev: `bg-transparent border-2 border-br-t500 text-br-t400 hover:bg-br-t500 hover:text-bg-w hover:scale-105 active:scale-95 transition-all duration-300`,
-
-        statusActive: `bg-green-600 text-white hover:bg-green-700 active:scale-95 shadow-md transition-all duration-300`,
-        statusInactive: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-300`,
-        danger: `bg-red-600 text-white hover:bg-red-700 active:scale-95 shadow-md transition-all duration-200`,
-
-        kaki: `bg-br-p950 text-bg-w font-semibold shadow-md shadow-br-p950/35 hover:brightness-90 hover:shadow-lg hover:shadow-br-p950/50 active:scale-95 transition-all duration-200`,
-        kakiContorno: `bg-transparent border-2 border-br-p950 text-br-s900 font-semibold hover:bg-br-p950 hover:text-bg-w active:scale-95 transition-all duration-200`,
-
-        remolino: `overflow-hidden isolate bg-br-t500 text-bg-w after:absolute after:left-1/2 after:top-1/2 after:w-[300%] after:aspect-square after:-translate-x-1/2 after:-translate-y-1/2 after:-z-10 after:bg-[conic-gradient(from_0deg,var(--color-br-t800),var(--color-br-t500),var(--color-br-t400),var(--color-br-t500),var(--color-br-t800))] after:animate-spin after:[animation-duration:8s] hover:after:[animation-duration:2s]`,
-
-        satinado: `border border-br-t700 text-bg-w font-semibold [text-shadow:0_1px_2px_color-mix(in_srgb,var(--color-br-t950)_50%,transparent)] bg-[linear-gradient(100deg,var(--color-br-t600)_0%,var(--color-br-t500)_30%,var(--color-br-t400)_52%,var(--color-br-t300)_60%,var(--color-br-t400)_68%,var(--color-br-t600)_100%)] bg-[length:200%_100%] bg-left hover:bg-right shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-br-t100)_45%,transparent),inset_0_-6px_10px_-4px_color-mix(in_srgb,var(--color-br-t950)_45%,transparent)] hover:shadow-[inset_0_1px_0_color-mix(in_srgb,var(--color-br-t100)_60%,transparent),inset_0_-6px_10px_-4px_color-mix(in_srgb,var(--color-br-t950)_45%,transparent),0_6px_14px_-6px_color-mix(in_srgb,var(--color-br-t600)_60%,transparent)] transition-all duration-500`,
-
+        sex: ` bg-transparent border border-bg-w/60 text-bg-w hover:border-br-t300 hover:shadow-[0_0_15px_var(--color-br-t400)]/50 hover:bg-bg-w/5 active:scale-95 transition-all duration-300`,
+        statusActive: `bg-green-800 text-white hover:bg-green-900 active:scale-95 shadow-md transition-all duration-300`,
+        statusInactive: `bg-red-800 text-white hover:bg-red-900 active:scale-95 shadow-md transition-all duration-300`,
+        danger: `bg-red-800 text-white hover:bg-red-900 active:scale-95 shadow-md transition-all duration-200`,
     };
 
     const sizes = {
         sm: `
             h-8
+            whitespace-nowrap
             px-4
             before:absolute before:content-['']
             before:-inset-y-[8px] before:-inset-x-[0px]
@@ -69,7 +55,7 @@ export default function Button ({
             `,
         w: `
             h-14 
-            w-120
+            w-full max-w-120
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]
@@ -85,7 +71,7 @@ export default function Button ({
             `,
         lggg: `
             h-14 
-            w-93
+            w-full max-w-93
             px-4
             before:absolute before:content-['']
             before:-inset-y-[0px] before:-inset-x-[0px]

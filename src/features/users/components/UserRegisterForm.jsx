@@ -1,31 +1,15 @@
 // User register form para registrar un usuario
 import { useState, useEffect } from "react";
-import { ArrowLeft, User } from "lucide-react";
-import {Input, Select, Button, Imageinput} from "@/shared";
+import { User, IdCard, Contact, CalendarDays, ImagePlus } from "lucide-react";
+import { Input, Select, Button, Imageinput, Navbar } from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
-import {useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
 import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
+import fotoFondo from "@/assets/images/fondo-users.png";
+import { users } from "../data/users";
 
-
-/**
- * Pequeño titulo de seccion reutilizable dentro del form.
- * Punto ambar (br-t500) + texto en mayusculas -> le da jerarquia visual
- * a cada grupo de campos sin necesidad de otro componente nuevo.
- */
-function SectionTitle({ children }) {
-    return (
-        // FIX: el texto completo estaba en text-br-t400 (naranja/ambar), competia
-        // demasiado. Ahora el texto es blanco (text-text-primary) y SOLO el punto
-        // se queda ambar como acento -- suficiente para dar identidad de color
-        // sin que el titulo entero se lea "naranja".
-        <h2 className="flex items-center gap-2 text-caption font-label uppercase tracking-wider text-text-primary">
-            <span className="w-1.5 h-1.5 rounded-full bg-bg-w shrink-0" />
-            {children}
-        </h2>
-    );
-}
 
 export default function UserRegisterForm(){
     const navigate = useNavigate();
@@ -54,8 +38,6 @@ export default function UserRegisterForm(){
         isSuperUser: false,
     });
 
-    // Los campos de correo empresarial y telefono secundario solo se
-    // muestran cuando el usuario presiona los botones "Agregar"
     const [showBusinessEmail, setShowBusinessEmail] = useState(false);
     const [showSecondaryPhone, setShowSecondaryPhone] = useState(false);
 
@@ -84,6 +66,16 @@ export default function UserRegisterForm(){
                 text: "Revisa los campos marcados en el formulario",
                 timer: 3000,
             });
+            return;
+        }
+
+        // El correo y el documento deben ser unicos en el sistema
+        const others = users.filter((item) => Boolean(item));
+        const duplicateErrors = {};
+        if (others.some((item) => item.useremail.toLowerCase() === result.data.userEmail.toLowerCase())) duplicateErrors.userEmail = "Este correo ya está registrado";
+        if (others.some((item) => item.document_number === result.data.userDocumentNumber)) duplicateErrors.userDocumentNumber = "Este número de documento ya está en uso";
+        if (Object.keys(duplicateErrors).length) {
+            setErrors(duplicateErrors);
             return;
         }
 
@@ -121,56 +113,35 @@ export default function UserRegisterForm(){
         <div className="min-h-screen w-full bg-cover bg-center bg-fixed">
 
             {/** Header */}
-            <div className="w-full flex items-center justify-between px-4 sm:px-8 py-4 sm:py-6 bg-bg-bk/30 backdrop-blur-sm">
-
-                {/* Icono de usuario + titulo agrupados, para que "justify-between"
-                    siga funcionando contra el boton de volver del otro extremo */}
-                <div className="flex items-center gap-3">
-                    {/* FIX: circulo ambar -> blanco solido, con border-2 (antes 1px)
-                        para que el borde resalte de verdad y no se pierda contra
-                        el fondo oscuro del header */}
-                    <span className="flex items-center justify-center w-10 h-10 rounded-full bg-bg-w/10 border-2 border-bg-w/80 shrink-0">
-                        <User className="w-5 h-5 text-bg-w" />
-                    </span>
-                    <h1 className="text-title text-text-primary font-bold underline drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
-                        Creacion de usuarios
-                    </h1>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        type="button"
-                        onClick={() => navigate("/userList")}
-                    >
-                        Ver listado
-                    </Button>
-
-                    <button
-                        type="button"
-                        onClick={() => navigate("/home")}
-                        className="text-text-primary hover:opacity-70 transition-opacity drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]"
-                        aria-label="Volver al inicio"
-                    >
-                        <ArrowLeft className="w-8 h-8" />
-                    </button>
-                </div>
-            </div>
+            <Navbar
+                variant="banda"
+                image={fotoFondo}
+                icon={User}
+                title="Creación de usuario"
+                onBack={() => navigate("/home")}
+                actions={
+                    <>
+                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/userList")}>
+                            Ver listado
+                        </Button>
+                    </>
+                }
+            />
 
             {/** Contenido */}
-            <div className="flex justify-center px-4 sm:px-8 lg:px-12 py-6 sm:py-10">
+            <div className="flex justify-center px-4 sm:px-8 py-6 xl:py-4 bajo:xl:py-3">
                 <form
                     onSubmit={handleSubmit}
-                    className="w-full max-w-8xl bg-bg-bk/30 backdrop-blur-sm border-2 border-bd-w/35 shadow-2xl rounded-2xl p-6 sm:p-10 flex flex-col lg:flex-row gap-6 lg:gap-8"
+                    className="w-full max-w-8xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start gap-6 bajo:gap-4 [&_.w-80]:w-full"
                 >
-
-                    {/** Columna izquierda: datos del usuario, agrupados en secciones */}
-                    <div className="flex flex-col gap-5 sm:gap-6 lg:flex-[2] lg:min-w-0">
-
-                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
-                            <SectionTitle>Identificación</SectionTitle>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                    <div className="border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] p-5 sm:p-6 bajo:sm:p-5 grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-6 bajo:gap-y-4 xl:items-start">
+                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-1 xl:row-start-1">
+                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
+                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{1}</span>
+                                <IdCard className="w-5 h-5 shrink-0 text-br-t900" />
+                                Identificación
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4 bajo:gap-3 items-end">
                                 <Input
                                     type="text"
                                     name="userName"
@@ -178,7 +149,7 @@ export default function UserRegisterForm(){
                                     value={formData.userName}
                                     placeholder="Escribe tu nombre"
                                     htmlFor="user-name"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userName}
                                 />
@@ -191,7 +162,7 @@ export default function UserRegisterForm(){
                                     options={documentTypes}
                                     onChange={handleChange}
                                     error={errors.userDocumentTypes}
-                                    variant="cafe"
+                                    variant="latte"
                                 />
 
                                 <Input
@@ -201,7 +172,7 @@ export default function UserRegisterForm(){
                                     value={formData.userDocumentNumber}
                                     placeholder="Escribe tu numero documento"
                                     htmlFor="user-document-number"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userDocumentNumber}
                                 />
@@ -214,14 +185,18 @@ export default function UserRegisterForm(){
                                     options={typesUser}
                                     onChange={handleChange}
                                     error={errors.userType}
-                                    variant="cafe"
+                                    variant="latte"
                                 />
                             </div>
-                        </section>
+                        </div>
 
-                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
-                            <SectionTitle>Contacto y acceso</SectionTitle>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:border-l xl:border-bd-s100 xl:pl-8">
+                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
+                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{2}</span>
+                                <Contact className="w-5 h-5 shrink-0 text-br-t900" />
+                                Contacto y acceso
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:[&>div]:col-span-2 gap-4 bajo:gap-3 items-end">
                                 <Input
                                     name="userEmail"
                                     type="email"
@@ -229,7 +204,7 @@ export default function UserRegisterForm(){
                                     value={formData.userEmail}
                                     placeholder="Escribe tu Correo Electronico"
                                     htmlFor="user-email"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userEmail}
                                 />
@@ -241,7 +216,7 @@ export default function UserRegisterForm(){
                                     value={formData.userEmailConfirm}
                                     placeholder="Confirma tu correo electronico"
                                     htmlFor="user-email-confirm"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userEmailConfirm}
                                 />
@@ -253,7 +228,7 @@ export default function UserRegisterForm(){
                                     value={formData.userPassword}
                                     placeholder="Escribe tu contraseña"
                                     htmlFor="user-password"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userPassword}
                                 />
@@ -265,7 +240,7 @@ export default function UserRegisterForm(){
                                     value={formData.userAddress}
                                     placeholder="Direccion"
                                     htmlFor="user-direction"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userAddress}
                                 />
@@ -277,7 +252,7 @@ export default function UserRegisterForm(){
                                     value={formData.userPhone}
                                     placeholder="Escribe tu numero de telefono"
                                     htmlFor="user-Phone"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userPhone}
                                 />
@@ -290,18 +265,18 @@ export default function UserRegisterForm(){
                                         value={formData.userPhoneSecondary}
                                         placeholder="Escribe un segundo numero de telefono"
                                         htmlFor="user-phone-secondary"
-                                        variant="cafe"
+                                        variant="latte"
                                         onChange={handleChange}
                                         error={errors.userPhoneSecondary}
                                     />
                                 ) : (
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={() => setShowSecondaryPhone(true)}
-                                        className="w-80 h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-gray-300)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+                                        className="w-full h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-secundary-400)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
                                     >
-                                        + Teléfono secundario
-                                    </button>
+                                        Teléfono secundario
+                                    </Button>
                                 )}
 
                                 {showBusinessEmail ? (
@@ -313,7 +288,7 @@ export default function UserRegisterForm(){
                                             value={formData.userBusinessEmail}
                                             placeholder="Correo empresarial"
                                             htmlFor="user-business-email"
-                                            variant="cafe"
+                                            variant="latte"
                                             onChange={handleChange}
                                             error={errors.userBusinessEmail}
                                         />
@@ -325,33 +300,37 @@ export default function UserRegisterForm(){
                                             value={formData.userBusinessEmailConfirm}
                                             placeholder="Confirma el correo empresarial"
                                             htmlFor="user-business-email-confirm"
-                                            variant="cafe"
+                                            variant="latte"
                                             onChange={handleChange}
                                             error={errors.userBusinessEmailConfirm}
                                         />
                                     </>
                                 ) : (
-                                    <button
+                                    <Button
                                         type="button"
                                         onClick={() => setShowBusinessEmail(true)}
-                                        className="w-80 h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-gray-300)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
+                                        className="w-full h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-secundary-400)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
                                     >
-                                        + Correo empresarial
-                                    </button>
+                                        Correo empresarial
+                                    </Button>
                                 )}
                             </div>
-                        </section>
+                        </div>
 
-                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
-                            <SectionTitle>Contrato</SectionTitle>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 items-end">
+                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-1 xl:row-start-2">
+                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
+                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{3}</span>
+                                <CalendarDays className="w-5 h-5 shrink-0 text-br-t900" />
+                                Temporalidad del Contrato
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bajo:gap-3 items-end">
                                 <Input
                                     name="userContractStartDate"
                                     type="date"
                                     label="Fecha inicio contrato"
                                     value={formData.userContractStartDate}
                                     htmlFor="user-contract-start"
-                                    variant="cafe"
+                                    variant="latte"
                                     onChange={handleChange}
                                     error={errors.userContractStartDate}
                                 />
@@ -363,49 +342,46 @@ export default function UserRegisterForm(){
                                         label="Fecha fin contrato"
                                         value={formData.userContractEndDate}
                                         htmlFor="user-contract-end"
-                                        variant="cafe"
+                                        variant="latte"
                                         onChange={handleChange}
                                         error={errors.userContractEndDate}
                                     />
                                 )}
                             </div>
-                        </section>
-
+                        </div>
                     </div>
 
-                    {/** Columna derecha: imagen y acciones.
-                        lg:sticky + lg:top-6 para que, en desktop, esta columna quede
-                        alineada a la altura visible mientras se hace scroll por las
-                        secciones largas de la izquierda -- comportamiento tipico de
-                        "sidebar card" en formularios largos. */}
-                    <div className="flex flex-col gap-5 sm:gap-6 lg:flex-1 lg:min-w-0 lg:sticky lg:top-6 lg:self-start justify-center items-center">
+                    <div className="flex flex-col items-center">
 
-                        <section className="flex flex-col gap-4 rounded-xl bg-bg-s950/40 border border-bd-w/25 p-4 sm:p-5">
-                            <SectionTitle>Foto de perfil</SectionTitle>
-
-                            <div className="flex items-center justify-center bg-bg-s950/60 border border-bd-w/30 rounded-xl p-4">
-                                <Imageinput
+                        <div className="flex flex-col gap-4 bajo:gap-3 rounded-2xl bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 p-5 bajo:p-4 shadow-xl items-center w-full">
+                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-bg-w border-b border-bd-w/20 pb-2">
+                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-w text-br-s950">{4}</span>
+                                <ImagePlus className="w-5 h-5 shrink-0 text-br-t100" />
+                                Foto de perfil
+                            </h2>
+                            <Imageinput
                                     value={formData.userImage}
                                     onChange={(files) =>
                                         setFormData((prev) => ({...prev, userImage: files}))
                                     }
                                     multiple={true}
-                                    variant="fifteenth"
+                                    variant="latte"
                                 />
-                            </div>
-                            {errors.userImage && (
-                                <span className="text-red-600 text-small">{errors.userImage}</span>
-                            )}
-                        </section>
 
-                    
-                        <Button
-                            variant="fifth"
-                            size="lgg"
-                            type="submit"
-                        >
-                            Crear usuario
-                        </Button>
+                            <p className="text-sm text-bg-w text-center">Tamaño máximo: 2 MB</p>
+
+                            {errors.userImage && (
+                                <span className="inline-block rounded bg-red-50 px-2 py-0.5 text-red-900 font-medium text-small">{errors.userImage}</span>
+                            )}
+
+                            <Button
+                                variant="caramelo"
+                                size="lgg"
+                                type="submit"
+                            >
+                                Crear usuario
+                            </Button>
+                        </div>
 
                     </div>
 

@@ -30,17 +30,16 @@ export default function SupplierListPage() {
 
                 <div className="flex items-center gap-4">
                     {/* Notificaciones (visual, sin logica asociada por ahora) */}
-                    <Button variant="secondary" size="sm" aria-label="Notificaciones">
+                    <Button variant="crema" size="sm" aria-label="Notificaciones">
                         <Bell size={20} />
                     </Button>
 
-                    <Button variant="primary" size="sm" onClick={() => navigate("/suppliersCreate")}>
+                    <Button variant="espresso" size="sm" onClick={() => navigate("/suppliersCreate")}>
                         Nuevo proveedor
                     </Button>
                 </div>
             </div>
 
-            {/* Tarjeta clara: mantiene el texto y la tabla legibles sobre el fondo oscurecido */}
             <div className="bg-[var(--color-white)]/95 rounded-xl shadow-lg p-6">
                 <DataTable data={suppliers} columns={SupplierColumns} />
             </div>

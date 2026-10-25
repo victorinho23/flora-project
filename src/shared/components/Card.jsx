@@ -1,19 +1,16 @@
 const variants = {
-    default: "dark:bg-neutral-950/70 text-text-inverse",
-    sec: "bg-white/10 border border-white/20 text-white",
-    tertiary: "bg-white text-neutral-900 shadow-md",
-    coffe: "bg-bg-s400 text-bg-w border border-bd-s700/80",
-    
+    coffe: "bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 text-bg-w",
 };
 
-const Card = ({ product, variant = "default" }) => {
+const Card = ({ product, variant = "coffe" }) => {
 
     const { title, image, price, description } = product;
 
     return (
         <div className={`
-            w-80
-            h-90
+            w-full
+            max-w-80
+            min-h-90
             backdrop-blur-[2px]
             shadow-lg
             rounded-2xl
@@ -21,7 +18,6 @@ const Card = ({ product, variant = "default" }) => {
             hover:shadow-black
             transition-shadow
             duration-700
-            bg-gradient-to-br from-bg-s600 to-br-s300
             
             ${variants[variant]}
         `}>
@@ -42,7 +38,7 @@ const Card = ({ product, variant = "default" }) => {
                     {description}
                 </p>
 
-                <p className="text-lg font-bold text-">
+                <p className="text-lg font-bold text-br-t100">
                     {/** Esto agrega separadores de miles, lo que mejora la lectura tolocalString() */}
                     ${price.toLocaleString()}
                 </p>

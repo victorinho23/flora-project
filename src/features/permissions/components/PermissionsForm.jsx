@@ -1,13 +1,12 @@
 // Gestion de permisos: permite activar/desactivar permisos por usuario o por grupo
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Home } from "lucide-react";
-import { Select, Button } from "@/shared";
-import {ToggleSwitch} from "@/shared";
+import { Select, Button, Navbar } from "@/shared";
+import { ToggleSwitch } from "@/shared";
 import { permissionsSchema } from "@/shared/schemas/permissionsSchema.js";
+import { showSuccesAlert } from "../../../shared/services/alertService";
+import fotoFondo from "@/assets/images/cafe.png";
 
-// Agrupado segun los modulos reales del proyecto (Usuarios, Inventario,
-// Proveedores, Menu, Ordenes), con los permisos de cada RFADMIN correspondiente
+
 const permissionGroups = [
     {
         title: "Usuarios",
@@ -66,15 +65,7 @@ const permissionGroups = [
     },
 ];
 
-// Mismos links que el dropdown de Home, como sidebar
-const sidebarLinks = [
-    { to: "/userCreate", label: "Crear usuarios" },
-    { to: "/suppliersCreate", label: "Crear proveedores" },
-    { to: "/createDishes", label: "Crear Menu" },
-    { to: "/createOrders", label: "Crear Orden" },
-    { to: "/createInventory", label: "Crear inventario" },
-    { to: "/auth", label: "Cerrar sesion" },
-];
+
 
 // Datos de prueba, mientras no exista el backend
 const mockUsers = [
@@ -112,50 +103,40 @@ export default function PermissionsForm() {
         }
 
         setErrors({});
+         try{
 
-        // Aqui luego va la llamada real al backend
-        // await savePermissions(result.data)
+        showSuccesAlert({
+            title:"Permisos concebidos",
+            text: "Permisos guardados correctamente",
+            timer: 3000.
+        })
+        
+       
+    } catch(error){
 
-        alert("Permisos guardados correctamente");
+        //Capturanmos errores de red o errores lanzados por el service
+        console.log("Error: ", error.message)
+
+    }
+        
+        
     };
 
     return (
-        <div className="min-h-screen w-full flex flex-col lg:flex-row">
-
-            {/** Sidebar de navegacion, mismos links del dropdown de Home + casita */}
-            <aside className="w-full lg:w-64 flex-shrink-0 bg-bg-s900/90 backdrop-blur-md border-b lg:border-b-0 lg:border-r border-bd-w/15 flex flex-col gap-2 p-4">
-
-                <Link
-                    to="/home"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-bg-w font-semibold hover:bg-bg-w/10 transition-colors mb-2"
-                >
-                    <Home className="w-5 h-5" />
-                    Inicio
-                </Link>
-
-                <div className="border-b border-bd-w/15 mb-2" />
-
-                {sidebarLinks.map((link) => (
-                    <Link
-                        key={link.to}
-                        to={link.to}
-                        className="px-4 py-3 rounded-lg text-bg-w/90 hover:bg-bg-w/10 hover:text-bg-w transition-colors"
-                    >
-                        {link.label}
-                    </Link>
-                ))}
-
-            </aside>
+        <div className="min-h-screen w-full flex flex-col">
+            <Navbar variant="links" image={fotoFondo} />
 
             {/** Contenido principal */}
-            <div className="flex-1 flex items-start justify-center px-4 py-10">
-                <div className="w-full max-w-5xl bg-bg-s900/85 backdrop-blur-md border border-bd-w/15 rounded-2xl p-6 sm:p-10">
+            <div className="flex-1 flex items-start justify-center px-4 py-10 w-full">
+                <div className="w-full max-w-5xl border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] p-6 sm:p-10">
 
-                    <h1 className="text-title text-bg-w font-bold text-center mb-8">
-                        Gestion de permisos
-                    </h1>
+                    <div className="w-full text-bg-w bg-bg-s950 bg-cover bg-center bg-[linear-gradient(110deg,color-mix(in_srgb,var(--color-bg-s950)_82%,transparent)_0%,color-mix(in_srgb,var(--color-bg-s900)_84%,transparent)_55%,color-mix(in_srgb,var(--color-bg-t950)_88%,transparent)_100%),var(--foto)] flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-6 bajo:sm:py-2 rounded-2xl shadow-lg mb-8" style={{ "--foto": `url(${fotoFondo})` }}>
+                        <div className="w-8" />
+                        <h1 className="text-title text-bg-w font-bold text-center">Gestion de permisos</h1>
+                        <div className="w-8" />
+                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10 [&_select]:w-full">
                         <Select
                             label="Seleccionar usuario"
                             name="targetUser"
@@ -164,7 +145,7 @@ export default function PermissionsForm() {
                             options={mockUsers}
                             onChange={(e) => setTargetUser(e.target.value)}
                             error={errors.targetUser}
-                            variant="cafe"
+                            variant="latte"
                         />
 
                         <Select
@@ -174,14 +155,14 @@ export default function PermissionsForm() {
                             htmlFor="targetGroup"
                             options={mockGroups}
                             onChange={(e) => setTargetGroup(e.target.value)}
-                            variant="cafe"
+                            variant="latte"
                         />
                     </div>
 
                     <div className="flex flex-col gap-8">
                         {permissionGroups.map((group, index) => (
                             <div key={group.title}>
-                                <h2 className="text-subtitle text-br-t400 font-bold mb-4">
+                                <h2 className="text-subtitle text-br-t900 font-bold mb-4">
                                     {group.title}
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
@@ -195,20 +176,20 @@ export default function PermissionsForm() {
                                     ))}
                                 </div>
                                 {index < permissionGroups.length - 1 && (
-                                    <div className="border-b border-bd-w/15 mt-6" />
+                                    <div className="border-b border-bd-s100 mt-6" />
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    <div className="flex justify-end mt-8">
-                        <button
+                    <div className="flex justify-center sm:justify-end mt-8">
+                        <Button
                             type="button"
                             onClick={handleSave}
-                            className="bg-br-t600 hover:bg-br-t700 text-white font-semibold px-8 py-3 rounded-lg shadow-[0_0_15px_rgba(183,95,6,0.4)] transition-all"
+                            variant="caramelo"
                         >
                             Guardar permisos
-                        </button>
+                        </Button>
                     </div>
 
                 </div>

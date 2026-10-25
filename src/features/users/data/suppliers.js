@@ -1,3 +1,4 @@
+// Datos de prueba antiguos de proveedores, se dejan por compatibilidad con el modal de detalle
 export const suppliers = [
     {
         id: 1,

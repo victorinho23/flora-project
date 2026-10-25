@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { showSuccesAlert } from "@/shared/services/alertService";
 import { Input, Button } from "@/shared";
 import { forgotPasswordSchema, verifyTokenSchema, resetPasswordSchema } from "../../schemas/userSchema";
 
@@ -19,7 +20,7 @@ export default function ForgotPasswordModal({ onClose }) {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSendEmail = (e) => {
+    const handleSendEmail = async (e) => {
         e.preventDefault();
 
         const result = forgotPasswordSchema.safeParse({ email: formData.email });
@@ -33,7 +34,11 @@ export default function ForgotPasswordModal({ onClose }) {
         }
 
         setErrors({});
-        alert(`Se ha enviado un correo de restablecimiento a ${formData.email}\n(simulado — token de prueba: ${MOCK_TOKEN})`);
+        await showSuccesAlert({
+            title: "Correo enviado",
+            text: `Se ha enviado un correo de restablecimiento a ${formData.email}. Token de prueba: ${MOCK_TOKEN}`,
+            timer: 4000,
+        });
         setStep(2);
     };
 
@@ -54,7 +59,7 @@ export default function ForgotPasswordModal({ onClose }) {
         setStep(3);
     };
 
-    const handleResetPassword = (e) => {
+    const handleResetPassword = async (e) => {
         e.preventDefault();
 
         const result = resetPasswordSchema.safeParse({
@@ -71,7 +76,11 @@ export default function ForgotPasswordModal({ onClose }) {
         }
 
         setErrors({});
-        alert("Contraseña actualizada correctamente");
+        await showSuccesAlert({
+            title: "Contraseña actualizada",
+            text: "Tu contraseña fue actualizada correctamente",
+            timer: 3000,
+        });
         onClose();
     };
 
@@ -80,23 +89,23 @@ export default function ForgotPasswordModal({ onClose }) {
 
             
             <div
-                className="absolute inset-0  backdrop-blur-sm"
+                className="absolute inset-0 bg-bg-s950/50 backdrop-blur-sm"
                 onClick={onClose}
             />
 
            
-            <div className="relative w-full max-w-md bg-bg-s600/50 backdrop-blur-md border border-bd-w/10 rounded-2xl shadow-2xl p-8">
+            <div className="relative w-full max-w-md bg-bg-w border border-bd-s100 rounded-2xl shadow-2xl p-8">
 
-                <button
+                <Button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-bg-w/60 hover:text-bg-w text-xl leading-none"
+                    className="absolute top-4 right-4 text-br-s800 hover:text-br-t900 text-xl leading-none"
                     aria-label="Cerrar"
                 >
                     ✕
-                </button>
+                </Button>
 
-                <h2 className="text-title text-bg-w font-bold mb-1">Recuperar contraseña</h2>
-                <p className="text-caption text-bg-w/80 mb-6">
+                <h2 className="text-title text-br-s950 font-bold mb-1">Recuperar contraseña</h2>
+                <p className="text-sm text-br-s800 mb-6">
                     {step === 1 && "Ingresa tu correo para recibir un enlace"}
                     {step === 2 && "Ingresa el código que enviamos a tu correo"}
                     {step === 3 && "Crea tu nueva contraseña"}
@@ -108,7 +117,7 @@ export default function ForgotPasswordModal({ onClose }) {
                         <div
                             key={s}
                             className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
-                                s <= step ? "bg-br-w" : "bg-bd-w/15"
+                                s <= step ? "bg-bg-t900" : "bg-bg-s100"
                             }`}
                         />
                     ))}
@@ -122,13 +131,13 @@ export default function ForgotPasswordModal({ onClose }) {
                             label="Correo electrónico"
                             placeholder="tucorreo@ejemplo.com"
                             htmlFor="recovery-email"
-                            variant="cafe"
+                            variant="latte"
                             size="lg"
                             value={formData.email}
                             onChange={handleChange}
                             error={errors.email}
                         />
-                        <Button variant="primary" size="lgg" type="submit">
+                        <Button variant="espresso" size="lgg" type="submit">
                             Enviar enlace
                         </Button>
                     </form>
@@ -142,13 +151,13 @@ export default function ForgotPasswordModal({ onClose }) {
                             label="Código de verificación"
                             placeholder="Ingresa el código"
                             htmlFor="token"
-                            variant="cafe"
+                            variant="latte"
                             size="lg"
                             value={formData.token}
                             onChange={handleChange}
                             error={errors.token}
                         />
-                        <Button variant="primary" size="lgg" type="submit">
+                        <Button variant="espresso" size="lgg" type="submit">
                             Verificar código
                         </Button>
                     </form>
@@ -162,7 +171,7 @@ export default function ForgotPasswordModal({ onClose }) {
                             label="Nueva contraseña"
                             placeholder="Escribe tu nueva contraseña"
                             htmlFor="new-password"
-                            variant="cafe"
+                            variant="latte"
                             size="lg"
                             value={formData.newPassword}
                             onChange={handleChange}
@@ -174,13 +183,13 @@ export default function ForgotPasswordModal({ onClose }) {
                             label="Confirma tu nueva contraseña"
                             placeholder="Repite la contraseña"
                             htmlFor="confirm-password"
-                            variant="cafe"
+                            variant="latte"
                             size="lg"
                             value={formData.confirmPassword}
                             onChange={handleChange}
                             error={errors.confirmPassword}
                         />
-                        <Button variant="primary" size="lgg" type="submit">
+                        <Button variant="espresso" size="lgg" type="submit">
                             Actualizar contraseña
                         </Button>
                     </form>

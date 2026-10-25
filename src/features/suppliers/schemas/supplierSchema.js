@@ -1,3 +1,5 @@
+// src/features/suppliers/schemas/supplierSchema.js
+// Reglas de validacion del formulario de proveedores
 import { z } from "zod"
 
 export const supplierSchema = z.object({

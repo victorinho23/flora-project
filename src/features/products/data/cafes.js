@@ -3,6 +3,7 @@ import capuchino from "@/assets/images/capuchino.png";
 import latte from "@/assets/images/latte.png";
 import macchiato from "@/assets/images/macchiato.png";
 
+// Datos de prueba de los cafes que se muestran en el menu y en las ordenes
 export const cafes = [
     {
         id:1,

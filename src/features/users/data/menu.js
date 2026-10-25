@@ -1,3 +1,9 @@
+import capuchino from "@/assets/images/capuchino.png";
+import latte from "@/assets/images/latte.png";
+import macchiato from "@/assets/images/macchiato.png";
+import chispas from "@/assets/images/chispas.png";
+
+// Datos de prueba del menu (platillos con categoria, precio, imagen y estado)
 export const menu = [
     {
         id: 1,
@@ -20,6 +26,7 @@ export const menu = [
         category: "Postres",
         is_active: true,
         name: "Cappuccino",
+        image: capuchino,
         description: "Espresso con leche vaporizada y espuma de leche.",
         price: 8500
     },
@@ -28,6 +35,7 @@ export const menu = [
         category: "Platos fuertes",
         is_active: true,
         name: "Latte",
+        image: latte,
         description: "Espresso con abundante leche vaporizada.",
         price: 9000
     },
@@ -44,6 +52,7 @@ export const menu = [
         category: "Cafés",
         is_active: true,
         name: "Macchiato",
+        image: macchiato,
         description: "Espresso con un toque de espuma de leche.",
         price: 8000
     },
@@ -132,6 +141,7 @@ export const menu = [
         category: "Bebidas",
         is_active: true,
         name: "Galleta con Chips de Chocolate",
+        image: chispas,
         description: "Galleta artesanal con trozos de chocolate.",
         price: 5000
     },

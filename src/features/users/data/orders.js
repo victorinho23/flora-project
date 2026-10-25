@@ -1,6 +1,8 @@
+// Datos de prueba de las ordenes (mesa, mesero, estado, fecha y total)
 export const orders = [
     {
         id: 1,
+        createdAt: "2026-10-13T16:13:00",
         tableNumber: 1,
         waiter: "Juan Tejada",
         status: "ACTIVA",
@@ -11,6 +13,7 @@ export const orders = [
     },
     {
         id: 2,
+        createdAt: "2026-10-16T11:26:00",
         tableNumber: 2,
         waiter: "Laura Pinzón",
         status: "LISTA_PARA_ENTREGA",
@@ -21,6 +24,7 @@ export const orders = [
     },
     {
         id: 3,
+        createdAt: "2026-10-19T16:39:00",
         tableNumber: 3,
         waiter: "Andrés Cifuentes",
         status: "PAGADA",
@@ -31,6 +35,7 @@ export const orders = [
     },
     {
         id: 4,
+        createdAt: "2026-10-22T11:52:00",
         tableNumber: 4,
         waiter: "Juan Tejada",
         status: "CANCELADA",
@@ -41,6 +46,7 @@ export const orders = [
     },
     {
         id: 5,
+        createdAt: "2026-10-25T16:05:00",
         tableNumber: 5,
         waiter: "Laura Pinzón",
         status: "ACTIVA",
@@ -51,6 +57,7 @@ export const orders = [
     },
     {
         id: 6,
+        createdAt: "2026-10-10T11:18:00",
         tableNumber: 6,
         waiter: "Andrés Cifuentes",
         status: "LISTA_PARA_ENTREGA",
@@ -61,6 +68,7 @@ export const orders = [
     },
     {
         id: 7,
+        createdAt: "2026-10-13T16:31:00",
         tableNumber: 7,
         waiter: "Juan Tejada",
         status: "PAGADA",
@@ -71,6 +79,7 @@ export const orders = [
     },
     {
         id: 8,
+        createdAt: "2026-10-16T11:44:00",
         tableNumber: 8,
         waiter: "Laura Pinzón",
         status: "CANCELADA",
@@ -81,6 +90,7 @@ export const orders = [
     },
     {
         id: 9,
+        createdAt: "2026-10-19T16:57:00",
         tableNumber: 9,
         waiter: "Andrés Cifuentes",
         status: "ACTIVA",
@@ -91,6 +101,7 @@ export const orders = [
     },
     {
         id: 10,
+        createdAt: "2026-10-22T11:10:00",
         tableNumber: 10,
         waiter: "Juan Tejada",
         status: "LISTA_PARA_ENTREGA",
@@ -101,6 +112,7 @@ export const orders = [
     },
     {
         id: 11,
+        createdAt: "2026-10-25T16:23:00",
         tableNumber: 11,
         waiter: "Laura Pinzón",
         status: "PAGADA",
@@ -111,6 +123,7 @@ export const orders = [
     },
     {
         id: 12,
+        createdAt: "2026-10-10T11:36:00",
         tableNumber: 12,
         waiter: "Andrés Cifuentes",
         status: "CANCELADA",
@@ -121,6 +134,7 @@ export const orders = [
     },
     {
         id: 13,
+        createdAt: "2026-10-13T16:49:00",
         tableNumber: 1,
         waiter: "Juan Tejada",
         status: "ACTIVA",
@@ -131,6 +145,7 @@ export const orders = [
     },
     {
         id: 14,
+        createdAt: "2026-10-16T11:02:00",
         tableNumber: 2,
         waiter: "Laura Pinzón",
         status: "LISTA_PARA_ENTREGA",
@@ -141,6 +156,7 @@ export const orders = [
     },
     {
         id: 15,
+        createdAt: "2026-10-19T16:15:00",
         tableNumber: 3,
         waiter: "Andrés Cifuentes",
         status: "PAGADA",
