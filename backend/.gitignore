@@ -1,0 +1,10 @@
+# Variables de entorno
+
+.env
+
+# Dependencias
+node_modules
+
+# Imagenes que se suben desde el frontend
+uploads/*
+!uploads/.gitkeep
