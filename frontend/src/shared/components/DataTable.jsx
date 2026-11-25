@@ -1,3 +1,4 @@
+import { FilterX } from "lucide-react";
 // Hooks y utilidades principales de TanStack Table
 import {
   useReactTable,          // Hook que crea la instancia de la tabla
@@ -282,12 +283,14 @@ export default function DataTable({ data, columns, variant, filters = [], dateFi
             </>
           )}
 
+          {/* mismo estilo que los select de los filtros, asi se ve parejo aunque este desactivado */}
           <Button
             size="md"
-            variant={v.btnSecondary}
             onClick={clearFilters}
             disabled={!hasFilters}
+            className={`m3-state h-10 px-4 flex items-center justify-center gap-2 rounded-m3-xs border text-m3-body-medium font-semibold whitespace-nowrap transition-[border-color,opacity] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:cursor-not-allowed disabled:opacity-60 ${v.field === "cafe" ? "bg-bg-s900 border-bd-p400 text-bg-w enabled:hover:border-bd-w" : "bg-bg-w border-bd-s400 text-br-s950 shadow-m3-1 enabled:hover:border-bd-s950"}`}
           >
+            <FilterX size={16} />
             Limpiar filtros
           </Button>
         </div>
