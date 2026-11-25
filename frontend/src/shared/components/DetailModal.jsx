@@ -124,15 +124,16 @@ export default function DetailModal({
                 </div>
 
                 {footer && (
+                // Material 3: cerrar a la izquierda y la accion principal a la derecha (igual que en las alertas)
                 <div className="flex flex-wrap justify-center sm:justify-end gap-3 px-6 pb-6">
+                    <Button size="sm" variant="contorno" onClick={onClose}>
+                        Cerrar
+                    </Button>
                     {onEdit && (
                         <Button size="sm" variant="espresso" onClick={onEdit}>
                             {editLabel}
                         </Button>
                     )}
-                    <Button size="sm" variant="contorno" onClick={onClose}>
-                        Cerrar
-                    </Button>
                 </div>
                 )}
             </div>
