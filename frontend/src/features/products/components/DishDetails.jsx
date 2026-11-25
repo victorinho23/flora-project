@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, SearchField, Navbar } from "@/shared";
 import fotoFondo from "@/assets/images/fondo-dish.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 // Cantidad de platillos que se muestran por pagina
 const DISHES_PER_PAGE = 6;
@@ -32,6 +33,7 @@ export function DishDetails({ dish, relatedDishes = [] }) {
     };
 
     // Lleva a la edicion del platillo
+    const can = useAccess();
     const handleEdit = () => {
         navigate(`/dishEdit/${selectedDish.id}`);
     };
@@ -44,16 +46,15 @@ export function DishDetails({ dish, relatedDishes = [] }) {
             <Navbar
                 variant="banda"
                 image={fotoFondo}
-                title="Visualizar Menu"
-                onBack={() => navigate("/createDishes")}
-                backSide="right"
+                title="Visualizar Menú"
+                onBack={() => navigate("/listMenu")}
             />
 
             <div className="flex-1 px-4 sm:px-8 py-6 xl:py-4 bajo:xl:py-3">
                 <div className="w-full max-w-7xl mx-auto flex flex-col gap-6 xl:gap-4">
 
-                    <div className="border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] grid grid-cols-1 md:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)] gap-6 p-5 sm:p-6 bajo:sm:p-5">
-                        <div className="w-full aspect-square md:aspect-auto md:h-72 xl:h-80 bajo:xl:h-64 rounded-xl overflow-hidden border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] flex items-center justify-center">
+                    <div className="border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1 grid grid-cols-1 md:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[22rem_minmax(0,1fr)] gap-6 p-5 sm:p-6 bajo:sm:p-5">
+                        <div className="w-full aspect-square md:aspect-auto md:h-72 xl:h-80 bajo:xl:h-64 rounded-m3-md overflow-hidden border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 flex items-center justify-center">
                             {selectedDish.imageUrl ? (
                                 <img src={selectedDish.imageUrl} alt={selectedDish.dishName} className="w-full h-full object-cover" />
                             ) : (
@@ -66,8 +67,8 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                                 {selectedDish.dishCategoryLabel && (
                                     <span className="px-3 py-1 rounded-full text-sm font-semibold bg-bg-t50 text-br-t950 ring-1 ring-bd-t800/30">{selectedDish.dishCategoryLabel}</span>
                                 )}
-                                <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-sm font-semibold ${enabled ? "bg-green-50 text-green-900" : "bg-red-50 text-red-900"}`}>
-                                    <span className={`h-2 w-2 rounded-full ${enabled ? "bg-green-700" : "bg-red-700"}`} />
+                                <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-sm font-semibold ${enabled ? "bg-m3-success-container text-m3-success" : "bg-m3-error-container text-m3-on-error-container"}`}>
+                                    <span className={`h-2 w-2 rounded-full ${enabled ? "bg-m3-success" : "bg-m3-error"}`} />
                                     {enabled ? "Habilitado" : "Deshabilitado"}
                                 </span>
                             </div>
@@ -85,21 +86,23 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                             )}
 
                             {selectedDish.categoryDisabled && (
-                                <p className="inline-block self-start rounded bg-red-50 px-2 py-0.5 text-red-900 font-medium text-sm">
-                                    Esta categoria se encuentra deshabilitada
+                                <p className="inline-block self-start rounded bg-m3-error-container px-2 py-0.5 text-m3-on-error-container font-medium text-sm">
+                                    Esta categoría se encuentra deshabilitada
                                 </p>
                             )}
 
                             <div className="flex justify-center md:justify-start">
-                                <Button variant="espresso" size="lgg" type="button" onClick={handleEdit}>
-                                    <Pencil size={18} />
-                                    Actualizar menu
-                                </Button>
+                                {can("menu_actualizar") && (
+                                    <Button variant="espresso" size="lgg" type="button" onClick={handleEdit}>
+                                        <Pencil size={18} />
+                                        Actualizar menú
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] p-4 sm:p-5 bajo:sm:p-4 flex flex-col gap-4 bajo:gap-3">
+                    <div className="border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 flex flex-col gap-4 bajo:gap-3">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
                                 <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
@@ -122,7 +125,7 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                                         key={item.id}
                                         type="button"
                                         onClick={() => setSelectedDish(item)}
-                                        className={`flex flex-col rounded-xl overflow-hidden border-2 bg-bg-w shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200 ${selectedDish.id === item.id ? "border-bd-t800 shadow-md" : "border-bd-s100 hover:border-bd-s400"}`}
+                                        className={`flex flex-col rounded-m3-md overflow-hidden border-2 bg-bg-w shadow-m3-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${selectedDish.id === item.id ? "border-bd-t800 shadow-m3-1" : "border-bd-s100 hover:border-bd-s400"}`}
                                     >
                                         <div className="w-full h-24 bajo:h-20 bg-bg-s50 flex items-center justify-center">
                                             {item.imageUrl ? (
@@ -149,7 +152,7 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                                     onClick={() => setPage(page - 1)}
                                     disabled={page === 0}
                                     aria-label="Página anterior"
-                                    className="h-9 min-w-9 px-3 rounded-lg text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200 disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
+                                    className="h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
                                 >
                                     <ChevronLeft size={16} />
                                 </Button>
@@ -158,7 +161,7 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                                         key={index}
                                         type="button"
                                         onClick={() => setPage(index)}
-                                        className={`h-9 min-w-9 px-3 rounded-lg text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200 disabled:opacity-40 disabled:cursor-not-allowed ${index === page ? "border-bd-s950 bg-bg-s950 text-bg-w" : "border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"}`}
+                                        className={`h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed ${index === page ? "border-bd-s950 bg-bg-s950 text-bg-w" : "border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"}`}
                                     >
                                         {index + 1}
                                     </Button>
@@ -168,7 +171,7 @@ export function DishDetails({ dish, relatedDishes = [] }) {
                                     onClick={() => setPage(page + 1)}
                                     disabled={page === pageCount - 1}
                                     aria-label="Página siguiente"
-                                    className="h-9 min-w-9 px-3 rounded-lg text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200 disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
+                                    className="h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
                                 >
                                     <ChevronRight size={16} />
                                 </Button>

@@ -87,10 +87,11 @@ export default function ImageInput({
                     <img src={previews[i]} className="w-full h-full object-cover"/>
 
                     <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100">
-                        <button className="w-7 h-7 bg-white rounded-full text-black text-xs">
+                        <button type="button" className="w-7 h-7 bg-white rounded-full text-black text-xs">
                             ↕
                         </button>
                         <button
+                            type="button"
                             onClick={() => remove(i)}
                             className="w-7 h-7 bg-white rounded-full text-black text-xs"
                         >

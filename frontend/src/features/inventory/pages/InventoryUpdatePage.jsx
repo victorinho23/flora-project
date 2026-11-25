@@ -14,6 +14,7 @@ import { Button, Navbar, DataTable, Input } from "../../../shared";
 import Tablerowactions from "@/shared/components/Tablerowactions";
 import { getInventory, updateInventoryQuantities } from "../services/inventoryService";
 import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
+import { useAccess } from "@/features/auth/services/accessService";
 
 // Cantidad minima permitida por producto antes de marcarlo como bajo stock
 const MIN_QUANTITY = 10;
@@ -21,12 +22,13 @@ const MIN_QUANTITY = 10;
 
 
 const statusStyle = (status) => {
-    if (status === "Disponible") return "bg-green-50 text-green-900 border border-green-700/40";
-    if (status === "Vencido") return "bg-red-50 text-red-900 border border-red-800/40";
+    if (status === "Disponible") return "bg-m3-success-container text-m3-success border border-m3-success/40";
+    if (status === "Vencido") return "bg-m3-error-container text-m3-on-error-container border border-m3-error/40";
     return "bg-bg-t50 text-br-t950 border border-bd-t300";
 };
 
 export default function InventoryUpdatePage() {
+    const can = useAccess();
 
     // Copia editable del inventario (las cantidades se editan aqui y se guardan al final)
     const [items, setItems] = useState([]);
@@ -107,13 +109,13 @@ export default function InventoryUpdatePage() {
                 header: "Acciones",
                 cell: ({ row }) => (
                     <Tablerowactions
-                        onView={() => setSelectedId(row.original.id)}
-                        onEdit={() => navigate("/editInventory", { state: { item: row.original } })}
+                        onView={can("inventario_visualizar") ? () => setSelectedId(row.original.id) : undefined}
+                        onEdit={() => navigate("/editInventory", { state: { item: row.original, from: "/updateInventory" } })}
                     />
                 ),
             },
         ],
-        [navigate]
+        [navigate, can]
     );
 
     // Guarda las cantidades editadas en el ultimo lote de cada producto
@@ -144,7 +146,7 @@ export default function InventoryUpdatePage() {
                     title="Actualizar inventario"
                     subtitle="Gestiona y manten actualizadas las existencias de tu inventario."
                     onBack={() => navigate("/listInventory")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
                             <Button variant="crema" size="sm" aria-label="Existencias bajas" onClick={notifyLowStock}>
@@ -156,7 +158,7 @@ export default function InventoryUpdatePage() {
 
                 <DataTable variant="cafe" data={items} columns={columns} />
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-bg-s950 p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-m3-lg bg-bg-s950 p-4">
                     <p className="text-sm font-medium text-br-p100">
                         Las cantidades por debajo de la cantidad mínima de cada producto se resaltan en caramelo.
                     </p>
@@ -169,7 +171,7 @@ export default function InventoryUpdatePage() {
             <InventoryDetailModal
                 item={items.find((i) => i.id === selectedId)}
                 onClose={() => setSelectedId(null)}
-                onEdit={(item) => navigate("/editInventory", { state: { item } })}
+                onEdit={(item) => navigate("/editInventory", { state: { item, from: "/updateInventory" } })}
             />
         </div>
     );

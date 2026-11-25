@@ -6,6 +6,9 @@ import { authenticateToken } from "../../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// GET /api/access/me -> permisos actuales del usuario que inicio sesion
+router.get("/me", authenticateToken, accessController.me);
+
 // GET /api/access/check/:permissionCode
 // ej: http://localhost:4000/api/access/check/usuarios_crear
 router.get("/check/:permissionCode", authenticateToken, accessController.checkPermission);

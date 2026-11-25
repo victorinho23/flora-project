@@ -18,7 +18,7 @@ export const userController = {
     async create(req, res) {
         try {
             // req.file es la foto de perfil que llega por multer
-            const user = await userService.createUser(req.body, req.file);
+            const user = await userService.createUser(req.body, req.file, req.user?.id);
 
             // 201: recurso creado correctamente según el estándar REST
             res.status(201).json({

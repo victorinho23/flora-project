@@ -108,6 +108,28 @@ export const ordersRepository = {
         return result.rows[0];
     },
 
+    // mesas ocupadas: solo las ordenes abiertas (usa el indice de mesa y estado)
+    async getOpenTables() {
+        const query = `
+            SELECT
+                o.id,
+                o.numero_mesa::TEXT AS "tableNumber",
+                o.estado AS status,
+                u.nombre AS waiter,
+                TO_CHAR(o.fecha_creacion, 'YYYY-MM-DD"T"HH24:MI:SS') AS "createdAt",
+                COALESCE(SUM(op.cantidad * op.precio_unitario), 0)::INTEGER AS total
+            FROM orden o
+            INNER JOIN usuario u ON u.id = o.mesero_id
+            LEFT JOIN orden_platillo op ON op.orden_id = o.id
+            WHERE o.estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA')
+            GROUP BY o.id, u.nombre
+            ORDER BY o.numero_mesa;
+        `;
+
+        const result = await pool.query(query);
+        return result.rows;
+    },
+
     // una mesa solo puede tener una orden activa
     async findActiveByTable(tableNumber, excludeId = 0) {
         const query = `

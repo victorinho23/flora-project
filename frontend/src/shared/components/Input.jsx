@@ -13,9 +13,9 @@ export default function Input({
 
 }){
     const variants = {
-        latte: `bg-bg-w border border-bd-s400 text-br-s950 placeholder:text-br-s500 shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200`,
-        cafe: `bg-bg-s900 border border-bd-p400 text-bg-w placeholder:text-br-p300 [color-scheme:light] [&::-webkit-calendar-picker-indicator]:invert focus:border-bd-t300 focus:ring-2 focus:ring-fc-t200`,
-        caramelo: `bg-bg-t50 border border-bd-t900 text-br-t900 font-bold shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200`,
+        latte: `bg-bg-w border border-bd-s400 text-br-s950 placeholder:text-br-s500 shadow-m3-1 focus:border-bd-t900 focus:ring-2 focus:ring-m3-focus`,
+        cafe: `bg-bg-s900 border border-bd-p400 text-bg-w placeholder:text-br-p300 [color-scheme:light] [&::-webkit-calendar-picker-indicator]:invert focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200`,
+        caramelo: `bg-bg-t50 border border-bd-t900 text-br-t900 font-bold shadow-m3-1 focus:border-bd-t900 focus:ring-2 focus:ring-m3-focus`,
     }
 
     const labelColors = {
@@ -38,7 +38,7 @@ export default function Input({
                     block text-caption
                     ${labelColors[variant] ?? "text-secondary"}
                     ${size === "sm" ? "-mb-1" : size === "md" ? "mb-0" : "mb-1"}
-                    ${error ? "border-red-800" : ""}
+                    ${error ? "border-m3-error" : ""}
                 `}
             >
             {label} 
@@ -58,19 +58,19 @@ export default function Input({
                     type={type}
                     error={error}
                     className={`
-                        relative w-full rounded-md border text-body
+                        relative w-full rounded-m3-xs border text-body
                         transition-all duration-300
-                        focus:outline-none ${size === "sm" ? "px-2" : "px-4"} focus:ring-2 focus:ring-ring focus:ring-brand
+                        focus:outline-none ${size === "sm" ? "px-2" : "px-4"} focus:ring-2 focus:ring-m3-focus focus:ring-m3-focus
                         ${variants[variant]}
                         ${sizes[size]}
-                        ${error ? "border-2 border-red-800!" : "border"}
+                        ${error ? "border-2 border-m3-error!" : "border"}
                     `}
                     {...props}
                 />
 
                 <div>
                     {error && (
-                        <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
+                        <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{error}</p>
                     )}
                 </div>
             </div>

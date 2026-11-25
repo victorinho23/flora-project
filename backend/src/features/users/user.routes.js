@@ -5,8 +5,8 @@
 import { Router } from "express";
 import { userController } from "./user.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
-import { upload } from "../../config/upload.js";
+import { requirePermission, requirePermissionOrSelf } from "../../middlewares/permission.middleware.js";
+import { uploadTo, verifyImage } from "../../config/upload.js";
 
 // Creamos una instancia del router de Express
 const router = Router();
@@ -24,14 +24,14 @@ router.get("/report", requirePermission("usuarios_reporte"), userController.repo
 // GET /api/users/options -> lista corta para los select (meseros, cuentadantes)
 router.get("/options", userController.getOptions);
 
-// GET /api/users/:id -> un usuario
-router.get("/:id", requirePermission("usuarios_visualizar"), userController.getById);
+// GET /api/users/:id -> un usuario (el propio perfil siempre se puede ver)
+router.get("/:id", requirePermissionOrSelf("usuarios_visualizar"), userController.getById);
 
 // POST /api/users -> aqui se procesa multipart/form-data con la foto de perfil
-router.post("/", requirePermission("usuarios_crear"), upload.single("userImage"), userController.create);
+router.post("/", requirePermission("usuarios_crear"), uploadTo("usuarios").single("userImage"), verifyImage, userController.create);
 
 // PUT /api/users/:id -> actualizar cuenta
-router.put("/:id", requirePermission("usuarios_actualizar"), upload.single("userImage"), userController.update);
+router.put("/:id", requirePermission("usuarios_actualizar"), uploadTo("usuarios").single("userImage"), verifyImage, userController.update);
 
 // PATCH /api/users/:id/status -> habilitar o inhabilitar
 router.patch("/:id/status", requirePermission("usuarios_habilitar"), userController.updateStatus);

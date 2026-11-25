@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "organizar-uploads": "node src/databases/organizarUploads.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -19,6 +20,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.5.0",
+    "nodemailer": "^8.0.11",
     "nodemon": "^3.1.14",
     "pg": "^8.22.0"
   }

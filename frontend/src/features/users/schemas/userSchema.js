@@ -6,7 +6,7 @@ import { fileSchema } from "@/shared/schemas/fileSchema";
 export const userSchema = z.object({
     userName: z
     .string()
-    .min(3, "El nombre debe tener minimo 3 caracteres")
+    .min(3, "El nombre debe tener mínimo 3 caracteres")
     .max(60, "El nombre es demasiado largo")
     .regex(/^[A-Za-zÀ-ÿ\s]+$/, "El nombre solo puede contener letras y espacios"),
 
@@ -50,13 +50,13 @@ export const userSchema = z.object({
     .length(10, "La contraseña debe tener exactamente 10 caracteres")
     .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
     .regex(/[a-z]/, "Debe contener al menos una minuscula")
-    .regex(/[0-9]/, "Debe contener al menos un numero")
+    .regex(/[0-9]/, "Debe contener al menos un número")
     .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
 
     
     userAddress: z
     .string()
-    .min(10, "La dirección debe tener minimo 10 caracteres")
+    .min(10, "La dirección debe tener mínimo 10 caracteres")
     .max(100, "La dirección es demasiado larga"),
 
 
@@ -123,10 +123,10 @@ export const loginSchema = z.object({
     .length(10, "La contraseña debe tener exactamente 10 caracteres")
     .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
     .regex(/[a-z]/, "Debe contener al menos una minuscula")
-    .regex(/[0-9]/, "Debe contener al menos un numero")
+    .regex(/[0-9]/, "Debe contener al menos un número")
     .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
 //     userDocumentTypes: z.string().min(1, "Debe seleccionar un tipo de documento"),
-//     userDocumentNumber: z.string().min(5, "Numero de documento invalido"),
+//     userDocumentNumber: z.string().min(5, "Número de documento inválido"),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -143,7 +143,7 @@ export const resetPasswordSchema = z.object({
     .length(10, "La contraseña debe tener exactamente 10 caracteres")
     .regex(/[A-Z]/, "Debe contener al menos una mayuscula")
     .regex(/[a-z]/, "Debe contener al menos una minuscula")
-    .regex(/[0-9]/, "Debe contener al menos un numero")
+    .regex(/[0-9]/, "Debe contener al menos un número")
     .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
     confirmPassword: z.string().min(8, "Confirma tu contraseña"),
 })

@@ -104,4 +104,106 @@
        =====================================================================     
     */
 
+
+    /* =====================================================================
+       MATERIAL DESIGN 3: roles del sistema (sys)
+       Cada rol dice PARA QUE es el color, y apunta a la paleta de Flora.
+       Asi se sigue M3 sin cambiar los colores de la marca.
+       ===================================================================== */
+
+    /* Primario: el cafe espresso de los botones principales */
+    --md-sys-color-primary: var(--color-secundary-900);
+    --md-sys-color-on-primary: var(--color-white);
+    --md-sys-color-primary-container: var(--color-secundary-100);
+    --md-sys-color-on-primary-container: var(--color-secundary-950);
+
+    /* Secundario: el caramelo para acentos y lo que esta seleccionado */
+    --md-sys-color-secondary: var(--color-tertiary-800);
+    --md-sys-color-on-secondary: var(--color-white);
+    --md-sys-color-secondary-container: var(--color-tertiary-100);
+    --md-sys-color-on-secondary-container: var(--color-tertiary-950);
+
+    /* Superficies: los beige de fondo, de la mas baja a la mas alta */
+    --md-sys-color-surface: var(--color-primary-50);
+    --md-sys-color-surface-container-lowest: var(--color-white);
+    --md-sys-color-surface-container-low: var(--color-primary-100);
+    --md-sys-color-surface-container: var(--color-primary-200);
+    --md-sys-color-surface-container-high: var(--color-primary-300);
+    --md-sys-color-surface-container-highest: var(--color-primary-400);
+    --md-sys-color-on-surface: var(--color-secundary-950);
+    --md-sys-color-on-surface-variant: var(--color-secundary-700);
+
+    /* Barra de navegacion (la franja cafe oscuro) */
+    --md-sys-color-inverse-surface: var(--color-secundary-950);
+    --md-sys-color-inverse-on-surface: var(--color-primary-50);
+    --md-sys-color-inverse-primary: var(--color-tertiary-300);
+
+    /* Anillo de foco del teclado: caramelo oscuro (7.4:1 sobre blanco) */
+    --md-sys-color-focus: var(--color-tertiary-800);
+
+    /* Bordes */
+    --md-sys-color-outline: var(--color-secundary-400);
+    --md-sys-color-outline-variant: var(--color-secundary-100);
+
+    /* Error */
+    --md-sys-color-error: var(--md-ref-error-40);
+    --md-sys-color-on-error: var(--color-white);
+    --md-sys-color-error-container: var(--md-ref-error-90);
+    --md-sys-color-on-error-container: var(--md-ref-error-10);
+
+    /* Estados de la orden */
+    --md-sys-color-success: var(--md-ref-success-40);
+    --md-sys-color-success-container: var(--md-ref-success-90);
+    --md-sys-color-info: var(--md-ref-info-40);
+    --md-sys-color-info-container: var(--md-ref-info-90);
+
+    /* Forma, elevacion, movimiento y estados */
+    --md-sys-shape-corner-extra-small: var(--md-ref-shape-extra-small);
+    --md-sys-shape-corner-small: var(--md-ref-shape-small);
+    --md-sys-shape-corner-medium: var(--md-ref-shape-medium);
+    --md-sys-shape-corner-large: var(--md-ref-shape-large);
+    --md-sys-shape-corner-extra-large: var(--md-ref-shape-extra-large);
+    --md-sys-shape-corner-full: var(--md-ref-shape-full);
+
+    --md-sys-elevation-level0: var(--md-ref-elevation-0);
+    --md-sys-elevation-level1: var(--md-ref-elevation-1);
+    --md-sys-elevation-level2: var(--md-ref-elevation-2);
+    --md-sys-elevation-level3: var(--md-ref-elevation-3);
+    --md-sys-elevation-level4: var(--md-ref-elevation-4);
+    --md-sys-elevation-level5: var(--md-ref-elevation-5);
+
+    --md-sys-motion-easing-standard: var(--md-ref-easing-standard);
+    --md-sys-motion-easing-emphasized-decelerate: var(--md-ref-easing-emphasized-decelerate);
+    --md-sys-motion-easing-emphasized-accelerate: var(--md-ref-easing-emphasized-accelerate);
+    --md-sys-motion-duration-short: var(--md-ref-duration-short);
+    --md-sys-motion-duration-medium: var(--md-ref-duration-medium);
+    --md-sys-motion-duration-long: var(--md-ref-duration-long);
+
+    --md-sys-state-hover-opacity: var(--md-ref-opacity-hover);
+    --md-sys-state-focus-opacity: var(--md-ref-opacity-focus);
+    --md-sys-state-pressed-opacity: var(--md-ref-opacity-pressed);
+    --md-sys-state-disabled-opacity: var(--md-ref-opacity-disabled);
+}
+
+/* En modo oscuro solo se cambian los roles, los componentes no se tocan */
+:root[data-theme="dark"]{
+    --md-sys-color-surface: var(--color-secundary-950);
+    --md-sys-color-surface-container-lowest: var(--color-secundary-950);
+    --md-sys-color-surface-container-low: var(--color-secundary-900);
+    --md-sys-color-surface-container: var(--color-secundary-900);
+    --md-sys-color-surface-container-high: var(--color-secundary-800);
+    --md-sys-color-surface-container-highest: var(--color-secundary-700);
+    --md-sys-color-on-surface: var(--color-primary-50);
+    --md-sys-color-on-surface-variant: var(--color-secundary-100);
+    --md-sys-color-primary-container: var(--color-secundary-700);
+    --md-sys-color-on-primary-container: var(--color-primary-50);
+    --md-sys-color-secondary-container: var(--color-tertiary-900);
+    --md-sys-color-on-secondary-container: var(--color-tertiary-100);
+    --md-sys-color-outline: var(--color-secundary-300);
+    --md-sys-color-outline-variant: var(--color-secundary-700);
+    --md-sys-color-focus: var(--color-tertiary-200);
+    --md-sys-color-success-container: #1f3b24;
+    --md-sys-color-info-container: #1d3550;
+    --md-sys-color-error-container: #5c1a15;
+    --md-sys-color-on-error-container: var(--md-ref-error-90);
 }

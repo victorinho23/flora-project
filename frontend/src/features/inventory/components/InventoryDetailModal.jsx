@@ -5,10 +5,10 @@ import { DetailModal } from "@/shared";
 
 // Colores de la etiqueta segun el estado del producto
 const statusStyles = {
-    Disponible: "bg-green-50 text-green-900",
+    Disponible: "bg-m3-success-container text-m3-success",
     Agotado: "bg-bg-t50 text-br-t950",
-    Vencido: "bg-red-50 text-red-900",
-    Avería: "bg-red-50 text-red-900",
+    Vencido: "bg-m3-error-container text-m3-on-error-container",
+    Avería: "bg-m3-error-container text-m3-on-error-container",
 };
 
 // Formatea un valor como pesos colombianos
@@ -30,39 +30,39 @@ export default function InventoryDetailModal({ item, onClose, onEdit }) {
             onEdit={onEdit && (() => onEdit(item))}
             editLabel="Actualizar inventario"
         >
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Marca</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.brand}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Código de barras</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.barcode}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Cantidad (lote actual)</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.quantity}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Cantidad total</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.totalQuantity}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Valor unitario</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{money(item.unitValue)}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Valor total</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{money(item.totalValue)}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Estado</p>
                 <div className="text-base font-semibold text-br-s950 break-words"><span className={`px-3 py-1 rounded-full text-sm font-semibold ${statusStyles[item.status] ?? "bg-bg-s50 text-br-s950"}`}>{item.status}</span></div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3">
                 <p className="text-sm font-medium text-br-s800 mb-1">Fecha de vencimiento</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.expirationDate}</div>
             </div>
-            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 sm:col-span-2">
+            <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3 sm:col-span-2">
                 <p className="text-sm font-medium text-br-s800 mb-1">Descripción</p>
                 <div className="text-base font-semibold text-br-s950 break-words">{item.description}</div>
             </div>

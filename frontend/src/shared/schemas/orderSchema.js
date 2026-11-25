@@ -5,8 +5,8 @@ import { z } from "zod";
 export const orderSchema = z.object({
     tableNumber: z
         .string()
-        .min(1, "Debe ingresar el numero de mesa")
-        .regex(/^[1-9]\d*$/, "El numero de mesa debe ser un numero valido"),
+        .min(1, "Debe ingresar el número de mesa")
+        .regex(/^[1-9]\d*$/, "El número de mesa debe ser un número válido"),
 
     items: z
         .array(
@@ -26,8 +26,8 @@ export const orderSchema = z.object({
 export const orderUpdateSchema = z.object({
     tableNumber: z
         .string()
-        .min(1, "Debe ingresar el numero de mesa")
-        .regex(/^[1-9]\d*$/, "El numero de mesa debe ser un numero valido"),
+        .min(1, "Debe ingresar el número de mesa")
+        .regex(/^[1-9]\d*$/, "El número de mesa debe ser un número válido"),
 
     items: z
         .array(

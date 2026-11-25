@@ -2,7 +2,7 @@
 
 import { inventoryRepository } from "./inventory.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
-import { imageUrl } from "../../config/upload.js";
+import { imageUrl, imagePath, removeImage } from "../../config/upload.js";
 import { parseIds, parseOption } from "../../config/reportFilters.js";
 
 const STATUSES = ["Disponible", "Vencido", "Avería", "Agotado"];
@@ -25,7 +25,7 @@ const cleanData = (data, file) => ({
     expirationDate: data.expirationDate,
     description: data.description?.trim() || null,
     location: data.location?.trim() || null,
-    image: file ? `/uploads/${file.filename}` : null,
+    image: imagePath(file),
 });
 
 const validate = async (product, excludeId) => {
@@ -93,10 +93,17 @@ export const inventoryService = {
 
         // el id no se puede cambiar
         const product = { ...cleanData(data, file), id };
-        await validate(product, id);
+        try {
+            await validate(product, id);
 
-        product.unitValue = Math.round(product.unitValue);
-        await inventoryRepository.update(id, product);
+            product.unitValue = Math.round(product.unitValue);
+            await inventoryRepository.update(id, product);
+            // si llego foto nueva, la vieja ya no se usa y se borra
+            if (file) removeImage(current.image);
+        } catch (error) {
+            if (file) removeImage(imagePath(file));
+            throw error;
+        }
     },
 
     async updateStatus(id, { status, reason }, currentUserId) {

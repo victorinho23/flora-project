@@ -1,20 +1,24 @@
-// src/features/users/pages/MenuListPage.jsx
+// src/features/products/pages/MenuListPage.jsx
 // Listado del menu con filtros, cambio de estado y reportes
-import { DataTable, Navbar } from "../../../shared";
+import { DataTable, Navbar, DetailModal } from "@/shared/index";
+import CategoriesPage from "@/features/products/pages/CategoriesPage";
 import DishDetailModal from "@/features/products/components/DishDetailModal"
-import { createMenuColumns, menuFilters, menuInitialSort } from "../table/ColumnsMenu"
+import { createMenuColumns, menuFilters, menuInitialSort } from "@/features/products/table/ColumnsMenu"
 import { getDishes, getDishesReport, updateDishStatus } from "@/features/products/services/dishService"
 import { showErrorAlert } from "@/shared/services/alertService"
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "../../../shared"
-import ReportConfigModal from "../reports/components/ReportConfigModal"
-import { menuReportFields, menuReportScopes } from "../reports/config/menuReportFields"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/shared/index"
+import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
+import { menuReportFields, menuReportScopes } from "@/features/products/reports/config/menuReportFields"
 import { useEffect, useMemo, useState } from "react"
-import { UtensilsCrossed } from "lucide-react"
+import { UtensilsCrossed, Tags } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-dish.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function MenuListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     // Copia de los platillos para reflejar al instante los cambios de estado
@@ -24,18 +28,23 @@ export default function MenuListPage () {
     const [selectedId, setSelectedId] = useState(null);
 
     const handleView = (dish) => setSelectedId(dish.id);
+    // categorias: lista corta, se maneja en una ventana sin salir del menu
+    const [categoriesOpen, setCategoriesOpen] = useState(false);
+
     const handleEdit = (dish) => navigate(`/dishEdit/menu-${dish.id}`);
 
     // Columnas de la tabla con las acciones de ver, editar y cambiar estado
     const columns = useMemo(
-        () => createMenuColumns({ onView: handleView, onEdit: handleEdit, onStatusChange: async (dish, value, reason) => {
+        () => createMenuColumns({ onView: can("menu_visualizar") ? handleView : undefined, onEdit: can("menu_actualizar") ? handleEdit : undefined, onStatusChange: !can("menu_habilitar") ? undefined : async (dish, value, reason) => {
             await updateDishStatus(dish.id, value, reason);
             setRows((prev) => prev.map((d) => (d.id === dish.id ? { ...d, is_active: value } : d)));
         } }),
-        []
+        [can]
     );
 
     // platillos reales que llegan de la base
+    const loadRows = () => getDishes().then(setRows).catch((error) => showErrorAlert({ title: "No se pudo cargar el menú", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
+
     useEffect(() => {
         getDishes().then(setRows).catch((error) => showErrorAlert({ title: "No se pudo cargar el menú", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
     }, []);
@@ -56,29 +65,35 @@ export default function MenuListPage () {
                     icon={UtensilsCrossed}
                     title="Menú"
                     subtitle="Gestiona los platillos y bebidas disponibles en la carta."
-                    onBack={() => navigate("/createDishes")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    onBack={() => navigate("/home")}
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
-                            <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
-                                Reportar menú
+                            <Button size="sm" variant="crema" onClick={() => setCategoriesOpen(true)}>
+                                Categorías
                             </Button>
 
-                            <Link to="/createDishes">
-                                <Button size="sm" variant="crema">
+                            {can("menu_reporte") && (
+                                <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
+                                    Reportar menú
+                                </Button>
+                            )}
+
+                            {can("menu_agregar") && (
+                                <Button size="sm" variant="crema" onClick={() => navigate("/createDishes")}>
                                     Agregar platillo
                                 </Button>
-                            </Link>
+                            )}
                         </>
                     }
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de platillos</p>
                         <p className="text-2xl font-bold text-bg-w">{totalDishes}</p>
                     </div>
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Precio promedio</p>
                         <p className="text-2xl font-bold text-bg-w">${avgPrice.toLocaleString("es-CO")}</p>
                     </div>
@@ -89,8 +104,24 @@ export default function MenuListPage () {
             <DishDetailModal
                 dish={rows.find((d) => d.id === selectedId)}
                 onClose={() => setSelectedId(null)}
-                onEdit={handleEdit}
+                onEdit={can("menu_actualizar") ? handleEdit : undefined}
             />
+
+            {/* categorias en ventana; al cerrarla se recarga el menu por si cambio algun nombre */}
+            <DetailModal
+                open={categoriesOpen}
+                onClose={() => {
+                    setCategoriesOpen(false);
+                    loadRows();
+                }}
+                icon={Tags}
+                title="Categorías del menú"
+                subtitle="Lo que crees aquí aparece al crear platillos y al tomar órdenes"
+                size="max-w-4xl"
+                bodyClassName="grid-cols-1"
+            >
+                <CategoriesPage inModal />
+            </DetailModal>
 
             <ReportConfigModal
                 isOpen={isReportModalOpen}

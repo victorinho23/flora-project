@@ -72,7 +72,8 @@ export const createUserColumns = ({ onView, onEdit, onStatusChange } = {}) => [
         return true;
       };
 
-      return <Switch checked={user.is_active} onChange={handleChange} />;
+      // sin permiso para cambiar el estado, el switch se ve pero queda bloqueado
+      return <Switch checked={user.is_active} onChange={handleChange} disabled={!onStatusChange} />;
     },
   },
 

@@ -9,6 +9,7 @@ import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/ale
 import fotoFondo from "@/assets/images/cafe.png";
 import { login } from "@/features/auth/services/authService";
 import { logout } from "@/features/auth/services/logoutService";
+import { resetAccess } from "@/features/auth/services/accessService";
 
 export default function AuthLayout() {
     const navigate = useNavigate();
@@ -80,6 +81,8 @@ export default function AuthLayout() {
             // guardamos el token y los datos del usuario en la sesion
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("user", JSON.stringify(data.user));
+            // los permisos del que entra reemplazan los de la sesion anterior
+            resetAccess();
 
             // Feedback basico al usuario
             await showSuccesAlert({
@@ -94,7 +97,7 @@ export default function AuthLayout() {
             // Capturamos errores de red o errores que manda el backend
             console.log("Error: ", error.message);
             await showCreateUserErrorAlert({
-                title: error.status === 423 ? "Cuenta bloqueada" : "No se pudo iniciar sesión",
+                title: error.status === 423 ? "Cuenta bloqueada" : error.status === 429 ? "Demasiados intentos" : "No se pudo iniciar sesión",
                 text: error.message,
                 timer: 4000,
             });
@@ -106,6 +109,7 @@ export default function AuthLayout() {
     // Si se vuelve al login se cierra la sesion que hubiera abierta
     useEffect(() => {
         logout();
+        resetAccess();
     }, []);
 
     return (
@@ -116,7 +120,7 @@ export default function AuthLayout() {
             >
                 
                 <div
-                    className="relative overflow-hidden w-full max-w-300 min-h-180 rounded-[28px] bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 shadow-[0_30px_60px_-28px_color-mix(in_srgb,var(--color-bg-s950)_80%,transparent)]"
+                    className="relative overflow-hidden w-full max-w-300 min-h-180 rounded-m3-xl bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 shadow-m3-3"
                 >
                     
                     
@@ -134,8 +138,8 @@ export default function AuthLayout() {
                                 <img
                                     src={authBg}
                                     alt=""
-                                    className="w-full max-w-xl aspect-4/3 object-cover rounded-[20px]
-                                               shadow-[0_20px_50px_rgba(0,0,0,0.6)]"
+                                    className="w-full max-w-xl aspect-4/3 object-cover rounded-m3-lg
+                                               shadow-m3-3"
                                 />
                             </div>
                         </section>
@@ -144,7 +148,7 @@ export default function AuthLayout() {
                         <section className="flex items-center justify-center lg:justify-end mt-20">
                             <form
                                 className="w-full max-w-md flex flex-col items-center gap-4
-                                           rounded-[20px] bg-bg-w shadow-2xl px-5 sm:px-8 py-10 [&_.w-80]:w-full [&_.w-80]:max-w-80"
+                                           rounded-m3-lg bg-bg-w shadow-m3-4 px-5 sm:px-8 py-10 [&_.w-80]:w-full [&_.w-80]:max-w-80"
                                 onSubmit={handleSubmit}
                             >
                                 <h1 className="mb-4 text-title text-br-s950 font-bold">
@@ -155,7 +159,7 @@ export default function AuthLayout() {
                                     name="userEmail"
                                     type="email"
                                     value={formData.userEmail}
-                                    placeholder="Escribe tu Correo Electronico"
+                                    placeholder="Escribe tu Correo Electrónico"
                                     htmlFor="user-email"
                                     variant="latte"
                                     onChange={handleChange}

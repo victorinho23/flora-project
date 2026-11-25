@@ -47,7 +47,10 @@ export default function InventoryRegisterForm() {
   // Navegacion hacia el listado
   const navigate = useNavigate();
   // Si llega un producto por navegacion el formulario funciona en modo edicion
-  const editing = useLocation().state?.item;
+  const location = useLocation();
+  const editing = location.state?.item;
+  // pagina a la que se vuelve: la que abrio la edicion, o el listado si se llego directo
+  const backTo = location.state?.from ?? "/listInventory";
 
   // Marcas ya registradas en la base, mas las que el usuario agregue en esta sesion
   const [brands, setBrands] = useState(editing?.brand ? [editing.brand] : []);
@@ -234,7 +237,7 @@ export default function InventoryRegisterForm() {
           text: "Inventario actualizado exitosamente",
           timer: 2500,
         });
-        navigate("/updateInventory");
+        navigate(backTo, { replace: true });
         return;
       }
 
@@ -290,8 +293,8 @@ export default function InventoryRegisterForm() {
             ? `Producto #${editing.id} · el ID y el lote no se pueden modificar`
             : "Completa los 3 pasos para agregar el producto"
         }
-        onBack={() => navigate(editing ? "/updateInventory" : "/home")}
-        className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)] shrink-0"
+        onBack={() => navigate(backTo)}
+        className="rounded-m3-lg shadow-m3-2 shrink-0"
         actions={
           <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listInventory")}>
             Ver listado
@@ -301,7 +304,7 @@ export default function InventoryRegisterForm() {
 
       <form
         onSubmit={handleAddProduct}
-        className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-bd-s100 bg-bg-w shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)]"
+        className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)] overflow-hidden rounded-m3-lg border border-bd-s100 bg-bg-w shadow-m3-1"
       >
         {/* Barra oscura con los pasos y el resumen del producto */}
         <aside className="bg-bg-s950 bg-linear-180 from-bg-s950 to-bg-s800 p-5 xl:p-6 flex flex-col gap-2 text-bg-w">
@@ -316,12 +319,12 @@ export default function InventoryRegisterForm() {
                 key={item.title}
                 type="button"
                 onClick={() => goToStep(index)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors ${
+                className={`flex items-center gap-3 rounded-m3-md px-3 py-3 text-left transition-colors ${
                   index === step ? "bg-bg-w/10 ring-1 ring-bd-w/20" : "hover:bg-bg-w/5"
                 }`}
               >
                 <span
-                  className={`w-9 h-9 shrink-0 rounded-lg grid place-items-center ${
+                  className={`w-9 h-9 shrink-0 rounded-m3-sm grid place-items-center ${
                     index < step
                       ? "bg-bg-t900"
                       : index === step
@@ -342,7 +345,7 @@ export default function InventoryRegisterForm() {
           })}
 
           {/* Resumen de lo que se va llenando */}
-          <div className="mt-auto rounded-xl bg-bg-w/5 p-4 text-sm flex flex-col gap-1.5">
+          <div className="mt-auto rounded-m3-md bg-bg-w/5 p-4 text-sm flex flex-col gap-1.5">
             <p className="font-semibold break-words">{productForm.name || "Producto sin nombre"}</p>
             <p className="text-br-p100">
               {productForm.id || "Sin ID"} · {productForm.brand || "Sin marca"}
@@ -542,13 +545,13 @@ export default function InventoryRegisterForm() {
                     error={errors.expirationDate}
                   />
 
-                  <div className="flex items-center rounded-lg border border-bd-s300 bg-bg-s50 px-4 h-12 self-end text-br-s900 text-sm font-medium">
+                  <div className="flex items-center rounded-m3-sm border border-bd-s300 bg-bg-s50 px-4 h-12 self-end text-br-s900 text-sm font-medium">
                     Lote {batch} {editing ? "(no se puede modificar)" : "(nuevo producto)"}
                   </div>
                 </div>
 
                 {/* Total del lote que se calcula mientras se escribe */}
-                <div className="flex items-center justify-between rounded-xl bg-bg-s950 text-bg-w px-5 py-4">
+                <div className="flex items-center justify-between rounded-m3-md bg-bg-s950 text-bg-w px-5 py-4">
                   <span className="text-sm font-semibold text-br-p100">
                     Valor del lote {batch} · {productForm.quantity || 0} × {money(productForm.unitValue)}
                   </span>
@@ -556,20 +559,20 @@ export default function InventoryRegisterForm() {
                 </div>
 
                 {/* Barra con las unidades del lote y donde salta el aviso de existencias bajas */}
-                <div className="rounded-xl border border-bd-s100 bg-bg-s50 p-5 flex flex-col gap-3">
+                <div className="rounded-m3-md border border-bd-s100 bg-bg-s50 p-5 flex flex-col gap-3">
                   <p className="text-sm font-semibold text-br-s950">Así queda la existencia</p>
                   <div className="relative h-3 rounded-full bg-bg-s100">
                     <div className="h-full rounded-full bg-bg-t900" style={{ width: Number(productForm.quantity) > 0 ? "100%" : "0%" }} />
                     {Number(productForm.quantity) > 0 && Number(productForm.minQuantity) > 0 && (
                       <span
-                        className="absolute top-1/2 -translate-y-1/2 w-1 h-6 rounded bg-red-800"
+                        className="absolute top-1/2 -translate-y-1/2 w-1 h-6 rounded bg-m3-error"
                         style={{ left: `${Math.min(100, (Number(productForm.minQuantity) / Number(productForm.quantity)) * 100)}%` }}
                       />
                     )}
                   </div>
                   <div className="flex justify-between text-xs text-br-s800">
                     <span>0</span>
-                    <span className="text-red-800 font-semibold">
+                    <span className="text-m3-error font-semibold">
                       {Number(productForm.minQuantity) > 0 ? `Aviso cuando queden ${productForm.minQuantity}` : "Sin aviso de mínimo"}
                     </span>
                     <span>{productForm.quantity || 0} uds</span>
@@ -600,7 +603,7 @@ export default function InventoryRegisterForm() {
                     <p className="text-sm text-br-s900">Se conserva la imagen actual si no cargas una nueva.</p>
                   )}
                   {errors.image && (
-                    <p className="text-sm inline-block self-start px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{errors.image}</p>
+                    <p className="text-sm inline-block self-start px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{errors.image}</p>
                   )}
                 </div>
 

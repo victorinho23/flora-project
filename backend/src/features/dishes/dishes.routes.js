@@ -1,11 +1,11 @@
 // backend/src/features/dishes/dishes.routes.js
-// rutas del menu (platillos)
+// rutas del menu (platillos), las fotos quedan en uploads/menu
 
 import { Router } from "express";
 import { dishesController } from "./dishes.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
 import { requirePermission } from "../../middlewares/permission.middleware.js";
-import { upload } from "../../config/upload.js";
+import { uploadTo, verifyImage } from "../../config/upload.js";
 
 const router = Router();
 
@@ -21,10 +21,10 @@ router.get("/report", requirePermission("menu_reporte"), dishesController.report
 router.get("/:id", requirePermission("menu_visualizar"), dishesController.getById);
 
 // POST /api/dishes -> llega la imagen en dishImage
-router.post("/", requirePermission("menu_agregar"), upload.single("dishImage"), dishesController.create);
+router.post("/", requirePermission("menu_agregar"), uploadTo("menu").single("dishImage"), verifyImage, dishesController.create);
 
 // PUT /api/dishes/:id
-router.put("/:id", requirePermission("menu_actualizar"), upload.single("dishImage"), dishesController.update);
+router.put("/:id", requirePermission("menu_actualizar"), uploadTo("menu").single("dishImage"), verifyImage, dishesController.update);
 
 // PATCH /api/dishes/:id/status
 router.patch("/:id/status", requirePermission("menu_habilitar"), dishesController.updateStatus);

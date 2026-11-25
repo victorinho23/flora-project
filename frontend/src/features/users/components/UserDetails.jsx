@@ -1,171 +1,221 @@
 // src/features/users/components/UserDetails.jsx
 // Pagina de detalle de un usuario en modo solo lectura
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Navbar } from "@/shared";
+import { IdCard, KeyRound, Phone, CalendarDays, ShieldCheck, Pencil, Power, History } from "lucide-react";
 import authBg from "@/assets/icons/usuario.png";
-import userBg from "@/assets/images/Victor.jpeg";
-import { showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import { useState, useEffect } from "react";
+import { showConfirmAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import { updateUserStatus, getUserHistory } from "../services/userServices";
+import { useAccess } from "@/features/auth/services/accessService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 
-export function UserDetails({ user }) {
+// como se muestra cada accion del registro de cambios
+const ACTIONS = {
+    CREAR: "Cuenta creada",
+    ACTUALIZAR: "Datos actualizados",
+    HABILITAR: "Cuenta habilitada",
+    INHABILITAR: "Cuenta inhabilitada",
+    RECUPERAR_CONTRASENA: "Recuperó la contraseña",
+};
+
+// fecha corta en español, ej: "19 nov 2026, 7:58 a. m."
+const formatDate = (value) => new Date(value).toLocaleString("es-CO", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+
+// inModal: se abre en una ventana desde el listado (sin encabezado de pagina)
+// onStatusChange: avisa al listado cuando se habilita o inhabilita la cuenta
+export function UserDetails({ user, inModal = false, onStatusChange }) {
     const navigate = useNavigate();
+    // de donde se llego al detalle, para volver alli (si no, al listado)
+    const backTo = useLocation().state?.from ?? "/userList";
 
     // Lleva a editar la cuenta
     const handleEdit = () => {
-        navigate(`/userEdit`, { state: { user: user.raw } });
+        navigate(`/userEdit`, { state: { user: user.raw, from: inModal ? "/userList" : "/viewUser" } });
     };
 
-    // Pide confirmacion antes de quitar el usuario
-    const handleDelete = async () => {
-        const result = await showConfirmDeleteAlert({
-            title: "¿Eliminar usuario?",
-            text: `Se eliminara el usuario ${user.userName}. Esta accion no se puede deshacer.`,
-        });
+    const can = useAccess();
+    // estado de la cuenta en pantalla, cambia apenas se confirma
+    const [isActive, setIsActive] = useState(user.isActive);
 
-        if (!result.isConfirmed) {
-            await showDeleteCancelAlert({
-                title: "Cancelado",
-                text: "El usuario no fue eliminado",
-                timer: 3000,
-            });
-            return;
-        }
+    // historial de cambios de la cuenta (se vuelve a pedir cuando cambia el estado)
+    const [history, setHistory] = useState(null);
+    useEffect(() => {
+        let active = true;
+        getUserHistory(user.id)
+            .then((data) => active && setHistory(data))
+            .catch(() => active && setHistory([]));
+        return () => {
+            active = false;
+        };
+    }, [user.id, isActive]);
+
+    // En Flora los usuarios no se borran (quedan en el registro de cambios):
+    // se inhabilitan o se vuelven a habilitar, con el motivo obligatorio
+    const handleStatus = async () => {
+        const next = !isActive;
+        const result = await showConfirmAlert({
+            title: `¿${next ? "Habilitar" : "Inhabilitar"} a ${user.userName}?`,
+            text: next ? "La persona podrá volver a iniciar sesión." : "La persona no podrá iniciar sesión ni usar el sistema.",
+            confirmButtonText: next ? "Habilitar" : "Inhabilitar",
+            reasonLabel: "Motivo del cambio",
+        });
+        if (!result.isConfirmed) return;
 
         try {
-            console.log("Usuario eliminado:", user.id);
-
-            await showDeleteSuccessAlert({
-                title: "Usuario eliminado",
-                text: `El usuario ${user.userName} fue eliminado correctamente`,
-                timer: 3000,
+            await updateUserStatus(user.id, next, result.value);
+            setIsActive(next);
+            onStatusChange?.(next);
+            await showSuccesAlert({
+                title: "Estado actualizado",
+                text: `La cuenta de ${user.userName} quedó ${next ? "habilitada" : "inhabilitada"}`,
+                timer: 2500,
             });
-            navigate(-1);
         } catch (error) {
-            await showUnexpectedErrorAlert({
-                text: error.message,
-                timer: 3000,
-            });
+            await showUnexpectedErrorAlert({ text: error.message, timer: 3000 });
         }
     };
 
+    // iniciales para el avatar cuando no hay foto (ej. "Laura Gomez" -> "LG")
+    const initials = (user.userName ?? "").trim().split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
+
+    // bloques de datos: titulo a la izquierda y los datos a la derecha
+    const sections = [
+        { id: "user-identity", title: "Identificación", icon: IdCard, fields: [["Documento", user.userDocumentTypeLabel], ["Número", user.userDocumentNumber]] },
+        { id: "user-access", title: "Acceso", icon: KeyRound, fields: [["Tipo de usuario", user.userTypeLabel], ["Correo electrónico", user.userEmail]] },
+        { id: "user-contact", title: "Contacto", icon: Phone, fields: [["Teléfono", user.userPhone], ["Teléfono secundario", user.userPhoneSecondary], ["Correo empresarial", user.userBusinessEmail], ["Dirección", user.userAddress]] },
+        { id: "user-contract", title: "Contrato", icon: CalendarDays, fields: [["Inicio", user.userContractStartDate], ["Fin", user.userContractEndDate]] },
+    ];
+
+    // panel lateral + datos: es lo mismo en la pagina y en la ventana del listado
+    const content = (
+        <main className={inModal ? "w-full flex flex-wrap items-start gap-6" : "w-full max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap items-start gap-6"}>
+
+            {/* ===== Panel lateral: foto, nombre, rol, estado y atajos a cada bloque ===== */}
+            <aside className="grow basis-72 lg:grow-0 lg:max-w-80 flex flex-col items-center gap-3 p-6 text-center bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
+                <div className="w-28 h-28 rounded-m3-full overflow-hidden ring-4 ring-bg-t100 bg-bg-t900 grid place-items-center">
+                    {user.imageUrl ? (
+                        <img src={user.imageUrl} alt={user.userName} className="w-full h-full object-cover" />
+                    ) : (
+                        <span className="text-m3-headline-medium font-bold text-bg-w">{initials || "?"}</span>
+                    )}
+                </div>
+                <h2 className="text-m3-title-large font-bold text-br-s950 break-words">{user.userName || "—"}</h2>
+                <p className="text-m3-body-medium text-br-s800 break-all">{user.userEmail}</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 h-8 px-3 rounded-m3-sm border border-bd-t300 bg-bg-t50 text-m3-label-large font-semibold text-br-t950">
+                        <ShieldCheck size={15} />
+                        {user.userTypeLabel}
+                    </span>
+                    <span className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-m3-full text-m3-label-large font-bold ${isActive ? "bg-m3-success-container text-m3-success" : "bg-m3-error-container text-m3-on-error-container"}`}>
+                        <span className={`w-2 h-2 rounded-m3-full ${isActive ? "bg-m3-success" : "bg-m3-error"}`} />
+                        {isActive ? "Activo" : "Inactivo"}
+                    </span>
+                </div>
+
+                <hr className="w-full border-bd-s100 my-1" />
+
+                {/* atajos: llevan al bloque de datos */}
+                <nav aria-label="Secciones del usuario" className="w-full flex flex-col gap-1">
+                    {[...sections, { id: "user-history", title: "Historial", icon: History }].map(({ id, title, icon: Icon }) => (
+                        <a key={id} href={`#${id}`} className="m3-state flex items-center gap-2.5 px-4 py-2.5 rounded-m3-full text-m3-label-large font-semibold text-br-s900 no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus">
+                            <Icon size={18} />
+                            {title}
+                        </a>
+                    ))}
+                </nav>
+
+                {inModal && can("usuarios_actualizar") && (
+                    <div className="w-full mt-2">
+                        <Button variant="espresso" size="lggg" type="button" onClick={handleEdit}>
+                            <Pencil size={16} />
+                            Modificar
+                        </Button>
+                    </div>
+                )}
+
+                {can("usuarios_habilitar") && (
+                    <div className="w-full mt-2">
+                        <Button variant={isActive ? "danger" : "statusActive"} size="lggg" type="button" onClick={handleStatus}>
+                            <Power size={16} />
+                            {isActive ? "Inhabilitar cuenta" : "Habilitar cuenta"}
+                        </Button>
+                    </div>
+                )}
+            </aside>
+
+            {/* ===== Datos: un bloque por fila ===== */}
+            <section className="grow-[999] basis-[560px] min-w-0 px-6 sm:px-8 bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
+                {sections.map(({ id, title, icon: Icon, fields }) => (
+                    <div key={id} id={id} className="scroll-mt-6 grid grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)] gap-4 md:gap-6 py-6 border-b border-bd-s100">
+                        <h3 className="flex items-center gap-2 h-fit text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
+                            <Icon size={18} className="text-br-t900" />
+                            {title}
+                        </h3>
+                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            {fields.map(([label, value]) => (
+                                <div key={label} className="flex flex-col gap-1 min-w-0">
+                                    <dt className="text-m3-label-small font-semibold uppercase tracking-wider text-br-s800">{label}</dt>
+                                    <dd className="text-m3-body-large font-medium text-br-s950 break-words">{value || "—"}</dd>
+                                </div>
+                            ))}
+                        </dl>
+                    </div>
+                ))}
+
+                {/* ===== Historial: quien cambio que y cuando ===== */}
+                <div id="user-history" className="scroll-mt-6 grid grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)] gap-4 md:gap-6 py-6">
+                    <h3 className="flex items-center gap-2 h-fit text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
+                        <History size={18} className="text-br-t900" />
+                        Historial
+                    </h3>
+                    {history === null ? (
+                        <p className="text-m3-body-medium text-br-s800">Cargando historial...</p>
+                    ) : history.length === 0 ? (
+                        <p className="text-m3-body-medium text-br-s800">Todavía no hay cambios registrados.</p>
+                    ) : (
+                        <ol className="flex flex-col max-h-64 overflow-y-auto pr-2">
+                            {history.map((item, index) => (
+                                <li key={item.id} className="relative flex gap-3 pb-4 last:pb-0">
+                                    {/* linea que une un cambio con el siguiente */}
+                                    {index < history.length - 1 && <span aria-hidden="true" className="absolute left-[5px] top-4 bottom-0 w-0.5 bg-bg-t300" />}
+                                    <span aria-hidden="true" className={`relative mt-1.5 w-3 h-3 shrink-0 rounded-m3-full ${item.action === "INHABILITAR" ? "bg-m3-error" : item.action === "HABILITAR" ? "bg-m3-success" : "bg-bg-t800"}`} />
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="text-m3-title-small font-bold text-br-s950">{ACTIONS[item.action] ?? item.action}</span>
+                                        {item.reason && <span className="text-m3-body-medium text-br-s900 break-words">{item.reason}</span>}
+                                        <span className="text-m3-body-small text-br-s800">{item.userName} · {formatDate(item.date)}</span>
+                                    </div>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
+                </div>
+            </section>
+        </main>
+    );
+
+    if (inModal) return content;
+
     return (
-        <div className="relative min-h-screen grid grid-cols-1 xl:grid-cols-[auto_auto] xl:justify-center content-start gap-x-16 gap-y-6 p-5 sm:p-8">
+        <div className="min-h-screen flex flex-col">
 
             <Navbar
                 variant="banda"
                 image={fotoFondo}
                 avatar={authBg}
-                title="Detalles de usuario"
-                onBack={() => navigate("/userCreate")}
-                backSide="right"
-                className="rounded-2xl shadow-lg xl:col-span-2"
+                title="Ver usuario"
+                onBack={() => navigate(backTo)}
+                actions={
+                    can("usuarios_actualizar") && (
+                        <Button variant="crema" size="sm" type="button" onClick={handleEdit}>
+                            <Pencil size={16} />
+                            Modificar
+                        </Button>
+                    )
+                }
             />
 
-            <div className="flex flex-col sm:flex-row gap-6 xl:col-start-1">
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Nombre</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userName || "—"}</div>
-                </div>
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Tipo de documento</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userDocumentTypeLabel || "—"}</div>
-                </div>
-            </div>
-
-            <div className="grid gap-4 xl:col-start-1">
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Numero de documento</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userDocumentNumber || "—"}</div>
-                </div>
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Tipo de usuario</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userTypeLabel || "—"}</div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:col-start-1">
-
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Correo electronico</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userEmail || "—"}</div>
-                </div>
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Direccion</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userAddress || "—"}</div>
-                </div>
-
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Correo empresarial</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userBusinessEmail || "—"}</div>
-                </div>
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Fecha inicio contrato</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userContractStartDate || "—"}</div>
-                </div>
-
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Telefono</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userPhone || "—"}</div>
-                </div>
-                <div className="border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 w-full md:w-80">
-                    <p className="text-sm font-medium text-br-s800 mb-1">Fecha fin contrato</p>
-                    <div className="text-base font-semibold text-br-s950 break-words">{user.userContractEndDate || "—"}</div>
-                </div>
-
-                <div className="md:col-span-2 flex justify-center sm:justify-start">
-                    <div
-                        className={`
-                            flex items-center gap-2
-                            px-5 py-3
-                            rounded-lg
-                            font-semibold
-                            text-white
-                            ${user.isActive ? "bg-green-900" : "bg-red-900"}
-                        `}
-                    >
-                        <span className="w-2.5 h-2.5 rounded-full bg-white/80" />
-                        {user.isActive ? "Estado Activo" : "Estado Inactivo"}
-                    </div>
-                </div>
-
-            </div>
-
-            <div className="flex flex-col items-center gap-4 xl:col-start-2 xl:row-start-2 xl:row-span-3">
-
-                <div className="w-full max-w-120 aspect-square flex items-center justify-center rounded-3xl overflow-hidden ring-4 ring-bd-t300 shadow-[0_24px_50px_-24px_color-mix(in_srgb,var(--color-bg-t950)_80%,transparent)]">
-                    {user.imageUrl ? (
-                        <img
-                            src={user.imageUrl}
-                            alt={user.userName}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        <img className="w-full h-full object-cover" src={userBg} alt="sin foto" />
-                    )}
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center gap-3 w-full max-w-120">
-                    <Button
-                        variant="primary"
-                        size="lgg"
-                        type="button"
-                        onClick={handleEdit}
-                    >
-                        Modificar
-                    </Button>
-
-                    <Button
-                        variant="danger"
-                        size="lgg"
-                        type="button"
-                        onClick={handleDelete}
-                    >
-                        Eliminar
-                    </Button>
-                </div>
-
-            </div>
-
+            {content}
         </div>
-    )
+    );
 }

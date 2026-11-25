@@ -17,7 +17,7 @@ export default function ToggleSwitch({ checked, onChange, label }) {
                 <span
                     className={`
                         absolute top-0.5 left-0.5
-                        w-5 h-5 rounded-full bg-bg-w shadow-md
+                        w-5 h-5 rounded-full bg-bg-w shadow-m3-1
                         transition-transform duration-300
                         ${checked ? "translate-x-5" : "translate-x-0"}
                     `}

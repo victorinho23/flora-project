@@ -5,7 +5,7 @@ import { z } from "zod"
 export const supplierSchema = z.object({
     companyName: z
         .string()
-        .min(3, "El nombre de la empresa debe tener minimo 3 caracteres")
+        .min(3, "El nombre de la empresa debe tener mínimo 3 caracteres")
         .max(80, "El nombre de la empresa es demasiado largo"),
 
     documentType: z.string().min(1, "Debe seleccionar un tipo de documento"),
@@ -26,10 +26,10 @@ export const supplierSchema = z.object({
 
     address: z
         .string()
-        .max(120, "La direccion es demasiado larga")
+        .max(120, "La dirección es demasiado larga")
         .optional(),
 
-    category: z.string().min(1, "Debe seleccionar una categoria"),
+    category: z.string().min(1, "Debe seleccionar una categoría"),
 
     observations: z
         .string()

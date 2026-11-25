@@ -2,6 +2,15 @@
 import { pool } from "../../config/db.js";
 
 export const accessRepository = {
+  // estado y superusuario en una sola consulta
+  async getAccessUser(userId) {
+    const result = await pool.query(
+      `SELECT estado, is_superuser FROM usuario WHERE id = $1;`,
+      [userId],
+    );
+    return result.rows[0] ?? null;
+  },
+
   async isSuperUser(userId) {
     const query = `
       SELECT is_superuser

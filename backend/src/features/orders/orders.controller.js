@@ -20,6 +20,15 @@ export const ordersController = {
         }
     },
 
+    // plano de mesas: total de mesas del restaurante y las que tienen una orden abierta
+    async getTables(req, res) {
+        try {
+            res.json(await ordersService.getTables());
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
+
     // ordenes para el reporte, los filtros llegan en la url (req.query)
     async report(req, res) {
         try {
@@ -50,6 +59,16 @@ export const ordersController = {
         try {
             await ordersService.update(Number(req.params.id), req.body);
             res.json({ message: "La orden fue actualizada correctamente" });
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
+
+    // cambia el estado de la orden (lista para entrega, pagada...)
+    async changeStatus(req, res) {
+        try {
+            await ordersService.changeStatus(Number(req.params.id), req.body, req.user.id);
+            res.json({ message: "El estado de la orden fue actualizado" });
         } catch (err) {
             sendError(res, err);
         }

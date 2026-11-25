@@ -63,4 +63,91 @@ export const authRepository = {
 
         return result.rows[0]?.group_name ?? null;
     },
+
+    // ===== recuperar contraseña =====
+
+    // datos para revisar el codigo de recuperacion
+    async findRecovery(userEmail) {
+        const query = `
+            SELECT id, nombre, correo_personal, correo_empresarial, estado,
+                   codigo_recuperacion, codigo_expira, intentos_codigo
+            FROM usuario
+            WHERE LOWER(correo_personal) = LOWER($1)
+               OR LOWER(correo_empresarial) = LOWER($1)
+            LIMIT 1;
+        `;
+
+        const result = await pool.query(query, [userEmail]);
+
+        return result.rows[0];
+    },
+
+    // lo mismo pero buscando por id (para el ultimo paso)
+    async findRecoveryById(userId) {
+        const query = `
+            SELECT id, codigo_recuperacion
+            FROM usuario
+            WHERE id = $1;
+        `;
+
+        const result = await pool.query(query, [userId]);
+
+        return result.rows[0];
+    },
+
+    // guarda el codigo cifrado y hasta cuando sirve; los intentos empiezan en 0
+    async saveRecoveryCode(userId, codeHash, minutes) {
+        const query = `
+            UPDATE usuario
+            SET codigo_recuperacion = $2,
+                codigo_expira = NOW() + ($3 || ' minutes')::INTERVAL,
+                intentos_codigo = 0
+            WHERE id = $1;
+        `;
+
+        await pool.query(query, [userId, codeHash, minutes]);
+    },
+
+    // suma un intento malo y devuelve cuantos lleva
+    async addCodeAttempt(userId) {
+        const query = `
+            UPDATE usuario
+            SET intentos_codigo = intentos_codigo + 1
+            WHERE id = $1
+            RETURNING intentos_codigo;
+        `;
+
+        const result = await pool.query(query, [userId]);
+
+        return result.rows[0]?.intentos_codigo ?? 0;
+    },
+
+    // anula el codigo (cuando se usa, vence o se equivocan muchas veces)
+    async clearRecovery(userId) {
+        const query = `
+            UPDATE usuario
+            SET codigo_recuperacion = NULL,
+                codigo_expira = NULL,
+                intentos_codigo = 0
+            WHERE id = $1;
+        `;
+
+        await pool.query(query, [userId]);
+    },
+
+    // nueva contraseña: tambien se quita el codigo y el bloqueo por intentos de login
+    async updatePassword(userId, passwordHash) {
+        const query = `
+            UPDATE usuario
+            SET contrasena = $2,
+                codigo_recuperacion = NULL,
+                codigo_expira = NULL,
+                intentos_codigo = 0,
+                intentos_fallidos = 0,
+                bloqueado_hasta = NULL
+            WHERE id = $1;
+        `;
+
+        await pool.query(query, [userId, passwordHash]);
+    },
 };

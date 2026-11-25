@@ -32,6 +32,11 @@ export async function request(path, { method = "GET", body, isForm = false } = {
         window.location.href = "/auth";
     }
 
+    // sin permiso: se avisa para que la pantalla vuelva a pedir los permisos y esconda lo que ya no puede usar
+    if (response.status === 403) {
+        window.dispatchEvent(new Event("flora:forbidden"));
+    }
+
     if (!response.ok) {
         const error = new Error(data.error || "Ocurrió un error en el servidor");
         error.status = response.status;

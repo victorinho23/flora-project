@@ -183,7 +183,7 @@ export default function SupplierRegisterForm() {
                 text: "Proveedor actualizado correctamente.",
                 timer: 2500,
             });
-            navigate("/listSuppliers");
+            navigate("/listSuppliers", { replace: true });
             return;
         }
 
@@ -197,7 +197,7 @@ export default function SupplierRegisterForm() {
                 timer: 3000,
             });
 
-            navigate("/listSuppliers");
+            navigate("/listSuppliers", { replace: true });
         } catch (error) {
             showBackendError(error);
             await showUnexpectedErrorAlert({
@@ -219,7 +219,8 @@ export default function SupplierRegisterForm() {
     const categoryLabel = categories.find((c) => (c.value ?? c.id) === formData.category)?.label ?? formData.category;
 
     // A donde lleva la flecha de volver
-    const backTo = editing ? "/listSuppliers" : "/home";
+    // crear y editar siempre vuelven al listado de proveedores
+    const backTo = "/listSuppliers";
 
     return (
         <div className="min-h-screen lg:h-screen w-full grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] bg-bg-w">
@@ -232,7 +233,7 @@ export default function SupplierRegisterForm() {
                 <div className="flex items-center justify-between gap-4">
                     <Button type="button" onClick={() => navigate(backTo)} className="flex items-center gap-2 text-sm font-semibold text-bg-w/90 hover:text-bg-w">
                         <ArrowLeft size={18} />
-                        {editing ? "Proveedores" : "Inicio"}
+                        Proveedores
                     </Button>
                     <Button variant="sex" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
                         Ver proveedores
@@ -241,7 +242,7 @@ export default function SupplierRegisterForm() {
 
                 <div className="flex flex-col gap-8 bajo:gap-5">
                     <div>
-                        <span className="w-14 h-14 rounded-2xl bg-bg-w/10 ring-1 ring-bd-w/25 grid place-items-center text-br-t200">
+                        <span className="w-14 h-14 rounded-m3-lg bg-bg-w/10 ring-1 ring-bd-w/25 grid place-items-center text-br-t200">
                             <Truck size={26} />
                         </span>
                         <h1 className="text-4xl bajo:text-3xl font-bold mt-5 bajo:mt-3">
@@ -312,14 +313,14 @@ export default function SupplierRegisterForm() {
                     {/* Resumen de lo que ya se lleno, para no perderlo de vista */}
                     {step > 0 && (
                         <div className="flex flex-col gap-3 text-sm">
-                            <div className="rounded-xl border border-bd-s100 bg-bg-s50 px-4 py-3 flex items-center gap-3">
+                            <div className="rounded-m3-md border border-bd-s100 bg-bg-s50 px-4 py-3 flex items-center gap-3">
                                 <Building2 size={18} className="shrink-0 text-br-t900" />
                                 <span className="text-br-s950">
                                     <b>{formData.companyName}</b> · {formData.documentType} {formData.documentNumber} · {categoryLabel}
                                 </span>
                             </div>
                             {step > 1 && (
-                                <div className="rounded-xl border border-bd-s100 bg-bg-s50 px-4 py-3 flex items-center gap-3">
+                                <div className="rounded-m3-md border border-bd-s100 bg-bg-s50 px-4 py-3 flex items-center gap-3">
                                     <Phone size={18} className="shrink-0 text-br-t900" />
                                     <span className="text-br-s950">{formData.phone} · {formData.email}</span>
                                 </div>
@@ -464,12 +465,12 @@ export default function SupplierRegisterForm() {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="rounded-xl border border-dashed border-bd-s300 bg-bg-s50 px-4 py-3 text-sm text-br-s900">
+                                    <p className="rounded-m3-md border border-dashed border-bd-s300 bg-bg-s50 px-4 py-3 text-sm text-br-s900">
                                         Aún no hay productos disponibles en el inventario. Puedes crear el proveedor y asociarle productos después.
                                     </p>
                                 )}
                                 {errors.products && (
-                                    <p className="text-sm inline-block self-start px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{errors.products}</p>
+                                    <p className="text-sm inline-block self-start px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{errors.products}</p>
                                 )}
                             </div>
 

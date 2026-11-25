@@ -1,20 +1,23 @@
 // src/features/users/pages/UserListPage.jsx
 // Listado de usuarios con filtros por rol y estado, cambio de estado y reportes
-import { DataTable, Navbar } from "../../../shared";
-import UserDetailModal from "../components/UserDetailModal"
+import { DataTable, Navbar, DetailModal } from "../../../shared";
+import { UserDetails } from "../components/UserDetails"
 import { createUserColumns, userFilters, userInitialSort } from "../table/UsersColumns"
-import { getUsers, getUsersReport, updateUserStatus } from "../services/userServices"
-import { Link, useNavigate } from "react-router-dom"
+import { toUserView, getUsers, getUsersReport, updateUserStatus } from "../services/userServices"
+import { useNavigate } from "react-router-dom"
 import { Button } from "../../../shared"
-import ReportConfigModal from "../reports/components/ReportConfigModal"
+import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { userReportFields, userReportScopes } from "../reports/config/userReportFields"
 import { useEffect, useMemo, useState } from "react"
-import { Users as UsersIcon } from "lucide-react"
+import { Users as UsersIcon, UserRound } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { showErrorAlert } from "@/shared/services/alertService";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function UserListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     // Copia de los usuarios para reflejar al instante los cambios de estado
@@ -22,17 +25,19 @@ export default function UserListPage () {
     const navigate = useNavigate();
 
     const [selectedId, setSelectedId] = useState(null);
+    // usuario elegido para la ventana de ver (busqueda por id)
+    const selectedUser = rows.find((u) => u.id === selectedId);
 
     const handleView = (user) => setSelectedId(user.id);
-    const handleEdit = (user) => navigate("/userEdit", { state: { user } });
+    const handleEdit = (user) => navigate("/userEdit", { state: { user, from: "/userList" } });
 
     // Columnas de la tabla con las acciones de ver, editar y cambiar estado
     const columns = useMemo(
-        () => createUserColumns({ onView: handleView, onEdit: handleEdit, onStatusChange: async (user, value, reason) => {
+        () => createUserColumns({ onView: can("usuarios_visualizar") ? handleView : undefined, onEdit: can("usuarios_actualizar") ? handleEdit : undefined, onStatusChange: !can("usuarios_habilitar") ? undefined : async (user, value, reason) => {
             await updateUserStatus(user.id, value, reason);
             setRows((prev) => prev.map((u) => (u.id === user.id ? { ...u, is_active: value } : u)));
         } }),
-        []
+        [can]
     );
 
     // usuarios reales que llegan de la base
@@ -52,25 +57,27 @@ export default function UserListPage () {
                     icon={UsersIcon}
                     title="Listado de usuarios"
                     subtitle="Administra las cuentas del equipo y sus permisos."
-                    onBack={() => navigate("/userCreate")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    onBack={() => navigate("/home")}
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
-                            <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
-                                Reportar usuario
-                            </Button>
+                            {can("usuarios_reporte") && (
+                                <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
+                                    Reportar usuario
+                                </Button>
+                            )}
 
-                            <Link to="/userCreate">
-                                <Button size="sm" variant="crema">
+                            {can("usuarios_crear") && (
+                                <Button size="sm" variant="crema" onClick={() => navigate("/userCreate")}>
                                     Crear usuario
                                 </Button>
-                            </Link>
+                            )}
                         </>
                     }
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de usuarios</p>
                         <p className="text-2xl font-bold text-bg-w">{totalUsers}</p>
                     </div>
@@ -78,11 +85,26 @@ export default function UserListPage () {
 
                 <DataTable variant="cafe" data={rows} columns={columns} filters={userFilters} initialSort={userInitialSort} />
             </div>
-            <UserDetailModal
-                user={rows.find((u) => u.id === selectedId)}
+            {/* ver usuario: el mismo diseño de la pagina de detalle, dentro de una ventana */}
+            <DetailModal
+                open={Boolean(selectedUser)}
                 onClose={() => setSelectedId(null)}
-                onEdit={handleEdit}
-            />
+                icon={UserRound}
+                title="Ver usuario"
+                subtitle={selectedUser?.username}
+                size="max-w-6xl"
+                bodyClassName="grid-cols-1"
+                footer={false}
+            >
+                {selectedUser && (
+                    <UserDetails
+                        key={selectedUser.id}
+                        user={toUserView(selectedUser)}
+                        inModal
+                        onStatusChange={(value) => setRows((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, is_active: value } : u)))}
+                    />
+                )}
+            </DetailModal>
 
             <ReportConfigModal
                 isOpen={isReportModalOpen}

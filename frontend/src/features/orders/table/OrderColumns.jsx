@@ -1,6 +1,6 @@
 import Tablerowactions from "@/shared/components/Tablerowactions";
 
-import { orderStatusLabels as statusLabels } from "../reports/config/orderReportFields";
+import { orderStatusLabels as statusLabels } from "@/features/orders/reports/config/orderReportFields";
 
 export const createOrderColumns = ({ onView, onEdit } = {}) => [
 

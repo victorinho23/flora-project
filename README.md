@@ -1,16 +1,24 @@
-# React + Vite
+# Flora
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema web para el restaurante/café Flora: usuarios y permisos, menú, órdenes con mesas y comanda, inventario y proveedores.
 
-Currently, two official plugins are available:
+| Carpeta | Qué es | Cómo arrancarlo |
+| --- | --- | --- |
+| [`backend`](backend/README.md) | API en Node + Express + PostgreSQL | `cd backend && npm install && npm run dev` |
+| [`frontend`](frontend/README.md) | React + Vite + Tailwind (Material Design 3 con los tokens de Flora) | `cd frontend && npm install && npm run dev` |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Primero el backend (puerto 4000) y después el frontend (http://localhost:5173).
 
-## React Compiler
+## Primera vez
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Crear la base `flora` y correr las migraciones de `backend/src/databases/migrations` en orden (0001 a 0029).
+2. Copiar las variables de entorno del backend (están en `backend/README.md`).
+3. Si hay fotos viejas sueltas en `backend/uploads`, correr una vez `npm run organizar-uploads` dentro de `backend`.
 
-## Expanding the ESLint configuration
+## Imágenes
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Cada módulo guarda sus fotos en su carpeta: `backend/uploads/usuarios`, `backend/uploads/menu` y `backend/uploads/inventario`.
+
+## Licencia
+
+Ver [LICENSE](LICENSE).
