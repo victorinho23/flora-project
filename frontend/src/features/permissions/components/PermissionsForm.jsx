@@ -118,9 +118,9 @@ export default function PermissionsForm() {
 
             {/** Contenido principal */}
             <div className="flex-1 flex items-start justify-center px-4 py-10 w-full">
-                <div className="w-full max-w-5xl border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] p-6 sm:p-10">
+                <div className="w-full max-w-5xl border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1 p-6 sm:p-10">
 
-                    <div className="w-full text-bg-w bg-bg-s950 bg-cover bg-center bg-[linear-gradient(110deg,color-mix(in_srgb,var(--color-bg-s950)_82%,transparent)_0%,color-mix(in_srgb,var(--color-bg-s900)_84%,transparent)_55%,color-mix(in_srgb,var(--color-bg-t950)_88%,transparent)_100%),var(--foto)] flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-6 bajo:sm:py-2 rounded-2xl shadow-lg mb-8" style={{ "--foto": `url(${fotoFondo})` }}>
+                    <div className="w-full text-bg-w bg-bg-s950 bg-cover bg-center bg-[linear-gradient(110deg,color-mix(in_srgb,var(--color-bg-s950)_82%,transparent)_0%,color-mix(in_srgb,var(--color-bg-s900)_84%,transparent)_55%,color-mix(in_srgb,var(--color-bg-t950)_88%,transparent)_100%),var(--foto)] flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-6 bajo:sm:py-2 rounded-m3-lg shadow-m3-2 mb-8" style={{ "--foto": `url(${fotoFondo})` }}>
                         <div className="w-8" />
                         <h1 className="text-title text-bg-w font-bold text-center">Gestion de permisos</h1>
                         <div className="w-8" />

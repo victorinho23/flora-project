@@ -4,7 +4,7 @@ import { Router } from "express";
 import { inventoryController } from "./inventory.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
 import { requirePermission } from "../../middlewares/permission.middleware.js";
-import { upload } from "../../config/upload.js";
+import { uploadTo, verifyImage } from "../../config/upload.js";
 
 const router = Router();
 
@@ -26,10 +26,10 @@ router.get("/report", requirePermission("inventario_reporte"), inventoryControll
 router.get("/:id", requirePermission("inventario_visualizar"), inventoryController.getById);
 
 // POST /api/inventory -> llega la imagen en image
-router.post("/", requirePermission("inventario_crear"), upload.single("image"), inventoryController.create);
+router.post("/", requirePermission("inventario_crear"), uploadTo("inventario").single("image"), verifyImage, inventoryController.create);
 
 // PUT /api/inventory/:id
-router.put("/:id", requirePermission("inventario_actualizar"), upload.single("image"), inventoryController.update);
+router.put("/:id", requirePermission("inventario_actualizar"), uploadTo("inventario").single("image"), verifyImage, inventoryController.update);
 
 // PATCH /api/inventory/:id/status
 router.patch("/:id/status", requirePermission("inventario_estado"), inventoryController.updateStatus);

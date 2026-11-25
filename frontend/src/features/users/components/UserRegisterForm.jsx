@@ -1,7 +1,10 @@
 // User register form para registrar un usuario
-import { useState, useEffect } from "react";
-import { User, IdCard, Contact, CalendarDays, ImagePlus } from "lucide-react";
+// Asistente en 4 pasos dentro de una caja: a la izquierda el riel con los pasos, a la derecha el paso actual
+import { useState, useEffect, useMemo } from "react";
+import { User, IdCard, KeyRound, Contact, CalendarDays, Check, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input, Select, Button, Imageinput, Navbar } from "@/shared";
+import { getGroups } from "@/features/permissions/services/groupService";
+import { getGroupPermissions } from "@/features/permissions/services/permissionService";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom"
@@ -10,6 +13,22 @@ import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/ale
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { createUser } from "../services/userServices";
 
+
+// pasos del asistente: titulo, descripcion y campos que se revisan antes de seguir
+const STEPS = [
+    { title: "Identificación", sub: "Quién es y qué rol va a tener en Flora", icon: IdCard, fields: ["userName", "userType", "userDocumentTypes", "userDocumentNumber"] },
+    { title: "Acceso a Flora", sub: "Con este correo y la contraseña la persona entra al sistema", icon: KeyRound, fields: ["userEmail", "userEmailConfirm", "userPassword", "userBusinessEmail", "userBusinessEmailConfirm"] },
+    { title: "Contacto y foto", sub: "Cómo comunicarse con la persona; la foto es opcional", icon: Contact, fields: ["userPhone", "userPhoneSecondary", "userAddress", "userImage"] },
+    { title: "Contrato", sub: "Fechas del contrato; los administradores no necesitan fecha de fin", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate"] },
+];
+
+// donde quedan las manchas de luz del fondo en cada paso (se mueven al cambiar de paso)
+const GLOW = [
+    ["-10%, -10%", "10%, 10%"],
+    ["30%, -5%", "-20%, 5%"],
+    ["55%, 20%", "-35%, -10%"],
+    ["10%, 35%", "-5%, -25%"],
+];
 
 export default function UserRegisterForm(){
     const navigate = useNavigate();
@@ -38,8 +57,6 @@ export default function UserRegisterForm(){
         isSuperUser: false,
     });
 
-    const [showBusinessEmail, setShowBusinessEmail] = useState(false);
-    const [showSecondaryPhone, setShowSecondaryPhone] = useState(false);
 
     const handleChange = (e) => {
         const {name, value, type, checked} = e.target;
@@ -61,6 +78,9 @@ export default function UserRegisterForm(){
                 fieldErrors[issue.path[0]] = issue.message;
             });
             setErrors(fieldErrors);
+            // se va al primer paso que tenga un campo con error
+            const firstStep = STEPS.findIndex((item) => item.fields.some((name) => fieldErrors[name]));
+            if (firstStep >= 0) setStep(firstStep);
             await showCreateUserErrorAlert({
                 title: "Error al crear usuario",
                 text: "Revisa los campos marcados en el formulario",
@@ -79,11 +99,16 @@ export default function UserRegisterForm(){
                 text: "El usuario fue creado correctamente",
                 timer: 3000,
             });
-            navigate("/viewUser", { state: { id: response.userId } })
+            // replace: al volver desde el detalle no se regresa al formulario ya enviado
+            navigate("/viewUser", { state: { id: response.userId, from: "/userList" }, replace: true })
         } catch(error){
             console.log("Error: ", error.message)
             // si el backend dice que campo fallo se marca en el formulario
-            if (error.field) setErrors({ [error.field]: error.message });
+            if (error.field) {
+                setErrors({ [error.field]: error.message });
+                const fieldStep = STEPS.findIndex((item) => item.fields.includes(error.field));
+                if (fieldStep >= 0) setStep(fieldStep);
+            }
             await showCreateUserErrorAlert({
                 text: error.message,
                 timer: 3000,
@@ -103,285 +128,258 @@ export default function UserRegisterForm(){
     },[])
 
 
+    // ===== asistente =====
+    const [step, setStep] = useState(0);
+    const current = STEPS[step];
+    const isLast = step === STEPS.length - 1;
+
+    // revisa solo los campos del paso actual; si estan bien pasa al siguiente
+    const goNext = async () => {
+        const result = userSchema.safeParse(formData);
+        const stepErrors = {};
+        if (!result.success) {
+            result.error.issues.forEach((issue) => {
+                const name = issue.path[0];
+                if (current.fields.includes(name) && !(name === "userImage" && !formData.userImage.length)) stepErrors[name] ??= issue.message;
+            });
+        }
+        setErrors(stepErrors);
+        if (Object.keys(stepErrors).length === 0) setStep(step + 1);
+    };
+
+    // permisos del rol elegido (salen del grupo con el mismo nombre en la base)
+    const [groups, setGroups] = useState([]);
+    const [rolePerms, setRolePerms] = useState([]);
+    useEffect(() => {
+        getGroups().then(setGroups).catch(() => setGroups([]));
+    }, []);
+    const roleLabel = typesUser.find((type) => type.id === formData.userType)?.label ?? "";
+    const roleGroup = groups.find((group) => group.group_name === roleLabel);
+    useEffect(() => {
+        if (!roleGroup) return;
+        getGroupPermissions(roleGroup.group_id).then(setRolePerms).catch(() => setRolePerms([]));
+    }, [roleGroup]);
+    const shownPerms = roleGroup ? rolePerms : [];
+
+    // foto de la tarjeta del paso: la elegida o las iniciales
+    const newImage = useMemo(() => (formData.userImage[0] ? URL.createObjectURL(formData.userImage[0]) : null), [formData.userImage]);
+    useEffect(() => () => {
+        if (newImage) URL.revokeObjectURL(newImage);
+    }, [newImage]);
+    const initials = formData.userName.trim().split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
+
+    // un campo de texto con lo de siempre
+    const field = (name, type, label, placeholder, htmlFor) => (
+        <Input
+            name={name}
+            type={type}
+            label={label}
+            value={formData[name]}
+            placeholder={placeholder}
+            htmlFor={htmlFor}
+            variant="latte"
+            onChange={handleChange}
+            error={errors[name]}
+        />
+    );
+
+    // resumen corto de cada paso para el riel (se ve cuando el paso ya esta hecho)
+    const stepSummary = [
+        [formData.userName, roleLabel, formData.userDocumentNumber].filter(Boolean).join(" · "),
+        formData.userEmail,
+        formData.userPhone,
+        [formData.userContractStartDate, formData.userContractEndDate].filter(Boolean).join(" a "),
+    ];
+
     return(
-        <div className="min-h-screen w-full bg-cover bg-center bg-fixed">
+        <div className="min-h-screen w-full flex flex-col">
 
             {/** Header */}
             <Navbar
                 variant="banda"
                 image={fotoFondo}
                 icon={User}
-                title="Creación de usuario"
-                onBack={() => navigate("/home")}
+                title="Crear usuario"
+                onBack={() => navigate("/userList")}
                 actions={
-                    <>
-                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/userList")}>
-                            Ver listado
-                        </Button>
-                    </>
+                    <Button variant="crema" size="sm" type="button" onClick={() => navigate("/userList")}>
+                        Ver listado
+                    </Button>
                 }
             />
 
-            {/** Contenido */}
-            <div className="flex justify-center px-4 sm:px-8 py-6 xl:py-4 bajo:xl:py-3">
+            {/* fondo con manchas de luz que se mueven segun el paso */}
+            <main className="relative flex-1 flex overflow-hidden bg-bg-p50 px-4 sm:px-10 py-8">
+                <span aria-hidden="true" className="pointer-events-none absolute -top-40 -left-40 w-[46rem] h-[34rem] rounded-m3-full bg-bg-t300/60 blur-3xl transition-transform duration-700 ease-out" style={{ transform: `translate(${GLOW[step][0]})` }} />
+                <span aria-hidden="true" className="pointer-events-none absolute -bottom-40 -right-40 w-[42rem] h-[32rem] rounded-m3-full bg-bg-t100 blur-3xl transition-transform duration-700 ease-out" style={{ transform: `translate(${GLOW[step][1]})` }} />
+
                 <form
-                    onSubmit={handleSubmit}
-                    className="w-full max-w-8xl grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start gap-6 bajo:gap-4 [&_.w-80]:w-full"
+                    // con Enter en un paso intermedio se pasa al siguiente; solo en el ultimo se crea
+                    onSubmit={(e) => {
+                        if (isLast) return handleSubmit(e);
+                        e.preventDefault();
+                        goNext();
+                    }}
+                    noValidate
+                    className="relative w-full max-w-[100rem] mx-auto my-auto flex flex-col lg:flex-row bg-bg-w/95 border border-bd-w rounded-m3-xl shadow-m3-3 overflow-hidden [&_.w-80]:w-full"
                 >
-                    <div className="border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)] p-5 sm:p-6 bajo:sm:p-5 grid grid-cols-1 xl:grid-cols-2 gap-x-8 gap-y-6 bajo:gap-y-4 xl:items-start">
-                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-1 xl:row-start-1">
-                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
-                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{1}</span>
-                                <IdCard className="w-5 h-5 shrink-0 text-br-t900" />
-                                Identificación
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4 bajo:gap-3 items-end">
-                                <Input
-                                    type="text"
-                                    name="userName"
-                                    label="Nombre"
-                                    value={formData.userName}
-                                    placeholder="Escribe tu nombre"
-                                    htmlFor="user-name"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userName}
-                                />
 
-                                <Select
-                                    label="Tipo de documento"
-                                    name="userDocumentTypes"
-                                    value={formData.userDocumentTypes}
-                                    htmlFor="userDocumentTypes"
-                                    options={documentTypes}
-                                    onChange={handleChange}
-                                    error={errors.userDocumentTypes}
-                                    variant="latte"
-                                />
-
-                                <Input
-                                    name="userDocumentNumber"
-                                    type="text"
-                                    label="Numero de documento"
-                                    value={formData.userDocumentNumber}
-                                    placeholder="Escribe tu numero documento"
-                                    htmlFor="user-document-number"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userDocumentNumber}
-                                />
-
-                                <Select
-                                    label="Tipo de usuario"
-                                    name="userType"
-                                    value={formData.userType}
-                                    htmlFor="userType"
-                                    options={typesUser}
-                                    onChange={handleChange}
-                                    error={errors.userType}
-                                    variant="latte"
-                                />
-                            </div>
+                    {/* ===== Riel claro con los pasos ===== */}
+                    <aside className="lg:w-84 shrink-0 flex flex-col gap-6 p-6 sm:p-8 bg-linear-170 from-bg-t50 to-bg-p50 border-b lg:border-b-0 lg:border-r border-bd-t300" aria-label="Pasos para crear el usuario">
+                        <div className="flex flex-col">
+                            <span className="text-m3-label-large font-bold uppercase tracking-wider text-br-t900">Nueva cuenta</span>
+                            <span className="text-m3-headline-small font-bold text-br-s950">Crear usuario</span>
                         </div>
 
-                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-2 xl:row-start-1 xl:row-span-2 xl:border-l xl:border-bd-s100 xl:pl-8">
-                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
-                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{2}</span>
-                                <Contact className="w-5 h-5 shrink-0 text-br-t900" />
-                                Contacto y acceso
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:[&>div]:col-span-2 gap-4 bajo:gap-3 items-end">
-                                <Input
-                                    name="userEmail"
-                                    type="email"
-                                    label="Correo electronico"
-                                    value={formData.userEmail}
-                                    placeholder="Escribe tu Correo Electronico"
-                                    htmlFor="user-email"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userEmail}
-                                />
+                        <ol className="flex-1 flex flex-col">
+                            {STEPS.map((item, index) => {
+                                const done = index < step;
+                                const now = index === step;
+                                return (
+                                    <li key={item.title} className="relative flex-1 min-h-18">
+                                        {/* linea que une un paso con el siguiente */}
+                                        {index < STEPS.length - 1 && <span aria-hidden="true" className={`absolute left-5 top-11 bottom-1 w-0.5 rounded-m3-full ${done ? "bg-m3-success" : "bg-bg-t300"}`} />}
+                                        {/* se puede volver a un paso anterior tocandolo */}
+                                        <button
+                                            type="button"
+                                            onClick={() => index < step && setStep(index)}
+                                            disabled={index > step}
+                                            aria-current={now ? "step" : undefined}
+                                            className="m3-state relative flex items-start gap-3.5 w-full p-0.5 rounded-m3-md text-left disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus"
+                                        >
+                                            <span className={`w-10 h-10 shrink-0 rounded-m3-md border grid place-items-center transition-colors ${done ? "bg-m3-success border-transparent text-bg-w" : now ? "bg-bg-t800 border-transparent text-bg-w ring-4 ring-bg-t300/50" : "bg-bg-w border-bd-t300 text-br-t900"}`}>
+                                                {done ? <Check size={20} /> : <item.icon size={20} />}
+                                            </span>
+                                            <span className="flex flex-col min-w-0 pt-0.5">
+                                                <span className={`text-m3-title-medium font-bold ${done || now ? "text-br-s950" : "text-br-s800"}`}>{item.title}</span>
+                                                <span className={`text-m3-body-small truncate ${now ? "text-br-t900 font-semibold" : "text-br-s800"}`}>
+                                                    {done ? (stepSummary[index] || "Listo") : now ? "Ahora" : "Pendiente"}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ol>
 
-                                <Input
-                                    name="userEmailConfirm"
-                                    type="email"
-                                    label="Confirmar correo electronico"
-                                    value={formData.userEmailConfirm}
-                                    placeholder="Confirma tu correo electronico"
-                                    htmlFor="user-email-confirm"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userEmailConfirm}
-                                />
-
-                                <Input
-                                    name="userPassword"
-                                    type="password"
-                                    label="Contraseña"
-                                    value={formData.userPassword}
-                                    placeholder="Escribe tu contraseña"
-                                    htmlFor="user-password"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userPassword}
-                                />
-
-                                <Input
-                                    name="userAddress"
-                                    type="text"
-                                    label="Direccion"
-                                    value={formData.userAddress}
-                                    placeholder="Direccion"
-                                    htmlFor="user-direction"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userAddress}
-                                />
-
-                                <Input
-                                    name="userPhone"
-                                    type="tel"
-                                    label="Telefono"
-                                    value={formData.userPhone}
-                                    placeholder="Escribe tu numero de telefono"
-                                    htmlFor="user-Phone"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userPhone}
-                                />
-
-                                {showSecondaryPhone ? (
-                                    <Input
-                                        name="userPhoneSecondary"
-                                        type="tel"
-                                        label="Telefono secundario"
-                                        value={formData.userPhoneSecondary}
-                                        placeholder="Escribe un segundo numero de telefono"
-                                        htmlFor="user-phone-secondary"
-                                        variant="latte"
-                                        onChange={handleChange}
-                                        error={errors.userPhoneSecondary}
-                                    />
+                        {/* tarjetica de la persona que se arma mientras se llena */}
+                        <div className="flex items-center gap-3 p-3.5 rounded-m3-lg bg-bg-w border border-bd-t300">
+                            <div className="w-12 h-12 shrink-0 rounded-m3-full overflow-hidden bg-bg-t800 text-bg-w grid place-items-center">
+                                {newImage ? (
+                                    <img src={newImage} alt="" className="w-full h-full object-cover" />
                                 ) : (
-                                    <Button
-                                        type="button"
-                                        onClick={() => setShowSecondaryPhone(true)}
-                                        className="w-full h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-secundary-400)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
-                                    >
-                                        Teléfono secundario
-                                    </Button>
-                                )}
-
-                                {showBusinessEmail ? (
-                                    <>
-                                        <Input
-                                            name="userBusinessEmail"
-                                            type="email"
-                                            label="Correo empresarial"
-                                            value={formData.userBusinessEmail}
-                                            placeholder="Correo empresarial"
-                                            htmlFor="user-business-email"
-                                            variant="latte"
-                                            onChange={handleChange}
-                                            error={errors.userBusinessEmail}
-                                        />
-
-                                        <Input
-                                            name="userBusinessEmailConfirm"
-                                            type="email"
-                                            label="Confirmar correo empresarial"
-                                            value={formData.userBusinessEmailConfirm}
-                                            placeholder="Confirma el correo empresarial"
-                                            htmlFor="user-business-email-confirm"
-                                            variant="latte"
-                                            onChange={handleChange}
-                                            error={errors.userBusinessEmailConfirm}
-                                        />
-                                    </>
-                                ) : (
-                                    <Button
-                                        type="button"
-                                        onClick={() => setShowBusinessEmail(true)}
-                                        className="w-full h-12 rounded-md bg-[var(--color-white)] text-[var(--color-secundary-900)] border border-[var(--color-secundary-400)] flex items-center justify-center gap-2 hover:opacity-80 transition-opacity"
-                                    >
-                                        Correo empresarial
-                                    </Button>
+                                    <span className="text-m3-title-small font-bold">{initials || <User size={22} />}</span>
                                 )}
                             </div>
-                        </div>
-
-                        <div className="flex flex-col gap-5 bajo:gap-3 xl:col-start-1 xl:row-start-2">
-                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-br-s950 border-b border-bd-s100 pb-2">
-                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-s950 text-bg-w">{3}</span>
-                                <CalendarDays className="w-5 h-5 shrink-0 text-br-t900" />
-                                Temporalidad del Contrato
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bajo:gap-3 items-end">
-                                <Input
-                                    name="userContractStartDate"
-                                    type="date"
-                                    label="Fecha inicio contrato"
-                                    value={formData.userContractStartDate}
-                                    htmlFor="user-contract-start"
-                                    variant="latte"
-                                    onChange={handleChange}
-                                    error={errors.userContractStartDate}
-                                />
-
-                                {formData.userType !== "ADMIN" && (
-                                    <Input
-                                        name="userContractEndDate"
-                                        type="date"
-                                        label="Fecha fin contrato"
-                                        value={formData.userContractEndDate}
-                                        htmlFor="user-contract-end"
-                                        variant="latte"
-                                        onChange={handleChange}
-                                        error={errors.userContractEndDate}
-                                    />
-                                )}
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-m3-title-small font-bold text-br-s950 truncate">{formData.userName || "Nombre del usuario"}</span>
+                                <span className="text-m3-body-small text-br-s800 truncate">{roleLabel || "Sin rol"}</span>
                             </div>
                         </div>
-                    </div>
+                    </aside>
 
-                    <div className="flex flex-col items-center">
+                    {/* ===== El paso actual ===== */}
+                    <section className="flex-1 min-w-0 flex flex-col gap-7 p-6 sm:p-10" aria-labelledby="wizard-step">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-m3-label-large font-bold uppercase tracking-wider text-br-t900">Paso {step + 1} de {STEPS.length}</span>
+                            <h2 id="wizard-step" className="text-m3-headline-medium font-bold text-br-s950">{current.title}</h2>
+                            <p className="text-m3-body-medium text-br-s800">{current.sub}</p>
+                        </div>
 
-                        <div className="flex flex-col gap-4 bajo:gap-3 rounded-2xl bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 p-5 bajo:p-4 shadow-xl items-center w-full">
-                            <h2 className="self-stretch flex items-center gap-2 text-base md:text-lg font-bold text-bg-w border-b border-bd-w/20 pb-2">
-                                <span className="w-7 h-7 rounded-full grid place-items-center text-sm font-bold shrink-0 bg-bg-w text-br-s950">{4}</span>
-                                <ImagePlus className="w-5 h-5 shrink-0 text-br-t100" />
-                                Foto de perfil
-                            </h2>
-                            <Imageinput
-                                    value={formData.userImage}
-                                    onChange={(files) =>
-                                        setFormData((prev) => ({...prev, userImage: files}))
-                                    }
-                                    multiple={true}
-                                    variant="latte"
-                                />
+                        {/* ----- campos del paso: los errores salen debajo de cada campo ----- */}
+                        {step === 0 && (
+                            <div className="flex flex-col gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                    {field("userName", "text", "Nombre completo", "Ej: Laura Gómez", "user-name")}
+                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={typesUser} onChange={handleChange} error={errors.userType} variant="latte" />
+                                    <Select label="Tipo de documento" name="userDocumentTypes" value={formData.userDocumentTypes} htmlFor="userDocumentTypes" options={documentTypes} onChange={handleChange} error={errors.userDocumentTypes} variant="latte" />
+                                    {field("userDocumentNumber", "text", "Número de documento", "Solo números", "user-document-number")}
+                                </div>
+                                {/* permisos reales del grupo del rol elegido */}
+                                {roleLabel && (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="flex items-center gap-1.5 text-m3-label-large font-semibold text-br-s900">
+                                            <ShieldCheck size={16} className="text-br-t900" />
+                                            Como {roleLabel} podrá:
+                                        </span>
+                                        {shownPerms.slice(0, 6).map((perm) => (
+                                            <span key={perm.permission_id} className="h-7 px-2.5 inline-flex items-center rounded-m3-full bg-m3-success-container text-m3-success text-m3-label-medium font-semibold">
+                                                {perm.permission_name}
+                                            </span>
+                                        ))}
+                                        {shownPerms.length > 6 && <span className="text-m3-body-small text-br-s800">y {shownPerms.length - 6} más</span>}
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
-                            <p className="text-sm text-bg-w text-center">Tamaño máximo: 2 MB</p>
+                        {step === 1 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                {field("userEmail", "email", "Correo electrónico", "nombre@correo.com", "user-email")}
+                                {field("userEmailConfirm", "email", "Confirmar correo", "Escríbelo otra vez", "user-email-confirm")}
+                                {field("userPassword", "password", "Contraseña", "Exactamente 10 caracteres", "user-password")}
+                                {field("userBusinessEmail", "email", "Correo empresarial (opcional)", "nombre@flora.com", "user-business-email")}
+                                {field("userBusinessEmailConfirm", "email", "Confirmar correo empresarial", "Escríbelo otra vez", "user-business-email-confirm")}
+                            </div>
+                        )}
 
-                            {errors.userImage && (
-                                <span className="inline-block rounded bg-red-50 px-2 py-0.5 text-red-900 font-medium text-small">{errors.userImage}</span>
-                            )}
+                        {step === 2 && (
+                            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_20rem] gap-6 items-start">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                    {field("userPhone", "tel", "Teléfono", "Ej: 3001234567", "user-phone")}
+                                    {field("userPhoneSecondary", "tel", "Teléfono secundario (opcional)", "Otro número", "user-phone-secondary")}
+                                    <div className="sm:col-span-2">{field("userAddress", "text", "Dirección", "Ej: Calle 10 # 5-20", "user-address")}</div>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-m3-label-large font-semibold text-br-s950">Foto de perfil (opcional)</span>
+                                    <div className="w-full [&>div]:w-full [&_.border-dashed]:w-full [&_.border-dashed]:h-40 [&_.border-dashed]:shrink">
+                                        <Imageinput
+                                            value={formData.userImage}
+                                            onChange={(files) => setFormData((prev) => ({ ...prev, userImage: files }))}
+                                            multiple={false}
+                                            variant="latte"
+                                        />
+                                    </div>
+                                    {errors.userImage && <span className="inline-block rounded bg-m3-error-container px-2 py-0.5 text-m3-on-error-container font-medium text-sm">{errors.userImage}</span>}
+                                </div>
+                            </div>
+                        )}
 
-                            <Button
-                                variant="caramelo"
-                                size="lgg"
-                                type="submit"
-                            >
-                                Crear usuario
+                        {step === 3 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                {field("userContractStartDate", "date", "Fecha de inicio", "", "user-contract-start")}
+                                {field("userContractEndDate", "date", formData.userType === "ADMIN" ? "Fecha de fin (opcional)" : "Fecha de fin", "", "user-contract-end")}
+                            </div>
+                        )}
+
+                        {/* botones del asistente */}
+                        <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5 border-t border-bd-s100">
+                            <Button variant="crema" size="md" type="button" onClick={() => setStep(step - 1)} disabled={step === 0}>
+                                <ChevronLeft size={18} />
+                                Anterior
                             </Button>
+                            <span className="hidden sm:block text-m3-body-medium text-br-s800">Paso {step + 1} de {STEPS.length}</span>
+                            <div className="flex flex-wrap gap-3">
+                                <Button variant="crema" size="md" type="button" onClick={() => navigate("/userList")}>
+                                    Cancelar
+                                </Button>
+                                {isLast ? (
+                                    <Button variant="espresso" size="md" type="submit">
+                                        <Check size={18} />
+                                        Crear usuario
+                                    </Button>
+                                ) : (
+                                    <Button variant="espresso" size="md" type="button" onClick={goNext}>
+                                        Siguiente
+                                        <ChevronRight size={18} />
+                                    </Button>
+                                )}
+                            </div>
                         </div>
-
-                    </div>
+                    </section>
 
                 </form>
-            </div>
-
+            </main>
         </div>
     )
 }

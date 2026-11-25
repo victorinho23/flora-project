@@ -1,6 +1,8 @@
 // src/features/users/services/userServices.js
 // Funciones que consumen la API de usuarios del backend
 
+import documentTypes from "@/data/select/documentTypes.json";
+import typesUser from "@/data/select/typesUser.json";
 import { request, toFormData } from "@/features/config";
 
 const USERS_URL = "/users";
@@ -63,4 +65,35 @@ export async function updateUserPermissions(id, permissionIds) {
         method: "PUT",
         body: { permissionIds },
     });
+}
+
+// Busca el texto legible de un id en una lista (tipo de documento, tipo de usuario)
+const labelOf = (list, id) => list.find((item) => item.id === id)?.label ?? id;
+
+// pasa un usuario como llega del backend al formato que usa la vista "Ver usuario"
+// (la pagina de ver y la ventana del listado usan la misma)
+export function toUserView(data) {
+    return {
+        id: data.id,
+        userName: data.username,
+        userDocumentTypeLabel: labelOf(documentTypes, data.document_type),
+        userDocumentNumber: data.document_number,
+        userTypeLabel: labelOf(typesUser, data.usertype),
+        userEmail: data.useremail,
+        userBusinessEmail: data.business_email,
+        userAddress: data.address,
+        userPhone: data.userphone,
+        userPhoneSecondary: data.userphone2,
+        userContractStartDate: data.start_date,
+        userContractEndDate: data.end_date,
+        isActive: data.is_active,
+        imageUrl: data.image,
+        // el usuario tal cual llega del backend, para mandarlo a editar
+        raw: data,
+    };
+}
+
+// historial del registro de cambios de un usuario (lo mas nuevo primero)
+export async function getUserHistory(id) {
+    return await request(`/changes/usuario/${id}`);
 }

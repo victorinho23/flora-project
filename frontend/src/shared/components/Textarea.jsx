@@ -10,7 +10,7 @@ export default function Textarea({
 
 }){
     const variants = {
-        latte: `bg-bg-w border border-bd-s400 text-br-s950 placeholder:text-br-s500 shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200 h-60`,
+        latte: `bg-bg-w border border-bd-s400 text-br-s950 placeholder:text-br-s500 shadow-m3-1 focus:border-bd-t900 focus:ring-2 focus:ring-m3-focus h-60`,
     }
 
     const labelColors = {
@@ -37,7 +37,7 @@ export default function Textarea({
                 rows={rows}
                 className={`
                     w-full
-                    rounded-md
+                    rounded-m3-xs
                     border
                     text-body
                     resize-none
@@ -46,16 +46,16 @@ export default function Textarea({
                     px-4
                     py-3
                     focus:ring-2
-                    focus:ring-ring
-                    focus:ring-brand
+                    focus:ring-m3-focus
+                    focus:ring-m3-focus
                     ${variants[variant]}
-                    ${error ? "border-2 border-red-800!" : ""}
+                    ${error ? "border-2 border-m3-error!" : ""}
                 `}
                 {...props}
             />
 
             {error && (
-                <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
+                <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{error}</p>
             )}
 
         </div>

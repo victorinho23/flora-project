@@ -73,4 +73,81 @@
 --fs-xxxs:  0.75rem; /* extra pequeño 12px */
 --fs-xxxxs: 0.5rem;  /*Minimo 8px*/
 
+
+/* ====== MATERIAL DESIGN 3: valores base (ref) ======
+   Son los numeros crudos de la guia de Material 3. Nadie los usa directo,
+   pasan por semantic.css y de ahi a global.css (@theme) como los colores */
+
+/* Forma: escala de esquinas de M3 */
+--md-ref-shape-none: 0px;
+--md-ref-shape-extra-small: 4px;
+--md-ref-shape-small: 8px;
+--md-ref-shape-medium: 12px;
+--md-ref-shape-large: 16px;
+--md-ref-shape-extra-large: 28px;
+--md-ref-shape-full: 9999px;
+
+/* Elevacion: los 6 niveles de sombra de M3 (0 a 5) */
+--md-ref-elevation-0: none;
+--md-ref-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.30), 0 1px 3px 1px rgb(0 0 0 / 0.15);
+--md-ref-elevation-2: 0 1px 2px 0 rgb(0 0 0 / 0.30), 0 2px 6px 2px rgb(0 0 0 / 0.15);
+--md-ref-elevation-3: 0 1px 3px 0 rgb(0 0 0 / 0.30), 0 4px 8px 3px rgb(0 0 0 / 0.15);
+--md-ref-elevation-4: 0 2px 3px 0 rgb(0 0 0 / 0.30), 0 6px 10px 4px rgb(0 0 0 / 0.15);
+--md-ref-elevation-5: 0 4px 4px 0 rgb(0 0 0 / 0.30), 0 8px 12px 6px rgb(0 0 0 / 0.15);
+
+/* Movimiento: curvas y tiempos de M3 */
+--md-ref-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+--md-ref-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+--md-ref-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+--md-ref-duration-short: 100ms;
+--md-ref-duration-medium: 200ms;
+--md-ref-duration-long: 300ms;
+--md-ref-duration-extra-long: 500ms;
+
+/* Capas de estado: cuanto se oscurece/aclara un elemento al pasar, enfocar o presionar */
+--md-ref-opacity-hover: 0.08;
+--md-ref-opacity-focus: 0.10;
+--md-ref-opacity-pressed: 0.10;
+--md-ref-opacity-dragged: 0.16;
+--md-ref-opacity-disabled: 0.38;
+
+/* Colores de error de M3 (la paleta de Flora no tenia rojo propio) */
+--md-ref-error-40: #b3261e;
+--md-ref-error-90: #f9dedc;
+--md-ref-error-10: #410e0b;
+
+/* Colores de estado de las ordenes, en tonos que combinan con el cafe */
+--md-ref-success-40: #2e6b3a;
+--md-ref-success-90: #d6ecd8;
+--md-ref-info-40: #2f5d8a;
+--md-ref-info-90: #d7e5f4;
+
+/* Escala tipografica de M3: tamaño / alto de linea */
+--md-ref-type-display-small: 2.25rem;
+--md-ref-type-display-small-lh: 2.75rem;
+--md-ref-type-headline-large: 2rem;
+--md-ref-type-headline-large-lh: 2.5rem;
+--md-ref-type-headline-medium: 1.75rem;
+--md-ref-type-headline-medium-lh: 2.25rem;
+--md-ref-type-headline-small: 1.5rem;
+--md-ref-type-headline-small-lh: 2rem;
+--md-ref-type-title-large: 1.375rem;
+--md-ref-type-title-large-lh: 1.75rem;
+--md-ref-type-title-medium: 1rem;
+--md-ref-type-title-medium-lh: 1.5rem;
+--md-ref-type-title-small: 0.875rem;
+--md-ref-type-title-small-lh: 1.25rem;
+--md-ref-type-body-large: 1rem;
+--md-ref-type-body-large-lh: 1.5rem;
+--md-ref-type-body-medium: 0.875rem;
+--md-ref-type-body-medium-lh: 1.25rem;
+--md-ref-type-body-small: 0.75rem;
+--md-ref-type-body-small-lh: 1rem;
+--md-ref-type-label-large: 0.875rem;
+--md-ref-type-label-large-lh: 1.25rem;
+--md-ref-type-label-medium: 0.75rem;
+--md-ref-type-label-medium-lh: 1rem;
+--md-ref-type-label-small: 0.6875rem;
+--md-ref-type-label-small-lh: 1rem;
+
 }

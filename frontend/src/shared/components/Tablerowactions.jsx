@@ -4,8 +4,8 @@ import { Eye, Pencil } from "lucide-react";
 // src/shared/components/Tablerowactions.jsx
 // Botones de acciones de cada fila de la tabla (ver y editar)
 const baseBtn = `
-    p-2 rounded-md transition-colors duration-200
-    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200
+    p-2 rounded-m3-xs transition-colors duration-200
+    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus
 `;
 
 // Solo se muestran los botones que reciben su funcion

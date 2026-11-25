@@ -1,6 +1,7 @@
 // backend/src/features/groups/groups.service.js
 
 import { groupsRepository } from "./groups.repository.js";
+import { accessService } from "../access/access.service.js";
 
 export const groupsService = {
     async getAll() {
@@ -12,6 +13,9 @@ export const groupsService = {
     },
 
     async updatePermissions(groupId, permissionIds = []) {
-        return await groupsRepository.updatePermissions(groupId, permissionIds.map(Number));
+        const result = await groupsRepository.updatePermissions(groupId, permissionIds.map(Number));
+        // los usuarios del grupo pierden o ganan el permiso desde la siguiente peticion
+        accessService.invalidate();
+        return result;
     },
 };

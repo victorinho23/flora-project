@@ -27,7 +27,7 @@ export const createMenuColumns = ({ onView, onEdit, onStatusChange } = {}) => [
         <img
           src={row.original.image}
           alt={row.original.name}
-          className="w-12 h-12 object-cover rounded-lg"
+          className="w-12 h-12 object-cover rounded-m3-sm"
         />
       ) : (
         <span className="text-sm text-br-p100">Sin imagen</span>
@@ -87,7 +87,8 @@ export const createMenuColumns = ({ onView, onEdit, onStatusChange } = {}) => [
         return true;
       };
 
-      return <Switch checked={dish.is_active} onChange={handleChange} />;
+      // sin permiso para cambiar el estado, el switch se ve pero queda bloqueado
+      return <Switch checked={dish.is_active} onChange={handleChange} disabled={!onStatusChange} />;
     },
   },
 

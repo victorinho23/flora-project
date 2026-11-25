@@ -1,9 +1,9 @@
 // Utilidad para transformar datos en dataset de reporte
-import { buildReportDataset } from "../utils/buildReportDataset";
+import { buildReportDataset } from "@/shared/reports/utils/buildReportDataset";
 
 // Servicios de exportacion
-import { generateExcelReport } from "./generateExcelReport";
-import { generatePdfReport } from "./generatePdfReport";
+import { generateExcelReport } from "@/shared/reports/services/generateExcelReport";
+import { generatePdfReport } from "@/shared/reports/services/generatePdfReport";
 
 // Patrón: Application Service (coordina utilidades y servicios)
 export function generateReport({

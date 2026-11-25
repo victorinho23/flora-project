@@ -101,6 +101,121 @@
     /* ====== FONT WEIGHT ====== */
     --font-heading: var(--semantic-font-weight-heading);
 
+    /* ====== MATERIAL DESIGN 3 ======
+       Clases que salen de aqui: bg-m3-primary, text-m3-on-surface, rounded-m3-lg,
+       shadow-m3-2, ease-m3-standard, text-m3-title-large, etc. */
+
+    --color-m3-primary: var(--md-sys-color-primary);
+    --color-m3-on-primary: var(--md-sys-color-on-primary);
+    --color-m3-primary-container: var(--md-sys-color-primary-container);
+    --color-m3-on-primary-container: var(--md-sys-color-on-primary-container);
+    --color-m3-secondary: var(--md-sys-color-secondary);
+    --color-m3-on-secondary: var(--md-sys-color-on-secondary);
+    --color-m3-secondary-container: var(--md-sys-color-secondary-container);
+    --color-m3-on-secondary-container: var(--md-sys-color-on-secondary-container);
+    --color-m3-surface: var(--md-sys-color-surface);
+    --color-m3-surface-lowest: var(--md-sys-color-surface-container-lowest);
+    --color-m3-surface-low: var(--md-sys-color-surface-container-low);
+    --color-m3-surface-container: var(--md-sys-color-surface-container);
+    --color-m3-surface-high: var(--md-sys-color-surface-container-high);
+    --color-m3-surface-highest: var(--md-sys-color-surface-container-highest);
+    --color-m3-on-surface: var(--md-sys-color-on-surface);
+    --color-m3-on-surface-variant: var(--md-sys-color-on-surface-variant);
+    --color-m3-inverse-surface: var(--md-sys-color-inverse-surface);
+    --color-m3-inverse-on-surface: var(--md-sys-color-inverse-on-surface);
+    --color-m3-inverse-primary: var(--md-sys-color-inverse-primary);
+    --color-m3-outline: var(--md-sys-color-outline);
+    --color-m3-focus: var(--md-sys-color-focus);
+    --color-m3-outline-variant: var(--md-sys-color-outline-variant);
+    --color-m3-error: var(--md-sys-color-error);
+    --color-m3-on-error: var(--md-sys-color-on-error);
+    --color-m3-error-container: var(--md-sys-color-error-container);
+    --color-m3-on-error-container: var(--md-sys-color-on-error-container);
+    --color-m3-success: var(--md-sys-color-success);
+    --color-m3-success-container: var(--md-sys-color-success-container);
+    --color-m3-info: var(--md-sys-color-info);
+    --color-m3-info-container: var(--md-sys-color-info-container);
+
+    --radius-m3-xs: var(--md-sys-shape-corner-extra-small);
+    --radius-m3-sm: var(--md-sys-shape-corner-small);
+    --radius-m3-md: var(--md-sys-shape-corner-medium);
+    --radius-m3-lg: var(--md-sys-shape-corner-large);
+    --radius-m3-xl: var(--md-sys-shape-corner-extra-large);
+    --radius-m3-full: var(--md-sys-shape-corner-full);
+
+    --shadow-m3-0: var(--md-sys-elevation-level0);
+    --shadow-m3-1: var(--md-sys-elevation-level1);
+    --shadow-m3-2: var(--md-sys-elevation-level2);
+    --shadow-m3-3: var(--md-sys-elevation-level3);
+    --shadow-m3-4: var(--md-sys-elevation-level4);
+    --shadow-m3-5: var(--md-sys-elevation-level5);
+
+    --ease-m3-standard: var(--md-sys-motion-easing-standard);
+    --ease-m3-decelerate: var(--md-sys-motion-easing-emphasized-decelerate);
+    --ease-m3-accelerate: var(--md-sys-motion-easing-emphasized-accelerate);
+
+    --text-m3-display-small: var(--md-ref-type-display-small);
+    --text-m3-display-small--line-height: var(--md-ref-type-display-small-lh);
+    --text-m3-headline-large: var(--md-ref-type-headline-large);
+    --text-m3-headline-large--line-height: var(--md-ref-type-headline-large-lh);
+    --text-m3-headline-medium: var(--md-ref-type-headline-medium);
+    --text-m3-headline-medium--line-height: var(--md-ref-type-headline-medium-lh);
+    --text-m3-headline-small: var(--md-ref-type-headline-small);
+    --text-m3-headline-small--line-height: var(--md-ref-type-headline-small-lh);
+    --text-m3-title-large: var(--md-ref-type-title-large);
+    --text-m3-title-large--line-height: var(--md-ref-type-title-large-lh);
+    --text-m3-title-medium: var(--md-ref-type-title-medium);
+    --text-m3-title-medium--line-height: var(--md-ref-type-title-medium-lh);
+    --text-m3-title-small: var(--md-ref-type-title-small);
+    --text-m3-title-small--line-height: var(--md-ref-type-title-small-lh);
+    --text-m3-body-large: var(--md-ref-type-body-large);
+    --text-m3-body-large--line-height: var(--md-ref-type-body-large-lh);
+    --text-m3-body-medium: var(--md-ref-type-body-medium);
+    --text-m3-body-medium--line-height: var(--md-ref-type-body-medium-lh);
+    --text-m3-body-small: var(--md-ref-type-body-small);
+    --text-m3-body-small--line-height: var(--md-ref-type-body-small-lh);
+    --text-m3-label-large: var(--md-ref-type-label-large);
+    --text-m3-label-large--line-height: var(--md-ref-type-label-large-lh);
+    --text-m3-label-medium: var(--md-ref-type-label-medium);
+    --text-m3-label-medium--line-height: var(--md-ref-type-label-medium-lh);
+    --text-m3-label-small: var(--md-ref-type-label-small);
+    --text-m3-label-small--line-height: var(--md-ref-type-label-small-lh);
+
+}
+
+/* Capa de estado de M3: al pasar el mouse, enfocar con teclado o presionar
+   se pone encima un velo del mismo color del texto con la opacidad de la guia.
+   Se usa poniendo la clase m3-state en botones o enlaces */
+@utility m3-state {
+    position: relative;
+    isolation: isolate;
+
+    &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background-color: currentColor;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--md-sys-motion-duration-short) var(--md-sys-motion-easing-standard);
+    }
+
+    &:hover::after {
+        opacity: var(--md-sys-state-hover-opacity);
+    }
+
+    &:focus-visible::after {
+        opacity: var(--md-sys-state-focus-opacity);
+    }
+
+    &:active::after {
+        opacity: var(--md-sys-state-pressed-opacity);
+    }
+
+    &:disabled::after {
+        opacity: 0;
+    }
 }
 
 
@@ -174,4 +289,53 @@
 
 :root[data-theme="dark"] button:is(.text-br-t900, .text-br-t950):not([class*="bg-"], nav *, .swal2-container *) {
     color: var(--color-br-t200);
+}
+
+/* ====== ANIMACIONES DE LOS MODALES ======
+   fondo que aparece y la ventana que sube un poquito, como los dialogos de Material 3 */
+@keyframes m3-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes m3-dialog-in {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+/* ====== MOVIMIENTO ======
+   Si la persona tiene activado "reducir movimiento" en su equipo, se quitan las animaciones */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 1ms !important;
+        transition-duration: 1ms !important;
+    }
+}
+
+/* ====== COMANDA ======
+   Al imprimir solo sale el ticket de la comanda en papel blanco, sin fondos ni barras */
+@media print {
+    @page {
+        margin: 6mm;
+    }
+
+    html, body {
+        background: #fff !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .comanda, .comanda * {
+        visibility: visible;
+    }
+
+    .comanda {
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 80mm;
+        color: #000;
+        font-family: "Courier New", monospace;
+    }
 }

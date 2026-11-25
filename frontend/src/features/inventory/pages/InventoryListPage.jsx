@@ -3,18 +3,22 @@ import InventoryDetailModal from "../components/InventoryDetailModal";
 
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Package, Bell, Search, Plus } from "lucide-react";
+import { Package, Bell, Search } from "lucide-react";
 import { showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
 
-import { DataTable, Button, Navbar } from "../../../shared";
+import { DataTable, Button, Navbar, DetailModal } from "../../../shared";
+import InventoryDetailPage from "./InventoryDetailPage";
 import { createInventoryColumns, inventoryFilters, inventoryInitialSort } from "../table/InventoryColumns";
 import { getInventory, updateInventoryStatus } from "../services/inventoryService";
 import InventoryReportModal from "../reports/components/InventoryReportModal";
 
 import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function InventoryListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [rows, setRows] = useState([]);
@@ -23,7 +27,10 @@ export default function InventoryListPage () {
     const [selectedId, setSelectedId] = useState(null);
 
     const handleView = (item) => setSelectedId(item.id);
-    const handleEdit = (item) => navigate("/editInventory", { state: { item } });
+    // lupa: consultar un producto en una ventana pequeña, sin salir del listado
+    const [lookupOpen, setLookupOpen] = useState(false);
+
+    const handleEdit = (item) => navigate("/editInventory", { state: { item, from: "/listInventory" } });
 
     // Campana: avisa que productos estan por debajo de su cantidad minima
     const notifyLowStock = async () => {
@@ -43,11 +50,11 @@ export default function InventoryListPage () {
 
 
     const columns = useMemo(
-        () => createInventoryColumns({ onView: handleView, onEdit: handleEdit, onStatusChange: async (item, status) => {
+        () => createInventoryColumns({ onView: can("inventario_visualizar") ? handleView : undefined, onEdit: can("inventario_actualizar") ? handleEdit : undefined, onStatusChange: !can("inventario_estado") ? undefined : async (item, status) => {
             await updateInventoryStatus(item.id, status);
             setRows((prev) => prev.map((i) => (i.id === item.id ? { ...i, status } : i)));
         } }),
-        []
+        [can]
     );
 
     // productos reales que llegan de la base
@@ -68,31 +75,37 @@ export default function InventoryListPage () {
                     title="Inventario"
                     subtitle="Administra las existencias de todas las sucursales."
                     onBack={() => navigate("/home")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
                             <Button size="sm" variant="crema" aria-label="Existencias bajas" onClick={notifyLowStock}>
                                 <Bell size={18} />
                             </Button>
 
-                            <Button size="sm" variant="crema" aria-label="Consultar producto" title="Consultar producto" onClick={() => navigate("/detailsInventory")}>
-                                <Search size={18} />
-                            </Button>
+                            {can("inventario_visualizar") && (
+                                <Button size="sm" variant="crema" aria-label="Consultar producto" title="Consultar producto" onClick={() => setLookupOpen(true)}>
+                                    <Search size={18} />
+                                </Button>
+                            )}
 
-                            <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
-                                Reporte
-                            </Button>
+                            {can("inventario_reporte") && (
+                                <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
+                                    Reporte
+                                </Button>
+                            )}
 
-                            <Button size="sm" variant="crema" onClick={() => navigate("/createInventory")}>
-                                
-                                Crear productos
-                            </Button>
+                            {can("inventario_crear") && (
+                                <Button size="sm" variant="crema" onClick={() => navigate("/createInventory")}>
+                                    
+                                    Crear productos
+                                </Button>
+                            )}
                         </>
                     }
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de productos</p>
                         <p className="text-2xl font-bold text-bg-w">{totalItems}</p>
                     </div>
@@ -103,8 +116,22 @@ export default function InventoryListPage () {
             <InventoryDetailModal
                 item={rows.find((i) => i.id === selectedId)}
                 onClose={() => setSelectedId(null)}
-                onEdit={handleEdit}
+                onEdit={can("inventario_actualizar") ? handleEdit : undefined}
             />
+
+            {/* lupa: buscar un producto por ID, codigo de barras o nombre */}
+            <DetailModal
+                open={lookupOpen}
+                onClose={() => setLookupOpen(false)}
+                icon={Search}
+                title="Consultar producto"
+                subtitle="Busca por ID, código de barras o nombre"
+                size="max-w-3xl"
+                bodyClassName="grid-cols-1"
+                footer={false}
+            >
+                <InventoryDetailPage inModal onEdit={handleEdit} />
+            </DetailModal>
 
             <InventoryReportModal
                 isOpen={isReportModalOpen}

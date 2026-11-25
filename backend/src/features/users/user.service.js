@@ -3,7 +3,8 @@
 
 import { userRepository } from "./user.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
-import { imageUrl } from "../../config/upload.js";
+import { accessService } from "../access/access.service.js";
+import { imageUrl, imagePath, removeImage } from "../../config/upload.js";
 import { parseBoolean, parseIds } from "../../config/reportFilters.js";
 import bcrypt from "bcrypt";
 
@@ -47,9 +48,32 @@ const cleanData = (data, file) => {
         // el administrador no tiene fecha de fin de contrato
         userContractEndDate: userType === "ADMIN" ? null : data.userContractEndDate || null,
         isActive: String(data.isActive) !== "false",
-        userImage: file ? `/uploads/${file.filename}` : null,
+        userImage: imagePath(file),
         userPassword: data.userPassword || null,
     };
+};
+
+// nombres de los datos que se comparan para el registro de cambios: [dato nuevo, dato guardado, como se llama]
+const TRACKED = [
+    ["userName", "username", "nombre"],
+    ["userEmail", "useremail", "correo"],
+    ["userBusinessEmail", "business_email", "correo empresarial"],
+    ["userPhone", "userphone", "teléfono"],
+    ["userPhoneSecondary", "userphone2", "teléfono secundario"],
+    ["userDocumentTypes", "document_type", "tipo de documento"],
+    ["userDocumentNumber", "document_number", "documento"],
+    ["userAddress", "address", "dirección"],
+    ["userContractStartDate", "start_date", "inicio de contrato"],
+    ["userContractEndDate", "end_date", "fin de contrato"],
+];
+
+// dice que datos cambiaron, ej: "Cambió: teléfono, rol"
+const describeChanges = (current, user) => {
+    const changed = TRACKED.filter(([next, saved]) => String(user[next] ?? "") !== String(current[saved] ?? "")).map(([, , label]) => label);
+    if ((TYPE_BY_GROUP[current.group_name] ?? "") !== user.userType) changed.push("rol");
+    if (user.userPassword) changed.push("contraseña");
+    if (user.userImage) changed.push("foto");
+    return changed.length ? `Cambió: ${changed.join(", ")}` : null;
 };
 
 // revisa lo minimo antes de guardar
@@ -87,7 +111,7 @@ const validate = async (user, { requirePassword, excludeId }) => {
 };
 
 export const userService = {
-    async createUser(data, file) {
+    async createUser(data, file, currentUserId) {
         const user = cleanData(data, file);
 
         await validate(user, { requirePassword: true });
@@ -95,7 +119,20 @@ export const userService = {
         // la contraseña se guarda cifrada
         user.userPassword = await bcrypt.hash(user.userPassword, 10);
 
-        return await userRepository.create(user, GROUP_BY_TYPE[user.userType]);
+        const created = await userRepository.create(user, GROUP_BY_TYPE[user.userType]);
+
+        // queda guardado quien creo la cuenta
+        if (currentUserId) {
+            await changesRepository.create({
+                usuarioId: currentUserId,
+                tabla: "usuario",
+                registroId: created.id,
+                accion: "CREAR",
+                motivo: `Cuenta creada como ${user.userType === "ADMIN" ? "administrador" : user.userType?.toLowerCase()}`,
+            });
+        }
+
+        return created;
     },
 
     async getUser() {
@@ -138,6 +175,21 @@ export const userService = {
         }
 
         const updated = await userRepository.update(id, user, GROUP_BY_TYPE[user.userType]);
+        // si llego foto nueva se borra la vieja; y como pudo cambiar de grupo o estado, se refrescan sus permisos
+        if (file) removeImage(current.image);
+        accessService.invalidate();
+
+        // los datos que cambiaron quedan en el registro (sin el estado, que va aparte)
+        const summary = describeChanges(current, user);
+        if (summary) {
+            await changesRepository.create({
+                usuarioId: currentUserId,
+                tabla: "usuario",
+                registroId: id,
+                accion: "ACTUALIZAR",
+                motivo: summary,
+            });
+        }
 
         // si cambio el estado queda guardado quien lo hizo y el motivo
         if (current.is_active !== user.isActive) {
@@ -167,6 +219,8 @@ export const userService = {
         }
 
         await userRepository.updateStatus(id, Boolean(isActive));
+        // si lo inhabilitan, pierde el acceso desde la siguiente peticion (no espera a que venza el token)
+        accessService.invalidate();
 
         await changesRepository.create({
             usuarioId: currentUserId,
@@ -195,6 +249,8 @@ export const userService = {
     async updatePermissions(userId, permissionIds = []) {
         const user = await userRepository.findById(userId);
         if (!user) throw httpError(404, "Usuario no encontrado");
-        return await userRepository.updatePermissions(userId, permissionIds.map(Number));
+        const result = await userRepository.updatePermissions(userId, permissionIds.map(Number));
+        accessService.invalidate();
+        return result;
     },
 };

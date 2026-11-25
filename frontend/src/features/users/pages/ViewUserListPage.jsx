@@ -1,27 +1,32 @@
 // src/features/users/pages/ViewUserListPage.jsx
 // Consulta de usuarios con filtros y reportes
-import { DataTable, Navbar } from "../../../shared";
-import UserDetailModal from "../components/UserDetailModal"
+import { DataTable, Navbar, DetailModal } from "../../../shared";
+import { UserDetails } from "../components/UserDetails"
 import { createUserColumns, userFilters, userInitialSort } from "../table/UsersColumns"
-import { getUsers, updateUserStatus } from "../services/userServices"
+import { toUserView, getUsers, updateUserStatus } from "../services/userServices"
 import { useEffect, useMemo, useState } from "react"
-import { Users as UsersIcon } from "lucide-react"
+import { Users as UsersIcon, UserRound } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { showErrorAlert } from "@/shared/services/alertService";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function ViewUserListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [selectedId, setSelectedId] = useState(null);
+    // usuario elegido para la ventana de ver (busqueda por id)
+    const selectedUser = rows.find((u) => u.id === selectedId);
     const [rows, setRows] = useState([]);
 
     // Columnas de la tabla con la accion de ver y el cambio de estado
     const columns = useMemo(
-        () => createUserColumns({ onView: (user) => setSelectedId(user.id), onStatusChange: async (user, value, reason) => {
+        () => createUserColumns({ onView: can("usuarios_visualizar") ? (user) => setSelectedId(user.id) : undefined, onStatusChange: !can("usuarios_habilitar") ? undefined : async (user, value, reason) => {
             await updateUserStatus(user.id, value, reason);
             setRows((prev) => prev.map((u) => (u.id === user.id ? { ...u, is_active: value } : u)));
         } }),
-        []
+        [can]
     );
 
     // usuarios reales que llegan de la base
@@ -41,11 +46,11 @@ export default function ViewUserListPage () {
                     icon={UsersIcon}
                     title="Listado de usuarios"
                     subtitle="Consulta las cuentas del equipo registradas."
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    className="rounded-m3-lg shadow-m3-2"
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de usuarios</p>
                         <p className="text-2xl font-bold text-bg-w">{totalUsers}</p>
                     </div>
@@ -53,10 +58,26 @@ export default function ViewUserListPage () {
 
                 <DataTable variant="cafe" data={rows} columns={columns} filters={userFilters} initialSort={userInitialSort} />
             </div>
-            <UserDetailModal
-                user={rows.find((u) => u.id === selectedId)}
+            {/* ver usuario: el mismo diseño de la pagina de detalle, dentro de una ventana */}
+            <DetailModal
+                open={Boolean(selectedUser)}
                 onClose={() => setSelectedId(null)}
-            />
+                icon={UserRound}
+                title="Ver usuario"
+                subtitle={selectedUser?.username}
+                size="max-w-6xl"
+                bodyClassName="grid-cols-1"
+                footer={false}
+            >
+                {selectedUser && (
+                    <UserDetails
+                        key={selectedUser.id}
+                        user={toUserView(selectedUser)}
+                        inModal
+                        onStatusChange={(value) => setRows((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, is_active: value } : u)))}
+                    />
+                )}
+            </DetailModal>
         </div>
     )
 }

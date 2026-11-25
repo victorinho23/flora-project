@@ -2,11 +2,12 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AuthLayout, UsersCreateLayout} from "@/shared";
 import UserListPage from "../features/users/pages/UserListPage";
 import HomePage from "../features/home/components/pages/HomePage";
-import SuppliersListPage from "../features/users/pages/SuppliersListPage";
-import MenuListPage from "../features/users/pages/MenuListPage"
-import OrderListPage from "../features/users/pages/OrderListPage"
-import ViewMenuListPage from "../features/users/pages/ViewMenuListPage";
-import ViewOrderListPage from "../features/users/pages/ViewOrderListPage";
+import SuppliersListPage from "@/features/suppliers/pages/SuppliersListPage";
+import MenuListPage from "@/features/products/pages/MenuListPage"
+import OrderListPage from "@/features/orders/pages/OrderListPage"
+import ViewMenuListPage from "@/features/products/pages/ViewMenuListPage";
+import CategoriesPage from "@/features/products/pages/CategoriesPage";
+import ViewOrderListPage from "@/features/orders/pages/ViewOrderListPage";
 import ViewUserListPage from "../features/users/pages/ViewUserListPage";
 import OrdersLayout from "../shared/layouts/OrdersLayout";
 import { CreateDishesLayout, DishDetailsLayout, EditDishLayout, OrderDetailsLayout, OrderEditLayout, SeeUsers, UserEditLayout } from "../shared";
@@ -18,6 +19,9 @@ import { SupplierUpdatePage } from "../features/suppliers";
 import ProtectedRoute from "../shared/components/auth/ProtectedRoute";
 
 
+// Rutas de Flora: cada modulo tiene listado, crear, ver y editar
+// el boton de volver de cada pagina lleva a su "padre" (editar -> ver -> listado -> inicio)
+// permission = permiso que se necesita para entrar a la pagina (el admin los tiene todos)
 const router = createBrowserRouter([
     {
         path: "/",
@@ -27,29 +31,14 @@ const router = createBrowserRouter([
     {
         path: "/auth",
         element: <AuthLayout/>,
-        
-        children: [
-            {
-                index: true,
-            },
-
-        ],
     },
     {
         path: "/home",
         element: <ProtectedRoute><HomePage/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "userList", element: <UserListPage/>},
-            // {path: "userCreate", element: <UserRegisterForm/>},
-
-        ],
     },
    {
         path: "/userCreate",
-        element: <ProtectedRoute><UsersCreateLayout/></ProtectedRoute>,
+        element: <ProtectedRoute permission="usuarios_crear"><UsersCreateLayout/></ProtectedRoute>,
         children: [
 
             {index: true,},
@@ -62,263 +51,108 @@ const router = createBrowserRouter([
     {
         path: "/viewUser",
         element: <ProtectedRoute><SeeUsers/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-            // {path: "viewUsers", element: <SeeUsers/>},
-            // {path: "userModify", element: <UserModify/>},
-
-        ],
     },
     {
         path: "/userEdit",
-        element: <ProtectedRoute><UserEditLayout/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="usuarios_actualizar"><UserEditLayout/></ProtectedRoute>,
     },
     {
         path: "/userList",
-        element: <ProtectedRoute><UserListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="usuarios_listar"><UserListPage/></ProtectedRoute>,
     },
      {
         path: "/listMenu",
-        element: <ProtectedRoute><MenuListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="menu_listar"><MenuListPage/></ProtectedRoute>,
+    },
+    {
+        path: "/categories",
+        element: <ProtectedRoute permission="menu_listar"><CategoriesPage/></ProtectedRoute>,
     },
     {
         path: "/orderList",
-        element: <ProtectedRoute><OrderListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="ordenes_listar"><OrderListPage/></ProtectedRoute>,
     },
     {
         path: "/viewListMenu",
-        element: <ProtectedRoute><ViewMenuListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="menu_listar"><ViewMenuListPage/></ProtectedRoute>,
     },
     {
         path: "/suppliersCreate",
-        element: <ProtectedRoute><SupplierRegisterForm/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="proveedores_registrar"><SupplierRegisterForm/></ProtectedRoute>,
     },
     {
         path: "/listSuppliers",
-        element: <ProtectedRoute><SuppliersListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="proveedores_listar"><SuppliersListPage/></ProtectedRoute>,
     },
     {
         path: "/updateSuppliers",
-        element: <ProtectedRoute><SupplierUpdatePage/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-
-        ],
+        element: <ProtectedRoute permission="proveedores_actualizar"><SupplierUpdatePage/></ProtectedRoute>,
     },
     {
         path: "/viewListOrders",
-        element: <ProtectedRoute><ViewOrderListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="ordenes_listar"><ViewOrderListPage/></ProtectedRoute>,
     },
     {
         path: "/viewlistSuppliers",
-        element: <ProtectedRoute><SuppliersListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="proveedores_listar"><SuppliersListPage/></ProtectedRoute>,
     },
     {
         path: "/viewListUsers",
-        element: <ProtectedRoute><ViewUserListPage/></ProtectedRoute>,
-        children: [
- 
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-
-        ],
+        element: <ProtectedRoute permission="usuarios_listar"><ViewUserListPage/></ProtectedRoute>,
     },
     {
         path: "/createDishes",
-        element: <ProtectedRoute><CreateDishesLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="menu_agregar"><CreateDishesLayout/></ProtectedRoute>,
     },
     {
         path: "/viewDish",
-        element: <ProtectedRoute><DishDetailsLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="menu_visualizar"><DishDetailsLayout/></ProtectedRoute>,
     },
     {
         path: "/dishEdit/:id",
-        element: <ProtectedRoute><EditDishLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/viewDish", element: <DishDetailsLayout/>},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="menu_actualizar"><EditDishLayout/></ProtectedRoute>,
     },
     {
         path: "/createOrders",
-        element: <ProtectedRoute><OrdersLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="ordenes_crear"><OrdersLayout/></ProtectedRoute>,
     },
     {
         path: "/orderView/:id",
-        element: <ProtectedRoute><OrderDetailsLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="ordenes_visualizar"><OrderDetailsLayout/></ProtectedRoute>,
     },
        {
-        path: "orderEdit/:id",
-        element: <ProtectedRoute><OrderEditLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        path: "/orderEdit/:id",
+        element: <ProtectedRoute permission="ordenes_actualizar"><OrderEditLayout/></ProtectedRoute>,
     },
         {
         path: "/permissions",
-        element: <ProtectedRoute><PermissionsLayout/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/createDishes/editDish", element: <DishDetailsLayout/>},
-
-
-        ],
+        element: <ProtectedRoute permission="permisos_gestionar"><PermissionsLayout/></ProtectedRoute>,
     },
     
 
     {
         path: "/createInventory",
-        element: <ProtectedRoute><InventoryRegisterForm/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-        ],
+        element: <ProtectedRoute permission="inventario_crear"><InventoryRegisterForm/></ProtectedRoute>,
     },
     {
         path: "/editSupplier",
-        element: <ProtectedRoute><SupplierRegisterForm/></ProtectedRoute>,
+        element: <ProtectedRoute permission="proveedores_actualizar"><SupplierRegisterForm/></ProtectedRoute>,
     },
     {
         path: "/editInventory",
-        element: <ProtectedRoute><InventoryRegisterForm/></ProtectedRoute>,
+        element: <ProtectedRoute permission="inventario_actualizar"><InventoryRegisterForm/></ProtectedRoute>,
     },
     {
         path: "/listInventory",
-        element: <ProtectedRoute><InventoryListPage/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-        ],
+        element: <ProtectedRoute permission="inventario_listar"><InventoryListPage/></ProtectedRoute>,
     },
     {
         path: "/detailsInventory",
-        element: <ProtectedRoute><InventoryDetailPage/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-        ],
+        element: <ProtectedRoute permission="inventario_visualizar"><InventoryDetailPage/></ProtectedRoute>,
     },
     {
         path: "/updateInventory",
-        element: <ProtectedRoute><InventoryUpdatePage/></ProtectedRoute>,
-        children: [
-
-            {index: true,},
-            // {path: "/dashboard/auth", element: <h1>Hello2</h1>},
-
-        ],
+        element: <ProtectedRoute permission="inventario_actualizar"><InventoryUpdatePage/></ProtectedRoute>,
     },
     
 

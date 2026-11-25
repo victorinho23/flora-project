@@ -8,7 +8,7 @@ export const inventoryProductSchema = z.object({
 
     name: z.string().min(1, "El nombre del producto es obligatorio"),
 
-    barcode: z.string().min(1, "El codigo de barras es obligatorio"),
+    barcode: z.string().min(1, "El código de barras es obligatorio"),
 
     custodian: z.string().min(1, "Debe seleccionar un cuentadante"),
 

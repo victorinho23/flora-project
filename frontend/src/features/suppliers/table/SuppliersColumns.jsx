@@ -73,7 +73,8 @@ export const createSupplierColumns = ({ onView, onEdit, onStatusChange } = {}) =
         return true;
       };
 
-      return <Switch checked={supplier.isActive} onChange={handleChange} />;
+      // sin permiso para cambiar el estado, el switch se ve pero queda bloqueado
+      return <Switch checked={supplier.isActive} onChange={handleChange} disabled={!onStatusChange} />;
     },
   },
 

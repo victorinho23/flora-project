@@ -11,13 +11,15 @@ import { useNavigate } from "react-router-dom";
 
 import { Button, Switch, Navbar, DataTable, Input } from "../../../shared";
 import Tablerowactions from "@/shared/components/Tablerowactions";
-import SupplierDetailModal from "@/features/users/components/SupplierDetailModal";
+import SupplierDetailModal from "@/features/suppliers/components/SupplierDetailModal";
 import { getSuppliers, updateSupplierContacts } from "../services/supplierService";
 import fotoFondo from "@/assets/images/suppliers.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 
 export default function SupplierUpdatePage() {
+    const can = useAccess();
 
     // Copia editable de los proveedores (se editan aqui y se guardan al final)
     const [items, setItems] = useState([]);
@@ -100,13 +102,13 @@ export default function SupplierUpdatePage() {
                 header: "Acciones",
                 cell: ({ row }) => (
                     <Tablerowactions
-                        onView={() => setSelectedSupplier(row.original)}
+                        onView={can("proveedores_visualizar") ? () => setSelectedSupplier(row.original) : undefined}
                         onEdit={() => navigate("/editSupplier", { state: { supplier: row.original } })}
                     />
                 ),
             },
         ],
-        [navigate]
+        [navigate, can]
     );
 
     // Guarda los telefonos y estados editados en el backend
@@ -137,7 +139,7 @@ export default function SupplierUpdatePage() {
                     title="Actualizar proveedores"
                     subtitle="Gestiona y manten actualizados los datos de tus proveedores."
                     onBack={() => navigate("/listSuppliers")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
                             <Button variant="crema" size="sm" aria-label="Notificaciones">
@@ -149,7 +151,7 @@ export default function SupplierUpdatePage() {
 
                 <DataTable variant="cafe" data={items} columns={columns} />
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 rounded-2xl bg-bg-s950 p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 rounded-m3-lg bg-bg-s950 p-4">
                     <Button variant="caramelo" size="md" onClick={handleGuardar}>
                         Guardar cambios
                     </Button>

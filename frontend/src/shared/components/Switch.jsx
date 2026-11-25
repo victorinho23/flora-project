@@ -1,5 +1,5 @@
 // Hooks de React para manejar estado y efetos
-import {useState, useEffect} from "react";
+import {useState} from "react";
 
 // Iconos usados dentro del switch
 import { Check, X } from "lucide-react"
@@ -17,12 +17,13 @@ export default function Switch ({
     // Se inicializa  con el valor recibido desde desde la prop "checked"
     const [isActive, setIsActive] = useState(checked);
 
-    // El efecto que sincroniza el estado interno
-    // Con el valor recibido desde el componente padre
-
-    useEffect(() => {
+    // Si el padre cambia "checked", el estado interno se pone igual en el mismo render
+    // (asi lo recomienda React en vez de un useEffect, que pintaba dos veces)
+    const [lastChecked, setLastChecked] = useState(checked);
+    if (checked !== lastChecked) {
+        setLastChecked(checked);
         setIsActive(checked);
-    },[checked]) // Se ejecuta cada vez que cambia "checked"
+    }
 
     // Funcion que maneja el cambio del switch
     const handleToggle = () => {
@@ -78,7 +79,7 @@ export default function Switch ({
                 ${sizes[size]}
 
                 // Color dependiedo del estado
-                ${isActive ? "bg-green-600" : "bg-bg-p600"}
+                ${isActive ? "bg-m3-success" : "bg-bg-p600"}
 
                 // Estilo cuando esta deshabilitado 
                 ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
@@ -107,7 +108,7 @@ export default function Switch ({
 
             {/** Icono que cambia dependienmdo del estado activo inactivo */}
             {isActive ? (
-                <Check size ={12} className= "text-green-800" /> 
+                <Check size ={12} className= "text-m3-success" /> 
             ) :
                 (
                     <X size={12} className="text-gray-700" />

@@ -11,7 +11,7 @@ export default function Checkbox({
     const variants = {
         // Estos valores deben ser con variables
         latte : `text-br-s900 text-base font-medium [&_input]:accent-[var(--color-bg-t900)]`,
-        chipLatte : `rounded-full border border-bd-s300 bg-bg-w px-4 py-2 font-semibold text-br-s900 transition-colors hover:bg-bg-t50 has-[:checked]:bg-bg-t900 has-[:checked]:border-bd-t900 has-[:checked]:text-bg-w has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-fc-t200 [&_input]:sr-only [&_span]:before:content-['✓'] [&_span]:before:mr-1.5 [&_span]:before:font-bold [&_span]:before:hidden has-[:checked]:[&_span]:before:inline`,
+        chipLatte : `rounded-full border border-bd-s300 bg-bg-w px-4 py-2 font-semibold text-br-s900 transition-colors hover:bg-bg-t50 has-[:checked]:bg-bg-t900 has-[:checked]:border-bd-t900 has-[:checked]:text-bg-w has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-m3-focus [&_input]:sr-only [&_span]:before:content-['✓'] [&_span]:before:mr-1.5 [&_span]:before:font-bold [&_span]:before:hidden has-[:checked]:[&_span]:before:inline`,
     }
 
     return(

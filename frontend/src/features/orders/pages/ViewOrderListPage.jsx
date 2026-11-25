@@ -1,17 +1,20 @@
-// src/features/users/pages/ViewOrderListPage.jsx
+// src/features/orders/pages/ViewOrderListPage.jsx
 // Consulta de ordenes con filtros y reportes, sin editar
-import { DataTable, Navbar } from "../../../shared";
+import { DataTable, Navbar } from "@/shared/index";
 import OrderDetailModal from "@/features/orders/components/OrderDetailModal"
-import { createOrderColumns, orderFilters, orderDateFilter, orderInitialSort } from "../table/OrderColumns"
+import { createOrderColumns, orderFilters, orderDateFilter, orderInitialSort } from "@/features/orders/table/OrderColumns"
 import { getOrders } from "@/features/orders/services/orderService"
 import { showErrorAlert } from "@/shared/services/alertService"
 import { useEffect, useMemo, useState } from "react"
 import { ClipboardList } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-orders.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 
 export default function ViewOrderListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [selectedId, setSelectedId] = useState(null);
     // ordenes reales que llegan de la base
@@ -24,9 +27,9 @@ export default function ViewOrderListPage () {
     // Columnas de la tabla, aqui solo se puede ver el detalle
     const columns = useMemo(
         () => createOrderColumns({
-            onView: (order) => setSelectedId(order.id),
+            onView: can("ordenes_visualizar") ? (order) => setSelectedId(order.id) : undefined,
         }),
-        []
+        [can]
     );
 
     // Datos para las tarjetas de resumen
@@ -44,19 +47,19 @@ export default function ViewOrderListPage () {
                     icon={ClipboardList}
                     title="Lista de órdenes"
                     subtitle="Consulta las órdenes registradas en la cafetería."
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    className="rounded-m3-lg shadow-m3-2"
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de órdenes</p>
                         <p className="text-2xl font-bold text-bg-w">{totalOrders}</p>
                     </div>
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Ingresos totales</p>
                         <p className="text-2xl font-bold text-bg-w">${totalRevenue.toLocaleString("es-CO")}</p>
                     </div>
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Productos vendidos</p>
                         <p className="text-2xl font-bold text-bg-w">{totalItems}</p>
                     </div>

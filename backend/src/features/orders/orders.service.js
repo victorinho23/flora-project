@@ -7,6 +7,12 @@ import { parseIds, parseOption, parseNumber, parseDate } from "../../config/repo
 
 const STATUSES = ["ACTIVA", "LISTA_PARA_ENTREGA", "PAGADA", "CANCELADA"];
 
+// mesas que tiene el restaurante (se cambia en el .env con TOTAL_MESAS)
+const TOTAL_MESAS = Number(process.env.TOTAL_MESAS) || 12;
+
+// si dos meseros abren la misma mesa al mismo tiempo, la base rechaza la segunda (indice unico 0028)
+const isTableTaken = (error) => error.code === "23505" && error.constraint === "ux_orden_mesa_abierta";
+
 const httpError = (status, message, extra = {}) => Object.assign(new Error(message), { status, ...extra });
 
 // arma la url de la imagen de cada platillo y deja customer vacio (no se guarda cliente)
@@ -30,19 +36,30 @@ const prepareItems = async (rawItems = []) => {
 
     if (!grouped.size) throw httpError(400, "Debe agregar al menos un platillo a la orden", { field: "items" });
 
-    const dishes = await ordersRepository.getDishes([...grouped.keys()]);
+    // los platillos quedan en un Map por id, asi cada busqueda es directa y no recorre toda la lista
+    const dishes = new Map((await ordersRepository.getDishes([...grouped.keys()])).map((d) => [d.id, d]));
 
     return [...grouped.entries()].map(([dishId, quantity]) => {
-        const dish = dishes.find((d) => d.id === dishId);
+        const dish = dishes.get(dishId);
         if (!dish) throw httpError(400, "Uno de los platillos ya no existe", { field: "items" });
         return { dishId, quantity, price: dish.precio, active: dish.estado, name: dish.nombre };
     });
 };
 
+// a que estado puede pasar una orden desde el estado en que esta
+// ACTIVA = en cocina, LISTA_PARA_ENTREGA = la comanda salio, PAGADA = mesa cerrada
+// LISTA_PARA_ENTREGA puede volver a ACTIVA si a la mesa le falto algo
+const NEXT_STATUS = {
+    ACTIVA: ["LISTA_PARA_ENTREGA"],
+    LISTA_PARA_ENTREGA: ["ACTIVA", "PAGADA"],
+    PAGADA: [],
+    CANCELADA: [],
+};
+
 const parseTable = (value) => {
     const tableNumber = Number(value);
-    if (!Number.isInteger(tableNumber) || tableNumber < 1) {
-        throw httpError(400, "El numero de mesa debe ser un numero valido", { field: "tableNumber" });
+    if (!Number.isInteger(tableNumber) || tableNumber < 1 || tableNumber > TOTAL_MESAS) {
+        throw httpError(400, `La mesa debe ser un número del 1 al ${TOTAL_MESAS}`, { field: "tableNumber" });
     }
     return tableNumber;
 };
@@ -72,6 +89,11 @@ export const ordersService = {
         return orders.map(toOrder);
     },
 
+    // plano de mesas para todos los meseros (sale de la base, asi todos ven lo mismo)
+    async getTables() {
+        return { total: TOTAL_MESAS, open: await ordersRepository.getOpenTables() };
+    },
+
     async getById(id) {
         const order = await ordersRepository.findById(id);
         if (!order) throw httpError(404, "No se encontro la orden solicitada");
@@ -89,16 +111,18 @@ export const ordersService = {
         const notes = data.notes?.trim() || "";
         const active = await ordersRepository.findActiveByTable(tableNumber);
 
-        // si la mesa ya tiene una orden activa se avisa, y si confirman se agregan alli
-        if (active && !data.merge) {
-            throw httpError(409, `La mesa ${tableNumber} ya tiene una orden activa`, { activeOrderId: active.id });
-        }
-
+        // mesa ocupada: no se puede abrir otra orden hasta que la que tiene se pague o se anule
+        // (los platillos que falten se agregan editando la orden de esa mesa)
         if (active) {
-            return await ordersRepository.addItems(active.id, { notes, items });
+            throw httpError(409, `La mesa ${tableNumber} está ocupada con la orden #${active.id}`, { field: "tableNumber", activeOrderId: active.id });
         }
 
-        return await ordersRepository.create({ waiterId, tableNumber, notes: notes || null, items });
+        try {
+            return await ordersRepository.create({ waiterId, tableNumber, notes: notes || null, items });
+        } catch (error) {
+            if (isTableTaken(error)) throw httpError(409, `La mesa ${tableNumber} se acaba de ocupar, elige otra`, { field: "tableNumber" });
+            throw error;
+        }
     },
 
     async update(id, data) {
@@ -123,12 +147,37 @@ export const ordersService = {
 
         const items = await prepareItems(data.items);
 
-        await ordersRepository.update(id, {
-            waiterId,
-            tableNumber,
-            notes: data.notes?.trim() || null,
-            status,
-            items,
+        try {
+            await ordersRepository.update(id, {
+                waiterId,
+                tableNumber,
+                notes: data.notes?.trim() || null,
+                status,
+                items,
+            });
+        } catch (error) {
+            if (isTableTaken(error)) throw httpError(409, `La mesa ${tableNumber} ya tiene otra orden activa`, { field: "tableNumber" });
+            throw error;
+        }
+    },
+
+    // mueve la orden por el flujo de la comanda: cocina -> lista para entregar -> pagada
+    async changeStatus(id, { status } = {}, currentUserId) {
+        const current = await ordersRepository.findById(id);
+        if (!current) throw httpError(404, "No se encontro la orden solicitada");
+
+        if (!NEXT_STATUS[current.status]?.includes(status)) {
+            throw httpError(400, "La orden no puede pasar a ese estado", { field: "status" });
+        }
+
+        await ordersRepository.updateStatus(id, status);
+
+        await changesRepository.create({
+            usuarioId: currentUserId,
+            tabla: "orden",
+            registroId: id,
+            accion: status,
+            motivo: null,
         });
     },
 

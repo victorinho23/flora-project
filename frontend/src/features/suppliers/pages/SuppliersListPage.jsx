@@ -1,21 +1,24 @@
-// src/features/users/pages/SuppliersListPage.jsx
+// src/features/suppliers/pages/SuppliersListPage.jsx
 // Listado de proveedores con filtros, cambio de estado y reportes
-import { DataTable, Navbar } from "../../../shared";
-import { createSupplierColumns, supplierFilters, supplierInitialSort } from "../table/SuppliersColumns"
+import { DataTable, Navbar } from "@/shared/index";
+import { createSupplierColumns, supplierFilters, supplierInitialSort } from "@/features/suppliers/table/SuppliersColumns"
 import { getSuppliers, getSuppliersReport, updateSupplierStatus } from "@/features/suppliers/services/supplierService"
 import { getInventoryOptions } from "@/features/inventory/services/inventoryService"
 import { showErrorAlert } from "@/shared/services/alertService"
-import { Link, useNavigate } from "react-router-dom"
-import { Button } from "../../../shared"
-import ReportConfigModal from "../reports/components/ReportConfigModal"
-import SupplierDetailModal from "../components/SupplierDetailModal"
-import { supplierReportFields, supplierReportScopes, supplierReportFilters } from "../reports/config/supplierReportFields"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/shared/index"
+import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
+import SupplierDetailModal from "@/features/suppliers/components/SupplierDetailModal"
+import { supplierReportFields, supplierReportScopes, supplierReportFilters } from "@/features/suppliers/reports/config/supplierReportFields"
 import { useEffect, useMemo, useState } from "react"
 import { Truck } from "lucide-react"
 import fotoFondo from "@/assets/images/suppliers.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function SuppliersListPage () {
+    // permisos del usuario: lo que no puede hacer no se muestra (el backend igual lo bloquea)
+    const can = useAccess();
 
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     // Copia de los proveedores para reflejar al instante los cambios de estado
@@ -29,11 +32,11 @@ export default function SuppliersListPage () {
 
     // Columnas de la tabla con las acciones de ver, editar y cambiar estado
     const columns = useMemo(
-        () => createSupplierColumns({ onView: handleView, onEdit: handleEdit, onStatusChange: async (supplier, value, reason) => {
+        () => createSupplierColumns({ onView: can("proveedores_visualizar") ? handleView : undefined, onEdit: can("proveedores_actualizar") ? handleEdit : undefined, onStatusChange: !can("proveedores_habilitar") ? undefined : async (supplier, value, reason) => {
             await updateSupplierStatus(supplier.id, value, reason);
             setRows((prev) => prev.map((s) => (s.id === supplier.id ? { ...s, isActive: value } : s)));
         } }),
-        []
+        [can]
     );
 
     // proveedores reales y productos del inventario para los filtros
@@ -56,25 +59,27 @@ export default function SuppliersListPage () {
                     icon={Truck}
                     title="Listado de proveedores"
                     subtitle="Administra los proveedores registrados y sus datos de contacto."
-                    onBack={() => navigate("/suppliersCreate")}
-                    className="rounded-[1.25rem] shadow-[0_22px_48px_-26px_color-mix(in_srgb,var(--color-bg-s950)_70%,transparent)]"
+                    onBack={() => navigate("/home")}
+                    className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
-                            <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
-                                Reportar proveedor
-                            </Button>
+                            {can("proveedores_reporte") && (
+                                <Button size="sm" variant="crema" onClick={() => setIsReportModalOpen(true)}>
+                                    Reportar proveedor
+                                </Button>
+                            )}
 
-                            <Link to="/suppliersCreate">
-                                <Button size="sm" variant="crema">
+                            {can("proveedores_registrar") && (
+                                <Button size="sm" variant="crema" onClick={() => navigate("/suppliersCreate")}>
                                     Agregar proveedor
                                 </Button>
-                            </Link>
+                            )}
                         </>
                     }
                 />
 
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-[1.25rem] bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-[0_18px_36px_-20px_color-mix(in_srgb,var(--color-bg-t950)_75%,transparent)]">
+                    <div className="text-center px-8 py-4 min-w-44 text-bg-w rounded-m3-lg bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 shadow-m3-2">
                         <p className="text-sm font-medium text-bg-w">Total de proveedores</p>
                         <p className="text-2xl font-bold text-bg-w">{totalSuppliers}</p>
                     </div>
@@ -85,7 +90,7 @@ export default function SuppliersListPage () {
             <SupplierDetailModal
                 supplier={selectedSupplier}
                 onClose={() => setSelectedSupplier(null)}
-                onEdit={handleEdit}
+                onEdit={can("proveedores_actualizar") ? handleEdit : undefined}
             />
 
             <ReportConfigModal

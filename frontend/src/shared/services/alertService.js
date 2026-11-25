@@ -20,10 +20,10 @@ export function showSuccesAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-green-800",
-            confirmButton: "bg-green-800 hover:bg-green-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-success",
+            confirmButton: "m3-state bg-m3-success px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -50,10 +50,10 @@ export function showErrorAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-red-800",
-            confirmButton: "bg-red-800 hover:bg-red-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-error",
+            confirmButton: "m3-state bg-m3-error px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -78,10 +78,10 @@ export function showCreateUserErrorAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-red-800",
-            confirmButton: "bg-red-800 hover:bg-red-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-error",
+            confirmButton: "m3-state bg-m3-error px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -106,11 +106,11 @@ export function showConfirmDeleteAlert({
         showCancelButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
             title: "text-yellow-900",
-            confirmButton: "bg-red-800 hover:bg-red-900 px-4 py-2 rounded-lg text-white",
-            cancelButton: "bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-lg text-white",
+            confirmButton: "m3-state bg-m3-error px-6 py-2.5 rounded-m3-full text-white",
+            cancelButton: "m3-state border border-m3-outline text-m3-on-surface px-6 py-2.5 rounded-m3-full",
         },
 
         buttonsStyling : false
@@ -135,10 +135,10 @@ export function showDeleteSuccessAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-green-800",
-            confirmButton: "bg-green-800 hover:bg-green-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-success",
+            confirmButton: "m3-state bg-m3-success px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -163,10 +163,10 @@ export function showDeleteCancelAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-blue-800",
-            confirmButton: "bg-blue-800 hover:bg-blue-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-info",
+            confirmButton: "m3-state bg-m3-info px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -191,10 +191,10 @@ export function showUnexpectedErrorAlert({
         showConfirmButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
-            title: "text-red-800",
-            confirmButton: "bg-red-800 hover:bg-red-900 px-4 py-2 rounded-lg text-white",
+            title: "text-m3-error",
+            confirmButton: "m3-state bg-m3-error px-6 py-2.5 rounded-m3-full text-white",
         },
 
         buttonsStyling : false
@@ -227,11 +227,11 @@ export function showConfirmAlert({
         showCancelButton: true,
 
         customClass: {
-            popup: "rounded-2xl",
+            popup: "rounded-m3-xl",
             actions: "gap-3",
             title: "text-br-s950",
-            confirmButton: "bg-bg-s950 hover:bg-bg-s800 px-4 py-2 rounded-lg text-white",
-            cancelButton: "bg-gray-700 hover:bg-gray-800 px-4 py-2 rounded-lg text-white",
+            confirmButton: "m3-state bg-bg-s950 px-6 py-2.5 rounded-m3-full text-white",
+            cancelButton: "m3-state border border-m3-outline text-m3-on-surface px-6 py-2.5 rounded-m3-full",
             inputLabel: "text-br-s950 font-semibold",
         },
 

@@ -1,10 +1,10 @@
 // Hook para manejo de estado local en componentes funcionales
-import {useState, useEffect} from "react";
+import {useState} from "react";
 
 // Iconos para el encabezado y el cierre del modal
 import { FileText, X } from "lucide-react";
 
-import { generateReport } from "../services/generateReport";
+import { generateReport } from "@/shared/reports/services/generateReport";
 import { showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
 
 // Componentes UI reutilizables (design system)
@@ -54,7 +54,10 @@ export default function ReportConfigModal ({
     const [selectedFields, setSelectedFields] = useState(() => fields.filter((f) => f.default) // Solo campos marcados por defecto
     );
 
-    useEffect(() => {
+    // si cambian los campos (otro modulo), el formulario vuelve a empezar en el mismo render
+    const [lastFields, setLastFields] = useState(fields);
+    if (fields !== lastFields) {
+        setLastFields(fields);
         setSelectedFields(fields.filter((f) => f.default));
         setScope("all");
         setFilterValue("");
@@ -63,7 +66,7 @@ export default function ReportConfigModal ({
         setPickSearch("");
         setError("");
         setExtra({});
-    }, [fields]);
+    }
     
     // Control de render: si el modal no esta abierto, no se monta en el DOM
     if (!isOpen) return null;
@@ -212,11 +215,11 @@ export default function ReportConfigModal ({
         // Overlay del modal
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             
-            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-bg-w border border-bd-s100 shadow-2xl">
+            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-m3-xl bg-bg-w border border-bd-s100 shadow-m3-3">
 
                 <div className="flex items-center justify-between gap-4 px-6 py-5 bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-bg-w/10 ring-1 ring-bd-w/25 text-br-t100">
+                        <div className="p-2 rounded-m3-sm bg-bg-w/10 ring-1 ring-bd-w/25 text-br-t100">
                             <FileText size={20} />
                         </div>
                         <h2 className="text-lg font-semibold text-bg-w">
@@ -228,7 +231,7 @@ export default function ReportConfigModal ({
                         type="button"
                         onClick={onClose}
                         aria-label="Cerrar"
-                        className="p-1.5 rounded-md text-bg-w hover:bg-bg-w/15 transition-colors"
+                        className="p-1.5 rounded-m3-xs text-bg-w hover:bg-bg-w/15 transition-colors"
                     >
                         <X size={20} />
                     </Button>
@@ -272,7 +275,7 @@ export default function ReportConfigModal ({
                                       checked={checked}   // Estado controlado
                                       onChange={() => handleFieldToggle(field)} // Toggle
                                       className={`
-                                        px-3 py-2 rounded-lg border transition-colors
+                                        px-3 py-2 rounded-m3-sm border transition-colors
                                         ${checked
                                             ? "bg-bg-t50 border-bd-t900"
                                             : "bg-bg-w border-bd-s300 hover:bg-bg-s50"}
@@ -316,7 +319,7 @@ export default function ReportConfigModal ({
                                 onChange={(e) => setPickSearch(e.target.value)}
                                 placeholder="Buscar..."
                             />
-                            <div className="max-h-48 overflow-y-auto rounded-lg border border-bd-s300 divide-y divide-bd-s100">
+                            <div className="max-h-48 overflow-y-auto rounded-m3-sm border border-bd-s300 divide-y divide-bd-s100">
                                 {pickableRecords.map((item) => (
                                     <Checkbox
                                         key={item[idKey]}
@@ -358,7 +361,7 @@ export default function ReportConfigModal ({
                     )}
 
                     {error && (
-                        <p className="text-sm inline-block px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
+                        <p className="text-sm inline-block px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{error}</p>
                     )}
                 </div>
 

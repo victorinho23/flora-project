@@ -5,7 +5,7 @@ import { Search, X, LoaderCircle } from "lucide-react";
 import clsx from "clsx";
 
 const baseStyles =
-  "search flex items-center rounded-xl px-3 transition-all border";
+  "search flex items-center rounded-m3-full px-4 transition-all duration-200 ease-m3-standard border";
 
 const sizeStyles = {
   sm: "h-9 text-sm",
@@ -16,8 +16,8 @@ const sizeStyles = {
 
 const variantStyles = {
   white: "bg-transparent border-white hover:border-white text-white [&_input]:placeholder:text-br-p50",
-  latte: "bg-bg-w border-bd-s400 text-br-s950 shadow-sm [&_input]:placeholder:text-br-s500 focus-within:border-bd-t900",
-  cafe: "rounded-md bg-bg-s900 border-bd-p400 text-bg-w [&_input]:placeholder:text-br-p300 focus-within:border-bd-t300 [&_button]:hover:bg-bg-w/15",
+  latte: "bg-bg-w border-bd-s400 text-br-s950 shadow-m3-1 [&_input]:placeholder:text-br-s500 focus-within:border-bd-t900",
+  cafe: "rounded-m3-xs bg-bg-s900 border-bd-p400 text-bg-w [&_input]:placeholder:text-br-p300 focus-within:border-bd-t300 [&_button]:hover:bg-bg-w/15",
 };
 
 const SearchField = forwardRef(
@@ -49,7 +49,15 @@ const SearchField = forwardRef(
         onClear();
     };
 
-    const handlesubmit = (e) => {
+    // Enter busca. Se usa en el input (no un <form>) para que el buscador pueda ir
+    // dentro de otros formularios, como el de crear orden, sin enviarlos por error
+    const handleKeyDown = (e) => {
+        if (e.key === "Escape" && value) {
+            e.preventDefault();
+            handleClear();
+            return;
+        }
+        if (e.key !== "Enter") return;
         e.preventDefault();
 
         if(disabled || loading) return;
@@ -58,8 +66,8 @@ const SearchField = forwardRef(
     };
 
     return (
-        <form
-            onSubmit={handlesubmit}
+        <div
+            role="search"
             className={clsx(
                 baseStyles,
                 sizeStyles[size],
@@ -67,8 +75,9 @@ const SearchField = forwardRef(
                 fullWidth && "w-full",
                 disabled && "opacity-60 pointer-events-none",
                 error 
-                   ?  "border-red-500 focus-within:ring-2 focus-within:ring-red-500"
-                     : "focus-within:ring-2 focus-within:ring-fc-t200",
+                   ?  "border-m3-error focus-within:ring-2 focus-within:ring-m3-error"
+                     // en la barra oscura el anillo de foco es claro, en fondos claros es caramelo oscuro
+                     : variant === "white" ? "focus-within:ring-2 focus-within:ring-fc-t200" : "focus-within:ring-2 focus-within:ring-m3-focus",
                 className,
             )}
         >
@@ -88,6 +97,7 @@ const SearchField = forwardRef(
                 aria-label={ariaLabel}
                 autoComplete={autoComplete}
                 onChange={(e) => onChange(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="search__input flex-1 bg-transparent px-2 outline-none"
             />
 
@@ -96,12 +106,12 @@ const SearchField = forwardRef(
                     type="button"
                     onClick={handleClear}
                     aria-label="Limpiar búsqueda"
-                    className="search__clear rounded-full p-1 hover:bg-neutral-200"
+                    className="search__clear m3-state rounded-m3-full p-1"
                 >
                     <X className="size-4 text-current" />
                 </button>
             )}
-        </form>
+        </div>
     );
   }
 );

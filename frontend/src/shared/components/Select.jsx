@@ -14,8 +14,8 @@ export default function Select({
 
 }){
    const variants = {
-        latte: { label: `text-br-s900 text-sm! font-semibold`, control: `bg-bg-w border border-bd-s400 text-br-s950 shadow-sm focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200 focus:outline-none`, optionText: `text-br-s950`, optionBg: `bg-bg-w` },
-        cafe: { label: `text-br-p100 text-sm! font-semibold`, control: `bg-bg-s900 border border-bd-p400 text-bg-w focus:border-bd-t300 focus:ring-2 focus:ring-fc-t200 focus:outline-none`, optionText: `text-bg-w`, optionBg: `bg-bg-s900` },
+        latte: { label: `text-br-s900 text-sm! font-semibold`, control: `bg-bg-w border border-bd-s400 text-br-s950 shadow-m3-1 focus:border-bd-t900 focus:ring-2 focus:ring-m3-focus focus:outline-none`, optionText: `text-br-s950`, optionBg: `bg-bg-w` },
+        cafe: { label: `text-br-p100 text-sm! font-semibold`, control: `bg-bg-s900 border border-bd-p400 text-bg-w focus:border-bd-t900 focus:ring-2 focus:ring-fc-t200 focus:outline-none`, optionText: `text-bg-w`, optionBg: `bg-bg-s900` },
     }
 
     // Tamaños: lg para formularios y md para filtros y tablas
@@ -54,7 +54,7 @@ export default function Select({
             className={`
                 ${width}
                 ${sizes[size] ?? sizes.lg}
-                rounded-md
+                rounded-m3-xs
                 border
                 hover:border-2
                 hover:border-focus-border
@@ -76,7 +76,7 @@ export default function Select({
 
         </select>
         {error && (
-                <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{error}</p>
+                <p className="text-sm place-self-start inline-block mt-1 px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{error}</p>
             )}
 
 

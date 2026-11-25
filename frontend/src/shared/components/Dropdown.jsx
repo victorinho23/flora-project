@@ -6,10 +6,11 @@ import {
     useState,
     cloneElement
 } from "react"
+import { Link } from "react-router-dom"
 
 const variants = {};
 
-export const DropdownContext = createContext(null)
+const DropdownContext = createContext(null)
 
 export function Dropdown({
     children,
@@ -102,13 +103,9 @@ export function DropdownContent({children, variant, className = ""}) {
                 border
                 text-text-invert
                 p-1
-                dark:bg-neutral-950/80
-                backdrop-blur-[1px]
-                shadow-lg
-                rounded-2xl
+                shadow-m3-2
+                rounded-m3-xs
                 overflow-hidden
-                hover:shadow-black
-                transition-shadow duration-700
                 ${variant ? variants[variant] : ""}
                 ${className}
                 `}
@@ -119,10 +116,15 @@ export function DropdownContent({children, variant, className = ""}) {
 }
 
 // Item
+// si llega "to" se pinta como enlace (para navegar), si no como boton (para acciones)
+// asi no queda un enlace metido dentro de un boton
+// "active" marca la opcion de la pagina en la que estas
 
 export function DropdownItem({
     children,
     onClick,
+    to,
+    active = false,
     className = ""
 }) {
     const {setOpen} = useContext(DropdownContext)
@@ -132,13 +134,33 @@ export function DropdownItem({
         setOpen(false)
     }
 
+    const styles = `
+        m3-state block w-full text-left px-3 py-2.5 rounded-m3-xs text-m3-label-large
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus
+        ${active ? "bg-m3-secondary-container text-m3-on-secondary-container font-semibold" : ""}
+        ${className}
+    `
+
+    if (to) {
+        return (
+            <Link
+                role="menuitem"
+                to={to}
+                onClick={handleClick}
+                aria-current={active ? "page" : undefined}
+                className={styles}
+            >
+                {children}
+            </Link>
+        )
+    }
+
     return (
         <button
+            type="button"
             role="menuitem"
             onClick = {handleClick}
-            className={`
-                w-full text-left px-3 py-2 rounded-lg hover:bg-bg-s700 focus:bg-bg-s700 focus:outline-none transition-colors ${className}
-            `}
+            className={styles}
         >
             {children}
         </button>

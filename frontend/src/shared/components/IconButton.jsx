@@ -33,20 +33,18 @@ export const IconButton = React.forwardRef(function IconButton(
     },
     ref
 ) {
+    // boton de icono de Material 3: circular, con capa de estado y area tactil de 48px
     const baseStyles = `
+        m3-state
         inline-flex items-center justify-center
-        rounded-full
-        transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-        disabled:opacity-50 disabled:pointer-events-none
+        rounded-m3-full
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus focus-visible:ring-offset-2
+        disabled:opacity-40 disabled:pointer-events-none
     `;
 
     const variants = {
         primary: `
             text-white
-            hover:bg-bg-w/15
-            focus-visible:ring-neutral-300
-            w-10
         `
     };
 
@@ -60,7 +58,7 @@ export const IconButton = React.forwardRef(function IconButton(
             className={clsx(baseStyles, variants[variant], className, {
                 "bg-bg-w/15": isActive,
             })}
-            styles={{
+            style={{
                 width: `${hitSize}px`,
                 height: `${hitSize}px`,
             }}

@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { UserDetails } from "../../features/users";
-import { getUserById } from "@/features/users/services/userServices";
+import { getUserById, toUserView } from "@/features/users/services/userServices";
 import { getSessionUser } from "@/features/auth/services/logoutService";
-import documentTypes from "@/data/select/documentTypes.json";
-import typesUser from "@/data/select/typesUser.json";
-
-// Busca el texto legible de un id en una lista (tipo de documento, tipo de usuario)
-const labelOf = (list, id) => list.find((item) => item.id === id)?.label ?? id;
 
 // Layout de la ruta para ver el detalle de un usuario
 // muestra el usuario que se acaba de crear o editar, si no hay uno muestra el de la sesion
@@ -19,25 +14,7 @@ export default function SeeUsers() {
     useEffect(() => {
         if (!id) return;
         getUserById(id)
-            .then((data) =>
-                setUser({
-                    id: data.id,
-                    userName: data.username,
-                    userDocumentTypeLabel: labelOf(documentTypes, data.document_type),
-                    userDocumentNumber: data.document_number,
-                    userTypeLabel: labelOf(typesUser, data.usertype),
-                    userEmail: data.useremail,
-                    userBusinessEmail: data.business_email,
-                    userAddress: data.address,
-                    userPhone: data.userphone,
-                    userContractStartDate: data.start_date,
-                    userContractEndDate: data.end_date,
-                    isActive: data.is_active,
-                    imageUrl: data.image,
-                    // el usuario tal cual llega del backend, para mandarlo a editar
-                    raw: data,
-                })
-            )
+            .then((data) => setUser(toUserView(data)))
             .catch((err) => setError(err.message));
     }, [id]);
 

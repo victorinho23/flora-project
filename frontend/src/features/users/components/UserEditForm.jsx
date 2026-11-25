@@ -1,20 +1,30 @@
 // src/features/users/components/UserEditForm.jsx
 // Formulario para actualizar una cuenta de usuario
-import { useState, useEffect } from "react";
-import { Input, Select, Button, Imageinput, Navbar } from "@/shared";
+// Caja clara: a la izquierda la persona y las secciones, a la derecha la seccion elegida
+import { useState, useEffect, useMemo } from "react";
+import { IdCard, KeyRound, Phone, CalendarDays, Camera, Check, UserCog, Lock, ShieldCheck } from "lucide-react";
+import { Input, Select, Button, Navbar, ToggleSwitch } from "@/shared";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
-import authBg from "@/assets/icons/usuario.png";
-import authicon from "@/assets/icons/usuario.png";
 import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { updateUser } from "../services/userServices";
 
 
+// secciones del riel: titulo, descripcion y campos que tiene cada una
+const SECTIONS = [
+    { id: "datos", title: "Datos personales", sub: "Nombre, rol y documento", icon: IdCard, fields: ["userName", "userType", "userDocumentTypes", "userDocumentNumber"] },
+    { id: "acceso", title: "Acceso y seguridad", sub: "Correo para entrar y contraseña", icon: KeyRound, fields: ["userEmail", "userEmailConfirm", "userBusinessEmail", "userPassword"] },
+    { id: "contacto", title: "Contacto", sub: "Teléfonos y dirección", icon: Phone, fields: ["userPhone", "userPhoneSecondary", "userAddress", "userImage"] },
+    { id: "contrato", title: "Contrato", sub: "Fechas del contrato", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate"] },
+    { id: "estado", title: "Estado de la cuenta", sub: "Si puede o no entrar a Flora", icon: Lock, fields: ["isActive"] },
+];
 
 export default function UserEditForm({ user }){
+    // si se abrio desde el listado se vuelve al listado, si no al detalle del usuario
+    const location = useLocation();
 
     const navigate = useNavigate();
 
@@ -22,7 +32,8 @@ export default function UserEditForm({ user }){
 
 
     // Estado del formulario precargado con los datos del usuario seleccionado
-    const [formData, setFormData] = useState({
+    // (initial se guarda para saber que cambio)
+    const [initial] = useState(() => ({
         userName: user.userName || "",
         userEmail: user.userEmail || "",
         userEmailConfirm: user.userEmail || "",
@@ -41,9 +52,8 @@ export default function UserEditForm({ user }){
         isStaff: user.isStaff || false,
         isActive: user.isActive || false,
         isSuperUser: user.isSuperUser || false,
-
-
-    });
+    }));
+    const [formData, setFormData] = useState(initial);
 
 
     
@@ -91,8 +101,9 @@ export default function UserEditForm({ user }){
     });
 
     setErrors(fieldErrors);
-
-
+    // se abre la primera seccion que tenga un error
+    const firstSection = SECTIONS.find((item) => item.fields.some((name) => fieldErrors[name]));
+    if (firstSection) setSection(firstSection.id);
     return;
 }
     const confirmation = await showConfirmAlert({
@@ -112,10 +123,14 @@ export default function UserEditForm({ user }){
             text: "Cuenta actualizada exitosamente",
             timer: 3000,
         });
-        navigate(`/viewUser`, { state: { id: user.id } })
+        navigate(`/viewUser`, { state: { id: user.id }, replace: true })
     } catch(error){
         console.log("Error: ", error.message)
-        if (error.field) setErrors({ [error.field]: error.message });
+        if (error.field) {
+            setErrors({ [error.field]: error.message });
+            const fieldSection = SECTIONS.find((item) => item.fields.includes(error.field));
+            if (fieldSection) setSection(fieldSection.id);
+        }
         await showUnexpectedErrorAlert({
             text: error.message,
             timer: 3000,
@@ -123,6 +138,18 @@ export default function UserEditForm({ user }){
     }
 
 };
+
+    // seccion abierta en la caja
+    const [section, setSection] = useState("datos");
+    const current = SECTIONS.find((item) => item.id === section);
+
+    // que campos cambiaron: la foto y la contraseña cuentan si escribieron algo
+    const isChanged = (name) => {
+        if (name === "userImage") return formData.userImage.length > 0;
+        if (name === "userPassword") return formData.userPassword !== "";
+        return String(formData[name] ?? "") !== String(initial[name] ?? "");
+    };
+    const changes = SECTIONS.flatMap((item) => item.fields).filter((name) => name !== "userEmailConfirm" && isChanged(name)).length;
 
     const [documentTypes, setDocumentTypes] = useState([])
     const [typesUser, setTypeUser] = useState([])
@@ -142,218 +169,213 @@ export default function UserEditForm({ user }){
         },[])
 
 
+    // foto del encabezado: la nueva si eligieron una, si no la actual (la url temporal se libera al cambiar)
+    const newImage = useMemo(() => (formData.userImage[0] ? URL.createObjectURL(formData.userImage[0]) : null), [formData.userImage]);
+    useEffect(() => () => {
+        if (newImage) URL.revokeObjectURL(newImage);
+    }, [newImage]);
+    const avatar = newImage ?? user.imageUrl;
+    const initials = formData.userName.trim().split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
+    const roleLabel = typesUser.find((type) => type.id === formData.userType)?.label ?? "Sin rol";
+
+    // datos rapidos del contrato, calculados con las fechas del formulario (la fecha de hoy se toma una vez al abrir)
+    const [today] = useState(() => Date.now());
+    const contract = useMemo(() => {
+        const day = 24 * 60 * 60 * 1000;
+        const start = Date.parse(formData.userContractStartDate);
+        const end = Date.parse(formData.userContractEndDate);
+        if (Number.isNaN(end)) return { left: "Sin fecha de fin", pct: null };
+        const left = Math.ceil((end - today) / day);
+        const pct = Number.isNaN(start) || end <= start ? null : Math.min(100, Math.max(0, Math.round(((today - start) / (end - start)) * 100)));
+        return { left: left > 0 ? `${left} días restantes` : "Contrato vencido", pct };
+    }, [formData.userContractStartDate, formData.userContractEndDate, today]);
+
+    // a donde vuelve la flecha y el boton cancelar
+    const goBack = () => navigate(location.state?.from === "/userList" ? "/userList" : "/viewUser", { state: { id: user.id } });
+
+    // un campo de texto con lo de siempre (mismo estilo en todas las tarjetas)
+    const field = (name, type, label, placeholder, htmlFor) => (
+        <Input
+            name={name}
+            type={type}
+            label={label}
+            value={formData[name]}
+            placeholder={placeholder}
+            htmlFor={htmlFor}
+            variant="latte"
+            onChange={handleChange}
+            error={errors[name]}
+        />
+    );
+
     return(
-        
-        <div className="relative min-h-screen w-full max-w-7xl mx-auto flex flex-col gap-6 xl:gap-4 p-5 sm:p-8 xl:py-4">
+        <div className="min-h-screen w-full flex flex-col">
 
             <Navbar
                 variant="banda"
                 image={fotoFondo}
-                avatar={authBg}
+                icon={UserCog}
                 title="Modificar usuario"
-                onBack={() => navigate("/viewUser")}
-                backSide="right"
-                className="rounded-2xl shadow-lg"
+                onBack={goBack}
             />
 
-            <form 
-                action=""
-                onSubmit={handleSubmit}
-                className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start gap-6 bajo:gap-4 [&_.w-80]:w-full"
-            >
-               <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] p-4 sm:p-5 bajo:sm:p-4 xl:col-start-1">
-                   <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
-                       <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
-                       Datos del usuario
-                   </h2>
-                   <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 bajo:gap-3 items-end">
-                       <Input 
-                           type="text"
-                           name="userName"
-                           label="Nombre"
-                           value={formData.userName}
-                           placeholder="Escribe tu nombre"
-                           htmlFor= "user-name"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userName}
-                       />
+            {/* fondo con manchas de luz; se mueven un poco al cambiar de seccion */}
+            <main className="relative flex-1 flex overflow-hidden bg-bg-p50 px-4 sm:px-10 py-8">
+                <span aria-hidden="true" className="pointer-events-none absolute -top-40 -left-40 w-[46rem] h-[34rem] rounded-m3-full bg-bg-t300/60 blur-3xl transition-transform duration-700 ease-out" style={{ transform: `translate(${SECTIONS.indexOf(current) * 12}%, ${SECTIONS.indexOf(current) * 6}%)` }} />
+                <span aria-hidden="true" className="pointer-events-none absolute -bottom-40 -right-40 w-[42rem] h-[32rem] rounded-m3-full bg-bg-t100 blur-3xl transition-transform duration-700 ease-out" style={{ transform: `translate(-${SECTIONS.indexOf(current) * 8}%, -${SECTIONS.indexOf(current) * 5}%)` }} />
 
-                       <Select 
-                           label="Tipo de documento"
-                           name="userDocumentTypes"
-                           value={formData.userDocumentTypes}
-                           htmlFor="userDocumentTypes"
-                           options={documentTypes}
-                           onChange={handleChange}
-                           error={errors.userDocumentTypes}
-                           variant="latte"
-                       />
-                       <Input 
-                       name="userDocumentNumber"
-                       type="text"
-                       label="Numero de documento"
-                       value={formData.userDocumentNumber}
-                       placeholder="Escribe tu numero documento"
-                       htmlFor= "user-document-number"
-                       variant="latte"
-                       onChange={handleChange}
-                       error={errors.userDocumentNumber}
-                   />
+                <form
+                    onSubmit={handleSubmit}
+                    noValidate
+                    className="relative w-full max-w-[100rem] mx-auto my-auto flex flex-col lg:flex-row bg-bg-w/95 border border-bd-w rounded-m3-xl shadow-m3-3 overflow-hidden [&_.w-80]:w-full"
+                >
 
-                       <Select 
-                           label="Tipo de usuario"
-                           name="userType"
-                           value={formData.userType}
-                           htmlFor="userType"
-                           options={typesUser}
-                           onChange={handleChange}
-                           error={errors.userType}
-                           variant="latte"
-                       />
+                    {/* ===== Riel claro: la persona y las secciones ===== */}
+                    <aside className="lg:w-80 shrink-0 flex flex-col gap-2 p-6 bg-linear-170 from-bg-t50 to-bg-p50 border-b lg:border-b-0 lg:border-r border-bd-t300">
+                        <div className="flex flex-col items-center gap-2 pb-5 mb-2 border-b border-bd-t300 text-center">
+                            <div className="relative w-22 h-22">
+                                <div className="w-full h-full rounded-m3-full overflow-hidden ring-4 ring-bg-w bg-bg-t800 text-bg-w grid place-items-center">
+                                    {avatar ? (
+                                        <img src={avatar} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-m3-headline-small font-bold">{initials || "?"}</span>
+                                    )}
+                                </div>
+                                {/* boton para cambiar la foto: abre el selector de archivos */}
+                                <label
+                                    htmlFor="user-photo"
+                                    title="Cambiar foto"
+                                    className="m3-state absolute -right-1 -bottom-1 w-9 h-9 rounded-m3-full border-2 border-bd-w bg-bg-s950 text-bg-w grid place-items-center cursor-pointer focus-within:ring-2 focus-within:ring-m3-focus"
+                                >
+                                    <Camera size={16} />
+                                    <span className="sr-only">Cambiar foto de perfil</span>
+                                    <input
+                                        id="user-photo"
+                                        type="file"
+                                        accept="image/png,image/jpeg"
+                                        className="sr-only"
+                                        onChange={(e) => setFormData((prev) => ({ ...prev, userImage: e.target.files?.[0] ? [e.target.files[0]] : [] }))}
+                                    />
+                                </label>
+                            </div>
+                            <h2 className="text-m3-title-large font-bold text-br-s950 break-words">{formData.userName || "Nombre del usuario"}</h2>
+                            <span className="inline-flex items-center gap-1.5 h-7 px-3 rounded-m3-sm bg-bg-t50 border border-bd-t300 text-m3-label-large font-semibold text-br-t950">
+                                <ShieldCheck size={14} />
+                                {roleLabel}
+                            </span>
+                            {errors.userImage && <p className="text-m3-body-small font-semibold text-m3-error">{errors.userImage}</p>}
+                        </div>
 
-                       <Input 
-                           name="userEmail"
-                           type="email"
-                           label="Correo electronico"
-                           value={formData.userEmail}
-                           placeholder="Escribe tu Correo Electronico"
-                           htmlFor= "user-email"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userEmail}
-                       />
+                        {/* secciones: la que tiene cambios muestra "editado" */}
+                        <nav aria-label="Secciones del usuario" className="flex flex-col gap-1">
+                            {SECTIONS.map((item) => {
+                                const on = item.id === section;
+                                const edited = item.fields.some(isChanged);
+                                return (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        onClick={() => setSection(item.id)}
+                                        aria-current={on ? "page" : undefined}
+                                        className={`m3-state flex items-center gap-3 px-4 py-3 rounded-m3-lg border text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${on ? "bg-bg-w border-bd-t300 shadow-m3-1 text-br-s950" : "border-transparent text-br-s900"}`}
+                                    >
+                                        <item.icon size={20} className="shrink-0 text-br-t900" />
+                                        <span className="flex-1 text-m3-title-small font-bold">{item.title}</span>
+                                        {edited && <span className="h-5 px-2 inline-flex items-center rounded-m3-full bg-bg-t100 text-br-t950 text-m3-label-small font-bold">editado</span>}
+                                    </button>
+                                );
+                            })}
+                        </nav>
+                    </aside>
 
-                       <Input 
-                           name="userPassword"
-                           type="password"
-                           label="Contraseña (opcional)"
-                           value={formData.userPassword}
-                           placeholder="Déjala vacía para conservarla"
-                           htmlFor= "user-password"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userPassword}
-                       />
+                    {/* ===== La seccion elegida ===== */}
+                    <section className="flex-1 min-w-0 flex flex-col" aria-labelledby="edit-section">
+                        <div className="flex-1 flex flex-col gap-7 p-6 sm:p-10">
+                            <div className="flex flex-col gap-1">
+                                <h3 id="edit-section" className="text-m3-headline-medium font-bold text-br-s950">{current.title}</h3>
+                                <p className="text-m3-body-medium text-br-s800">{current.sub}</p>
+                            </div>
 
-                       <Input 
-                           name="userEmailConfirm"
-                           type="email"
-                           label="Confirmar correo electronico"
-                           value={formData.userEmailConfirm}
-                           placeholder="Confirma tu correo electronico"
-                           htmlFor= "user-email-confirm"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userEmailConfirm}
-                       />
+                            {section === "datos" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                    {field("userName", "text", "Nombre completo", "Escribe el nombre", "user-name")}
+                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={typesUser} onChange={handleChange} error={errors.userType} variant="latte" />
+                                    <Select label="Tipo de documento" name="userDocumentTypes" value={formData.userDocumentTypes} htmlFor="userDocumentTypes" options={documentTypes} onChange={handleChange} error={errors.userDocumentTypes} variant="latte" />
+                                    {field("userDocumentNumber", "text", "Número de documento", "Solo números", "user-document-number")}
+                                </div>
+                            )}
 
-                       <Input 
-                           name="userAddress"
-                           type="text"
-                           label="Direccion"
-                           value={formData.userAddress}
-                           placeholder="Direccion"
-                           htmlFor= "user-direction"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userAddress}
-                       />
+                            {section === "acceso" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                    {field("userEmail", "email", "Correo electrónico", "nombre@correo.com", "user-email")}
+                                    {field("userEmailConfirm", "email", "Confirmar correo", "Escríbelo otra vez", "user-email-confirm")}
+                                    {field("userBusinessEmail", "email", "Correo empresarial", "nombre@flora.com", "user-business-email")}
+                                    {field("userPassword", "password", "Nueva contraseña (opcional)", "Déjala vacía para conservarla", "user-password")}
+                                </div>
+                            )}
 
-                       <Input 
-                           name="userBusinessEmail"
-                           type="email"
-                           label="Correo empresarial"
-                           value={formData.userBusinessEmail}
-                           placeholder="Correo empresarial"
-                           htmlFor= "user-business-email"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userBusinessEmail}
-                       />
+                            {section === "contacto" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                    {field("userPhone", "tel", "Teléfono", "Ej: 3001234567", "user-Phone")}
+                                    {field("userPhoneSecondary", "tel", "Teléfono secundario (opcional)", "Otro número", "user-phone-secondary")}
+                                    <div className="sm:col-span-2">{field("userAddress", "text", "Dirección", "Ej: Calle 10 # 5-20", "user-direction")}</div>
+                                </div>
+                            )}
 
-                       <Input 
-                           name="userContractStartDate"
-                           type="date"
-                           label="Fecha inicio contrato"
-                           value={formData.userContractStartDate}
-                           htmlFor= "user-contract-start"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userContractStartDate}
-                       />
+                            {section === "contrato" && (
+                                <div className="flex flex-col gap-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
+                                        {field("userContractStartDate", "date", "Fecha de inicio", "", "user-contract-start")}
+                                        {field("userContractEndDate", "date", "Fecha de fin", "", "user-contract-end")}
+                                    </div>
+                                    {/* cuanto del contrato ya paso, segun las fechas */}
+                                    {contract.pct !== null && (
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="flex justify-between text-m3-label-large font-semibold text-br-s900">
+                                                <span>Tiempo cumplido · {contract.left}</span>
+                                                <span>{contract.pct}%</span>
+                                            </div>
+                                            <div className="h-2 rounded-m3-full bg-bg-s100" role="progressbar" aria-valuenow={contract.pct} aria-valuemin={0} aria-valuemax={100} aria-label="Tiempo de contrato cumplido">
+                                                <div className="h-full rounded-m3-full bg-bg-t800" style={{ width: `${contract.pct}%` }} />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
+                            {section === "estado" && (
+                                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
+                                    {/* al inhabilitar pide el motivo, se aplica al guardar */}
+                                    <ToggleSwitch
+                                        checked={formData.isActive}
+                                        onChange={toggleActiveStatus}
+                                        label={formData.isActive ? "Cuenta activa" : "Cuenta inactiva"}
+                                    />
+                                    <span className="text-m3-body-medium text-br-s800">{formData.isActive ? "Puede entrar a Flora" : "No puede entrar ni hacer nada"}</span>
+                                </div>
+                            )}
+                        </div>
 
+                        {/* barra de abajo: cuantos cambios hay y los botones */}
+                        <div className="flex flex-wrap items-center gap-3 px-6 sm:px-10 py-4 border-t border-bd-s100">
+                            <span aria-hidden="true" className={`w-2.5 h-2.5 rounded-m3-full ${changes ? "bg-bg-t800" : "bg-bg-s300"}`} />
+                            <span className="text-m3-title-small font-semibold text-br-s950" aria-live="polite">
+                                {changes ? `${changes} ${changes === 1 ? "cambio" : "cambios"} sin guardar` : "Sin cambios"}
+                            </span>
+                            <div className="ml-auto flex flex-wrap gap-3">
+                                <Button variant="crema" size="md" type="button" onClick={goBack}>
+                                    Descartar
+                                </Button>
+                                <Button variant="espresso" size="md" type="submit" disabled={!changes}>
+                                    <Check size={18} />
+                                    Guardar cambios
+                                </Button>
+                            </div>
+                        </div>
+                    </section>
 
-                       <Input 
-                           name="userPhone"
-                           type="tel"
-                           label="Telefono"
-                           value={formData.userPhone}
-                           placeholder="Escribe tu numero de telefono"
-                           htmlFor= "user-Phone"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userPhone}
-                       />
-
-                        <Input 
-                           name="userContractEndDate"
-                           type="date"
-                           label="Fecha fin contrato"
-                           value={formData.userContractEndDate}
-                           htmlFor= "user-contract-end"
-                           variant="latte"
-                           onChange={handleChange}
-                           error={errors.userContractEndDate}
-                       />
-
-                       <div className="flex items-end justify-center sm:justify-start">
-                           <Button
-                               variant={formData.isActive ? "statusActive" : "statusInactive"}
-                               size="lgg"
-                               type="button"
-                               onClick={toggleActiveStatus}
-                           >
-                               <img className="w-4 h-4 brightness-0 invert" src={authicon} alt="" />
-                               {formData.isActive ? "Estado Activo" : "Estado Inactivo"}
-                           </Button>
-                       </div>
-
-                       </div>
-               </div>
-
-                <div className="flex justify-center xl:justify-end xl:col-start-1">
-                    <Button
-                        variant="primary"
-                        size="w"
-                        type="submit"
-                    >
-                        Guardar cambios
-                    </Button>
-                </div>
-
-                <div className="flex flex-col items-center gap-4 xl:col-start-2 xl:row-start-1 xl:row-span-2">
-                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-[0.9rem] bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-[0_12px_28px_-22px_color-mix(in_srgb,var(--color-bg-s950)_50%,transparent)] p-4 sm:p-5 bajo:sm:p-4 items-center">
-                        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
-                            <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
-                            Foto de perfil
-                        </h2>
-                        <Imageinput
-                            value={formData.userImage}
-                            onChange={(files) =>
-                                setFormData((prev) => ({...prev, userImage: files}))
-                            }
-                            multiple={true}
-                            variant="latte"
-                        />
-                        {errors.userImage && (
-                            <span className="inline-block rounded bg-red-50 px-2 py-0.5 text-red-900 font-medium text-sm">{errors.userImage}</span>
-                        )}
-                    </div>
-                </div>{/** Actions */}
-            </form>
-            
-                </div>
-)
+                </form>
+            </main>
+        </div>
+    )
 }

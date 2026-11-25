@@ -2,7 +2,7 @@
 
 import { dishesRepository } from "./dishes.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
-import { imageUrl } from "../../config/upload.js";
+import { imageUrl, imagePath, removeImage } from "../../config/upload.js";
 import { parseIds } from "../../config/reportFilters.js";
 
 const httpError = (status, message, field) => Object.assign(new Error(message), { status, field });
@@ -17,7 +17,7 @@ const cleanData = (data, file) => ({
     categoryId: Number(data.dishCategory),
     description: data.dishDescription?.trim() || null,
     isEnabled: String(data.isEnabled) !== "false",
-    image: file ? `/uploads/${file.filename}` : null,
+    image: imagePath(file),
 });
 
 const validate = async (dish, excludeId) => {
@@ -59,13 +59,22 @@ export const dishesService = {
         if (!current) throw httpError(404, "No se encontro el platillo solicitado");
 
         const dish = cleanData(data, file);
-        await validate(dish, id);
+        try {
+            await validate(dish, id);
 
-        if (!dish.isEnabled && current.is_active && await dishesRepository.isInActiveOrder(id)) {
-            throw httpError(409, `${current.name} está en una orden en proceso. Inhabilítalo cuando la orden se pague o se cancele.`);
+            if (!dish.isEnabled && current.is_active && await dishesRepository.isInActiveOrder(id)) {
+                throw httpError(409, `${current.name} está en una orden en proceso. Inhabilítalo cuando la orden se pague o se cancele.`);
+            }
+
+            const updated = await dishesRepository.update(id, dish);
+            // si llego foto nueva, la vieja ya no se usa y se borra
+            if (file) removeImage(current.image);
+            return updated;
+        } catch (error) {
+            // si algo fallo, la foto que alcanzo a subir no queda huerfana
+            if (file) removeImage(imagePath(file));
+            throw error;
         }
-
-        return await dishesRepository.update(id, dish);
     },
 
     async updateStatus(id, { isActive, reason }, currentUserId) {

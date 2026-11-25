@@ -18,7 +18,7 @@ import { Button, SearchField, Select, Input } from "@/shared"
 
 const tableVariants = {
     cafe: {
-        panel: "bg-bg-s950 border-t-[5px] border-t-bd-t800 rounded-2xl shadow-[0_26px_50px_-24px_color-mix(in_srgb,var(--color-bg-s950)_80%,transparent)] border-t-[5px]! border-t-bd-t800! rounded-2xl!", header: "text-bg-w bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 [&_th_svg]:text-bg-w",
+        panel: "bg-bg-s950 border-t-[5px] border-t-bd-t800 rounded-m3-lg shadow-m3-3 border-t-[5px]! border-t-bd-t800! rounded-m3-lg!", header: "text-bg-w bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 [&_th_svg]:text-bg-w",
         row: "hover:bg-bg-s800", rowText: "text-bg-w", zebra: "bg-bg-s900",
         border: "border-bg-w/10", inputBorder: "border-bd-p400", inputBg: "bg-bg-s900", inputText: "text-bg-w",
         inputPlaceholder: "placeholder:text-br-p300", selectBg: "bg-bg-s900 [&_option]:bg-bg-s900 [&_option]:text-bg-w", selectText: "text-bg-w",
@@ -27,7 +27,7 @@ const tableVariants = {
         field: "cafe",
     },
     default: {
-        panel: "bg-bg-w shadow-sm", header: "bg-bg-g50 text-bg-g950",
+        panel: "bg-bg-w shadow-m3-1", header: "bg-bg-g50 text-bg-g950",
         row: "hover:bg-bg-g50", rowText: "text-bg-g900", zebra: "bg-bg-g50/70",
         border: "border-bd-g200", inputBorder: "border-bd-g600", inputBg: "bg-bg-w", inputText: "text-bg-g900",
         inputPlaceholder: "placeholder:text-br-g700", selectBg: "bg-bg-w", selectText: "text-bg-g900",
@@ -54,6 +54,46 @@ const matchesFilter = (row, columnId, value) => {
   }
   if (Array.isArray(cell)) return cell.map(String).includes(String(value));
   return String(cell) === String(value);
+};
+
+// ===== Busqueda inteligente =====
+// - no importan tildes ni mayusculas ("menu" encuentra "Menú")
+// - varias palabras se buscan todas, en cualquier orden ("laura activa" -> ordenes activas de Laura)
+// - busca en todos los datos del registro (aunque la columna no se vea) y en precios con o sin puntos
+const normalize = (text) => String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+// el texto de busqueda de cada registro se arma UNA sola vez y queda guardado,
+// en las siguientes busquedas solo se compara (no se vuelve a armar)
+const searchIndex = new WeakMap();
+const collect = (value, out) => {
+  if (value == null) return;
+  if (Array.isArray(value)) return value.forEach((item) => collect(item, out));
+  if (typeof value === "object") return Object.values(value).forEach((item) => collect(item, out));
+  if (typeof value === "number") out.push(value, value.toLocaleString("es-CO"));
+  else out.push(value);
+};
+const rowText = (original) => {
+  let text = searchIndex.get(original);
+  if (text === undefined) {
+    const parts = [];
+    collect(original, parts);
+    text = normalize(parts.join(" "));
+    searchIndex.set(original, text);
+  }
+  return text;
+};
+
+// la tabla llama esto por cada columna; como el resultado es por registro, la primera vez decide
+let lastQuery = "";
+let lastWords = [];
+const smartSearch = (row, _columnId, query) => {
+  if (query !== lastQuery) {
+    lastQuery = query;
+    lastWords = normalize(query).split(/\s+/).filter(Boolean);
+  }
+  if (!lastWords.length) return true;
+  const text = rowText(row.original);
+  return lastWords.every((word) => text.includes(word));
 };
 
 export default function DataTable({ data, columns, variant, filters = [], dateFilter, initialSort = [], emptyText = "No hay elementos registrados" }) {
@@ -127,6 +167,10 @@ export default function DataTable({ data, columns, variant, filters = [], dateFi
       filterFn: matchesFilter
     },
 
+    // buscador general: sin tildes, varias palabras y en todos los datos del registro
+    globalFilterFn: smartSearch,
+    getColumnCanGlobalFilter: () => true,
+
     onColumnFiltersChange: setColumnFilters,
 
     onSortingChange: setSorting,
@@ -159,7 +203,7 @@ export default function DataTable({ data, columns, variant, filters = [], dateFi
 
 
   return (
-    <div className={`rounded-xl border shadow-xl overflow-hidden ${v.panel} ${v.border}`}>
+    <div className={`rounded-m3-md border shadow-m3-3 overflow-hidden ${v.panel} ${v.border}`}>
 
 
       {/* ================== TOOLBAR ================== */}

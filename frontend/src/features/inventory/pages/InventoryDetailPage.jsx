@@ -10,9 +10,10 @@ import { ArrowLeft, Pencil, Package } from "lucide-react";
 
 import { getInventory } from "../services/inventoryService";
 import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
-const STAT = "border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-[1.25rem] bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-[0_26px_50px_-28px_color-mix(in_srgb,var(--color-bg-s950)_55%,transparent)]";
+const STAT = "border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1";
 
 const toMoney = (value) => (value != null ? `$${Number(value).toLocaleString("es-CO")}` : null);
 
@@ -46,7 +47,10 @@ const suggestionsFor = (inventory, term) => {
     });
 };
 
-export default function InventoryDetailPage() {
+// inModal: se abre como ventana desde la lupa del listado (sin fondo ni encabezado de pagina)
+// onEdit(item): que hacer al tocar "Modificar" estando en la ventana
+export default function InventoryDetailPage({ inModal = false, onEdit }) {
+    const can = useAccess();
 
     const { id: paramId } = useParams();
     const location = useLocation();
@@ -120,11 +124,80 @@ export default function InventoryDetailPage() {
           ].filter((field) => field.value !== undefined && field.value !== null && field.value !== "")
         : [];
 
+    // buscador y ficha del producto: es lo mismo en la pagina y en la ventana
+    const body = (
+        <>
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row sm:items-end gap-3 mb-6">
+                <Input
+                    label="Buscar por ID, código de barras o nombre"
+                    htmlFor="inventory-search"
+                    variant="latte"
+                    fullWidth
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Ej: 001, 172345678 o Espresso"
+                />
+                <Button variant="espresso" size="md" type="submit">
+                    Buscar
+                </Button>
+            </form>
+
+            {searchError && (
+                <div className="mb-6 space-y-3">
+                    <p className="text-sm inline-block px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{searchError}</p>
+                    {suggestions.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                            {suggestions.map((record) => (
+                                <Button key={record.id} variant="crema" size="sm" type="button" onClick={() => pickSuggestion(record)}>
+                                    {record.name}
+                                </Button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Caso: registro no encontrado */}
+            {!item ? (
+                <div className="rounded-m3-md border border-bd-s100 bg-bg-s50 p-6">
+                    <p className="text-base text-br-s950">
+                        No se encontró el producto. Búscalo por su ID, código de barras o nombre.
+                    </p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {fields.map((field) => (
+                        <div key={field.label} className={`border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-m3-1 rounded-m3-md px-4 py-3 ${field.wide ? "sm:col-span-2" : ""}`}>
+                            <p className="text-sm font-medium text-br-s800 mb-1">{field.label}</p>
+                            <div className="text-base font-semibold text-br-s950 break-words">{field.value || "—"}</div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </>
+    );
+
+    if (inModal) {
+        return (
+            <div className="flex flex-col">
+                {body}
+                {item && can("inventario_actualizar") && onEdit && (
+                    <div className="flex justify-end mt-6">
+                        <Button variant="espresso" size="sm" type="button" onClick={() => onEdit(item)}>
+                            <Pencil size={16} />
+                            Modificar
+                        </Button>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
     return (
         <div
             className="min-h-screen w-full flex items-center justify-center p-6 md:p-10 bg-bg-p500 bg-fixed bg-[radial-gradient(50rem_32rem_at_100%_-5%,color-mix(in_srgb,var(--color-bg-t300)_40%,transparent),transparent_60%),radial-gradient(46rem_30rem_at_-5%_105%,color-mix(in_srgb,var(--color-bg-s300)_50%,transparent),transparent_62%),linear-gradient(160deg,var(--color-bg-p400)_0%,var(--color-bg-p600)_55%,var(--color-bg-s200)_100%)]"
         >
-            <div className={`w-full max-w-3xl rounded-xl p-6 md:p-8 ${STAT}`}>
+            <div className={`w-full max-w-3xl rounded-m3-md p-6 md:p-8 ${STAT}`}>
 
                 {/* Encabezado */}
                 <Navbar
@@ -141,11 +214,11 @@ export default function InventoryDetailPage() {
                                 Volver al listado
                             </Button>
 
-                            {item && (
+                            {item && can("inventario_actualizar") && (
                                 <Button
                                     variant="crema"
                                     size="sm"
-                                    onClick={() => navigate("/editInventory", { state: { item } })}
+                                    onClick={() => navigate("/editInventory", { state: { item, from: "/detailsInventory" } })}
                                 >
                                     <Pencil size={16} />
                                     Modificar
@@ -155,53 +228,7 @@ export default function InventoryDetailPage() {
                     }
                 />
 
-                <form onSubmit={handleSearch} className="flex flex-col sm:flex-row sm:items-end gap-3 mb-6">
-                    <Input
-                        label="Buscar por ID, código de barras o nombre"
-                        htmlFor="inventory-search"
-                        variant="latte"
-                        fullWidth
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        placeholder="Ej: 001, 172345678 o Espresso"
-                    />
-                    <Button variant="espresso" size="md" type="submit">
-                        Buscar
-                    </Button>
-                </form>
-
-                {searchError && (
-                    <div className="mb-6 space-y-3">
-                        <p className="text-sm inline-block px-2 py-0.5 rounded bg-red-50 text-red-900 font-medium">{searchError}</p>
-                        {suggestions.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {suggestions.map((record) => (
-                                    <Button key={record.id} variant="crema" size="sm" type="button" onClick={() => pickSuggestion(record)}>
-                                        {record.name}
-                                    </Button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Caso: registro no encontrado */}
-                {!item ? (
-                    <div className="rounded-xl border border-bd-s100 bg-bg-s50 p-6">
-                        <p className="text-base text-br-s950">
-                            No se encontró el producto. Búscalo por su ID, código de barras o nombre.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {fields.map((field) => (
-                            <div key={field.label} className={`border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 from-bg-t50 to-bg-w shadow-[0_8px_20px_-16px_color-mix(in_srgb,var(--color-bg-s950)_45%,transparent)] rounded-xl px-4 py-3 ${field.wide ? "sm:col-span-2" : ""}`}>
-                                <p className="text-sm font-medium text-br-s800 mb-1">{field.label}</p>
-                                <div className="text-base font-semibold text-br-s950 break-words">{field.value || "—"}</div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {body}
             </div>
         </div>
     );
