@@ -4,7 +4,7 @@ import authBg from "@/assets/images/cafe.png";
 import logo from "@/assets/icons/flora-icon.svg";
 import { Input, Button, Checkbox } from "@/shared";
 import { loginSchema } from "../schemas/userSchema";
-import { ForgotPasswordModal, DataPolicyModal } from "../../features/users";
+import { ForgotPasswordModal, DataPolicyModal, SUPPORT_EMAIL } from "../../features/users";
 import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/cafe.png";
 import { login } from "@/features/auth/services/authService";
@@ -211,6 +211,14 @@ export default function AuthLayout() {
                                         Continuar
                                     </Button>
                                 </div>
+
+                                {/* soporte para quien no tiene cuenta o no puede entrar */}
+                                <p className="w-full max-w-80 mt-2 pt-4 border-t border-bd-s100 text-center text-sm text-br-s800">
+                                    ¿No tienes cuenta o no puedes entrar? Escríbenos a soporte:
+                                    <a href={`mailto:${SUPPORT_EMAIL}?subject=Soporte%20Flora`} className="block font-semibold text-br-t900 underline underline-offset-4">
+                                        {SUPPORT_EMAIL}
+                                    </a>
+                                </p>
 
                                 <Outlet />
                             </form>
