@@ -242,14 +242,31 @@ export const userService = {
         }));
     },
 
+    // lo que necesita la gestion de permisos para un usuario:
+    // groupPermissions = los que le da su grupo, granted / denied = los individuales que se le dieron o quitaron
     async getPermissions(userId) {
-        return await userRepository.getPermissions(userId);
+        const [individual, groupPermissions] = await Promise.all([
+            userRepository.getPermissions(userId),
+            userRepository.getGroupPermissions(userId),
+        ]);
+        return {
+            groupPermissions,
+            granted: individual.filter((permission) => permission.permitido),
+            denied: individual.filter((permission) => !permission.permitido),
+        };
     },
 
-    async updatePermissions(userId, permissionIds = []) {
+    // granted = ids que se le dan, denied = ids que se le quitan aunque su grupo los tenga
+    // (permissionIds es la forma vieja: solo los que se le dan)
+    async updatePermissions(userId, { granted, denied, permissionIds } = {}) {
         const user = await userRepository.findById(userId);
         if (!user) throw httpError(404, "Usuario no encontrado");
-        const result = await userRepository.updatePermissions(userId, permissionIds.map(Number));
+
+        const toIds = (list) => [...new Set((list ?? []).map(Number).filter(Number.isInteger))];
+        const give = toIds(granted ?? permissionIds);
+        const remove = toIds(denied).filter((id) => !give.includes(id));
+
+        const result = await userRepository.updatePermissions(userId, { granted: give, denied: remove });
         accessService.invalidate();
         return result;
     },

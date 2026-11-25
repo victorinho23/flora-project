@@ -247,12 +247,14 @@ export const userRepository = {
   },
 
   // permisos que el usuario tiene asignados directamente (no los del grupo)
+  // permitido = TRUE se le dio, FALSE se le quito
   async getPermissions(userId) {
     const query = `
         SELECT
             p.permission_id,
             p.permission_name,
-            p.permission_codename
+            p.permission_codename,
+            up.permitido
         FROM user_permissions up
         INNER JOIN permissions p
             ON p.permission_id = up.permission_id
@@ -264,7 +266,27 @@ export const userRepository = {
     return result.rows;
   },
 
-  async updatePermissions(userId, permissionIds) {
+  // permisos que el usuario recibe por sus grupos activos
+  async getGroupPermissions(userId) {
+    const query = `
+        SELECT DISTINCT p.permission_codename
+        FROM group_permissions gp
+        INNER JOIN permissions p
+            ON p.permission_id = gp.permission_id
+        INNER JOIN user_groups ug
+            ON ug.group_id = gp.group_id
+        INNER JOIN groups g
+            ON g.group_id = ug.group_id
+        WHERE ug.user_id = $1
+          AND g.is_active = TRUE;
+    `;
+
+    const result = await pool.query(query, [userId]);
+    return result.rows.map((row) => row.permission_codename);
+  },
+
+  // granted = ids que se le dan, denied = ids que se le quitan
+  async updatePermissions(userId, { granted = [], denied = [] }) {
     const client = await pool.connect();
 
     try {
@@ -272,13 +294,14 @@ export const userRepository = {
 
       await client.query(`DELETE FROM user_permissions WHERE user_id = $1`, [userId]);
 
-      for (const permissionId of permissionIds) {
+      for (const [permissionId, permitido] of [...granted.map((id) => [id, true]), ...denied.map((id) => [id, false])]) {
         await client.query(
           `
-          INSERT INTO user_permissions (user_id, permission_id)
-          VALUES ($1, $2)
+          INSERT INTO user_permissions (user_id, permission_id, permitido)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (user_id, permission_id) DO UPDATE SET permitido = EXCLUDED.permitido
           `,
-          [userId, permissionId],
+          [userId, permissionId, permitido],
         );
       }
 

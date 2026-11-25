@@ -15,6 +15,8 @@ export default function PermissionsForm() {
     const [targetUser, setTargetUser] = useState("");
     const [targetGroup, setTargetGroup] = useState("");
     const [permissions, setPermissions] = useState({});
+    // permisos que el usuario elegido recibe por su grupo (para saber que se le da o se le quita)
+    const [groupOfUser, setGroupOfUser] = useState(new Set());
     const [errors, setErrors] = useState({});
 
     // datos que llegan del backend
@@ -52,11 +54,23 @@ export default function PermissionsForm() {
         setPermissions(groupId ? toChecked(await getGroupPermissions(groupId)) : {});
     };
 
-    // al elegir un usuario se cargan sus permisos individuales (y se limpia el grupo)
+    // al elegir un usuario se marcan los permisos que de verdad tiene (y se limpia el grupo):
+    // los de su grupo + los que se le dieron - los que se le quitaron
     const handleUserChange = async (userId) => {
         setTargetUser(userId);
         setTargetGroup("");
-        setPermissions(userId ? toChecked(await getUserPermissions(userId)) : {});
+        if (!userId) {
+            setGroupOfUser(new Set());
+            setPermissions({});
+            return;
+        }
+        const data = await getUserPermissions(userId);
+        const fromGroup = new Set(data.groupPermissions ?? []);
+        const denied = new Set((data.denied ?? []).map((permission) => permission.permission_codename));
+        const effective = { ...Object.fromEntries([...fromGroup].map((code) => [code, true])), ...toChecked(data.granted ?? []) };
+        denied.forEach((code) => delete effective[code]);
+        setGroupOfUser(fromGroup);
+        setPermissions(effective);
     };
 
     const togglePermission = (id, value) => {
@@ -96,7 +110,15 @@ export default function PermissionsForm() {
         if (targetGroup) {
             await updateGroupPermissions(targetGroup, permissionIds);
         } else {
-            await updateUserPermissions(targetUser, permissionIds);
+            // al usuario solo se le guarda la diferencia con su grupo:
+            // granted = encendidos que el grupo no da, denied = apagados que el grupo si da
+            const granted = allPermissions
+                .filter((permission) => permissions[permission.permission_codename] && !groupOfUser.has(permission.permission_codename))
+                .map((permission) => permission.permission_id);
+            const denied = allPermissions
+                .filter((permission) => !permissions[permission.permission_codename] && groupOfUser.has(permission.permission_codename))
+                .map((permission) => permission.permission_id);
+            await updateUserPermissions(targetUser, { granted, denied });
         }
 
         await showSuccesAlert({

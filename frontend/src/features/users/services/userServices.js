@@ -60,10 +60,11 @@ export async function getUserPermissions(id) {
     return await request(`${USERS_URL}/${id}/permissions`);
 }
 
-export async function updateUserPermissions(id, permissionIds) {
+// granted = permisos que se le dan, denied = los que se le quitan aunque su grupo los tenga
+export async function updateUserPermissions(id, { granted = [], denied = [] }) {
     return await request(`${USERS_URL}/${id}/permissions`, {
         method: "PUT",
-        body: { permissionIds },
+        body: { granted, denied },
     });
 }
 
