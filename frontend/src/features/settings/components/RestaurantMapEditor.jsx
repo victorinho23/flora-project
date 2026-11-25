@@ -4,8 +4,8 @@
 // paredes, cocina, barra, baños, entrada... y despues pone cada mesa en su lugar.
 // Asi el mesero, con solo mirar el mapa, sabe a donde tiene que ir
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff } from "lucide-react";
-import { Button, Select } from "@/shared";
+import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff, Layers } from "lucide-react";
+import { Button, Select, Input } from "@/shared";
 import RestaurantMap from "./RestaurantMap";
 import { AREAS, cellKey } from "./mapAreas";
 import { showConfirmAlert, showConfirmDeleteAlert, showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
@@ -29,14 +29,19 @@ const TOOLS = [
     { id: "mesa", label: "Mesas", icon: Armchair, swatch: "bg-bg-t900 text-bg-w" },
 ];
 
-// posiciones de las mesas que vienen de la base: id -> { x, y }
-const positionsOf = (tables) => new Map(tables.filter((table) => table.x != null && table.y != null).map((table) => [table.id, { x: table.x, y: table.y }]));
+// posiciones de las mesas de este piso que vienen de la base: id -> { x, y }
+const positionsOf = (tables, floorId) => new Map(
+    tables.filter((table) => table.floorId === floorId && table.x != null && table.y != null).map((table) => [table.id, { x: table.x, y: table.y }]),
+);
 
-// map: el mapa guardado; tables: todas las mesas; onSave(datos): guarda en el backend; canEdit: si puede pintar
-// la pagina le cambia la key cada vez que recarga de la base, asi el borrador vuelve a empezar desde lo guardado
-export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
+// map: el piso guardado { id, name, cols, rows, cells }; tables: todas las mesas; floors: todos los pisos (para avisar
+// cuales mesas estan en otro piso); onSave(datos): guarda el piso; onDelete: borra el piso (no llega si es el unico)
+// canEdit: si puede pintar. La pagina le cambia la key cada vez que recarga, asi el borrador vuelve a empezar desde lo guardado
+export default function RestaurantMapEditor({ map, tables, floors = [], onSave, onDelete, canEdit }) {
     const [draft, setDraft] = useState(map);
-    const [positions, setPositions] = useState(() => positionsOf(tables));
+    const [positions, setPositions] = useState(() => positionsOf(tables, map.id));
+    // piso donde esta cada mesa que no es de este, para marcarla en la lista (ej: "P2")
+    const floorLabel = useMemo(() => new Map(floors.map((floor, index) => [floor.id, `P${index + 1}`])), [floors]);
     const [tool, setTool] = useState("pared");
     const [selectedId, setSelectedId] = useState(null);
     const [dirty, setDirty] = useState(false);
@@ -196,11 +201,12 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
     const handleSave = async () => {
         const result = await showConfirmAlert({
             title: "¿Guardar el mapa?",
-            text: `Los meseros verán este mapa al buscar las mesas. ${unplaced.length ? `${unplaced.length} mesa(s) quedan sin ubicar.` : "Todas las mesas están ubicadas."}`,
+            text: `Los meseros verán ${draft.name} al buscar las mesas. ${tables.length - unplaced.length} mesa(s) quedan en este piso.`,
             confirmButtonText: "Guardar mapa",
         });
         if (!result.isConfirmed) return;
         await onSave({
+            name: draft.name,
             cols: draft.cols,
             rows: draft.rows,
             cells: draft.cells,
@@ -225,24 +231,30 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
     );
 
     return (
-        <section aria-label="Mapa del restaurante" className="rounded-m3-lg border border-bd-s100 bg-bg-w shadow-m3-2 overflow-hidden">
+        <section aria-label={`Mapa: ${draft.name}`} className="rounded-m3-lg border border-bd-s100 bg-bg-w shadow-m3-2 overflow-hidden">
             {/* encabezado de la tarjeta con las acciones del mapa */}
             <div className="flex flex-wrap items-center gap-3 px-5 py-4 bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950">
                 <MapIcon size={22} className="text-br-t100" />
                 <div className="min-w-0">
-                    <h2 className="text-m3-title-large font-bold text-bg-w">Mapa del restaurante</h2>
+                    <h2 className="text-m3-title-large font-bold text-bg-w">{draft.name}</h2>
                     <p className="text-sm text-br-p100">
                         {canEdit ? "Pinta tu negocio y pon cada mesa donde está; los meseros lo ven al buscar las mesas." : "Así ven los meseros el restaurante."}
                     </p>
                 </div>
                 {canEdit && (
                     <div className="flex flex-wrap items-center gap-2 ml-auto">
+                        {onDelete && (
+                            <Button size="sm" variant="crema" type="button" onClick={onDelete}>
+                                <Layers size={16} />
+                                Eliminar piso
+                            </Button>
+                        )}
                         {dirty && <span className="px-3 py-1 rounded-m3-sm bg-m3-secondary-container text-m3-on-secondary-container text-m3-label-medium font-semibold">Cambios sin guardar</span>}
                         <Button size="sm" variant="crema" type="button" onClick={handleClear}>
                             <Trash2 size={16} />
                             Limpiar
                         </Button>
-                        <Button size="sm" variant="crema" type="button" disabled={!dirty} onClick={() => { setDraft(map); setPositions(positionsOf(tables)); setDirty(false); }}>
+                        <Button size="sm" variant="crema" type="button" disabled={!dirty} onClick={() => { setDraft(map); setPositions(positionsOf(tables, map.id)); setDirty(false); }}>
                             <RotateCcw size={16} />
                             Descartar
                         </Button>
@@ -257,6 +269,23 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
             <div className={`grid gap-5 p-5 ${canEdit ? "xl:grid-cols-[17rem_minmax(0,1fr)]" : ""}`}>
                 {canEdit && (
                     <aside className="flex flex-col gap-5">
+                        {/* nombre del piso: es lo que ve el mesero en las pestañas del mapa */}
+                        <div className="[&_.w-80]:w-full">
+                            <Input
+                                type="text"
+                                name="floorName"
+                                label="Nombre del piso"
+                                htmlFor={`floor-name-${map.id}`}
+                                variant="latte"
+                                value={draft.name}
+                                maxLength={40}
+                                onChange={(e) => {
+                                    setDraft((prev) => ({ ...prev, name: e.target.value }));
+                                    setDirty(true);
+                                }}
+                            />
+                        </div>
+
                         {/* escanear: foto del plano o croquis del negocio con la camara del celular o desde la galeria */}
                         <div className="flex flex-col gap-2 rounded-m3-md border border-dashed border-bd-t800 bg-bg-p50 p-3">
                             <p className="flex items-center gap-2 text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
@@ -331,21 +360,24 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
                         <div>
                             <p className="mb-2 flex items-center justify-between text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
                                 Mesas
-                                <span className="normal-case tracking-normal text-m3-label-medium font-semibold text-br-s800">{tables.length - unplaced.length} de {tables.length} ubicadas</span>
+                                <span className="normal-case tracking-normal text-m3-label-medium font-semibold text-br-s800">{tables.length - unplaced.length} en este piso</span>
                             </p>
                             <div className="grid grid-cols-4 sm:grid-cols-8 xl:grid-cols-4 gap-2">
                                 {placed.map((table) => {
                                     const missing = unplaced.includes(table);
+                                    // mesa ubicada en otro piso: si se pone aqui, se pasa a este piso al guardar
+                                    const elsewhere = missing && table.floorId && table.floorId !== map.id ? floorLabel.get(table.floorId) : null;
                                     return (
                                         <button
                                             key={table.id}
                                             type="button"
                                             onClick={() => pickTable(table)}
                                             aria-pressed={table.id === selectedId}
-                                            aria-label={`Mesa ${table.number}, ${missing ? "sin ubicar" : "ubicada"}${table.active ? "" : ", deshabilitada"}`}
-                                            className={`m3-state h-11 rounded-m3-sm text-m3-label-large font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${missing ? "border-2 border-dashed border-bd-t800 bg-bg-p50 text-br-t950" : "border border-transparent bg-bg-t900 text-bg-w"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""} ${table.active ? "" : "opacity-50"}`}
+                                            aria-label={`Mesa ${table.number}, ${elsewhere ? `en el piso ${elsewhere}` : missing ? "sin ubicar" : "en este piso"}${table.active ? "" : ", deshabilitada"}`}
+                                            className={`m3-state relative h-11 rounded-m3-sm text-m3-label-large font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${missing ? "border-2 border-dashed border-bd-t800 bg-bg-p50 text-br-t950" : "border border-transparent bg-bg-t900 text-bg-w"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""} ${table.active ? "" : "opacity-50"}`}
                                         >
                                             {table.number}
+                                            {elsewhere && <span className="absolute -top-1.5 -right-1.5 px-1 rounded-m3-xs bg-bg-s950 text-bg-w text-[0.6rem] leading-4">{elsewhere}</span>}
                                         </button>
                                     );
                                 })}

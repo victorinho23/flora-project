@@ -4,7 +4,7 @@
 import { pool } from "../../config/db.js";
 
 // columnas con los nombres que usa el frontend
-const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y`;
+const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y, plano_id AS "floorId"`;
 
 export const tablesRepository = {
     // todas (pagina de configuracion) o solo las activas (plano de las ordenes)
@@ -53,26 +53,44 @@ export const tablesRepository = {
         return result.rows[0] ?? null;
     },
 
-    // el mapa del restaurante (solo hay uno)
-    async getMap() {
-        const result = await pool.query(`SELECT columnas AS cols, filas AS rows, celdas AS cells FROM plano WHERE id = 1;`);
+    // pisos del mapa del restaurante, en su orden
+    async getMaps() {
+        const result = await pool.query(`
+            SELECT id, nombre AS name, columnas AS cols, filas AS rows, celdas AS cells
+            FROM plano
+            ORDER BY orden, id;
+        `);
+        return result.rows;
+    },
+
+    async findMap(id) {
+        const result = await pool.query(`SELECT id, nombre AS name FROM plano WHERE id = $1;`, [id]);
         return result.rows[0] ?? null;
     },
 
-    // guarda el dibujo y la celda de cada mesa en una sola transaccion
-    async saveMap({ cols, rows, cells, positions }) {
+    // piso nuevo vacio, queda de ultimo
+    async createMap(name) {
+        const result = await pool.query(
+            `INSERT INTO plano (nombre, orden) VALUES ($1, COALESCE((SELECT MAX(orden) FROM plano), 0) + 1) RETURNING id;`,
+            [name],
+        );
+        return result.rows[0].id;
+    },
+
+    // guarda el dibujo del piso y la celda de cada mesa en una sola transaccion
+    async saveMap(id, { name, cols, rows, cells, positions }) {
         const client = await pool.connect();
         try {
             await client.query("BEGIN");
             await client.query(
-                `INSERT INTO plano (id, columnas, filas, celdas, fecha_actualizacion) VALUES (1, $1, $2, $3, NOW())
-                 ON CONFLICT (id) DO UPDATE SET columnas = $1, filas = $2, celdas = $3, fecha_actualizacion = NOW();`,
-                [cols, rows, JSON.stringify(cells)],
+                `UPDATE plano SET nombre = $2, columnas = $3, filas = $4, celdas = $5, fecha_actualizacion = NOW() WHERE id = $1;`,
+                [id, name, cols, rows, JSON.stringify(cells)],
             );
-            // primero se quitan todas del mapa y luego se ponen las que llegaron
-            await client.query(`UPDATE mesa SET pos_x = NULL, pos_y = NULL;`);
-            for (const { id, x, y } of positions) {
-                await client.query(`UPDATE mesa SET pos_x = $2, pos_y = $3 WHERE id = $1;`, [id, x, y]);
+            // primero se quitan del piso todas sus mesas y luego se ponen las que llegaron
+            // (si una mesa estaba en otro piso, se pasa a este)
+            await client.query(`UPDATE mesa SET pos_x = NULL, pos_y = NULL, plano_id = NULL WHERE plano_id = $1;`, [id]);
+            for (const position of positions) {
+                await client.query(`UPDATE mesa SET pos_x = $2, pos_y = $3, plano_id = $4 WHERE id = $1;`, [position.id, position.x, position.y, id]);
             }
             await client.query("COMMIT");
         } catch (err) {
@@ -81,5 +99,11 @@ export const tablesRepository = {
         } finally {
             client.release();
         }
+    },
+
+    // al borrar un piso sus mesas quedan sin ubicar (no se borran)
+    async removeMap(id) {
+        await pool.query(`UPDATE mesa SET pos_x = NULL, pos_y = NULL, plano_id = NULL WHERE plano_id = $1;`, [id]);
+        await pool.query(`DELETE FROM plano WHERE id = $1;`, [id]);
     },
 };
