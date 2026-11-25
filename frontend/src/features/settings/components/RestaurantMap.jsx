@@ -41,7 +41,8 @@ function buildLabels(cells) {
 // cellProps(x, y): props extra de cada celda (el editor las usa para pintar con el mouse o el dedo)
 // fitScreen: el mapa se achica lo necesario para verse completo en la pantalla sin bajar (ventana del mesero)
 // photo: foto escaneada del negocio que va detras de la cuadricula para calcar encima (solo en el editor)
-export default function RestaurantMap({ map, tables = [], renderTable, cellProps, fitScreen = false, photo, className = "" }) {
+// minCell: lo minimo que mide cada celda (en rem) antes de deslizarse de lado; la vista previa del escaneo usa menos
+export default function RestaurantMap({ map, tables = [], renderTable, cellProps, fitScreen = false, photo, minCell = 3, className = "" }) {
     const { cols, rows, cells } = map;
 
     // mesa que hay en cada celda, para buscarla directo al dibujar
@@ -62,7 +63,7 @@ export default function RestaurantMap({ map, tables = [], renderTable, cellProps
                 className={`relative grid gap-px p-px rounded-m3-md bg-bd-s100 border border-bd-s300 select-none ${className}`}
                 style={{
                     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                    minWidth: `${cols * 3}rem`,
+                    minWidth: `${cols * minCell}rem`,
                     ...(fitScreen && { width: "100%", maxWidth: `calc((100vh - 20rem) * ${cols / rows})`, marginInline: "auto" }),
                 }}
             >
