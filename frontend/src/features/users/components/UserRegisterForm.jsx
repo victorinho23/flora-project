@@ -2,7 +2,8 @@
 // Asistente en 4 pasos dentro de una caja: a la izquierda el riel con los pasos, a la derecha el paso actual
 import { useState, useEffect, useMemo } from "react";
 import { User, IdCard, KeyRound, Contact, CalendarDays, Check, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
-import { Input, Select, Button, Imageinput, Navbar } from "@/shared";
+import { Input, Select, Button, Imageinput, Navbar, Checkbox } from "@/shared";
+import DataPolicyModal from "./DataPolicyModal";
 import { getGroups } from "@/features/permissions/services/groupService";
 import { getGroupPermissions } from "@/features/permissions/services/permissionService";
 import { getDocumentTypes } from "@/services/selectServices";
@@ -19,7 +20,7 @@ const STEPS = [
     { title: "Identificación", sub: "Quién es y qué rol va a tener en Flora", icon: IdCard, fields: ["userName", "userType", "userDocumentTypes", "userDocumentNumber"] },
     { title: "Acceso a Flora", sub: "Con este correo y la contraseña la persona entra al sistema", icon: KeyRound, fields: ["userEmail", "userEmailConfirm", "userPassword", "userBusinessEmail", "userBusinessEmailConfirm"] },
     { title: "Contacto y foto", sub: "Cómo comunicarse con la persona; la foto es opcional", icon: Contact, fields: ["userPhone", "userPhoneSecondary", "userAddress", "userImage"] },
-    { title: "Contrato", sub: "Fechas del contrato; los administradores no necesitan fecha de fin", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate"] },
+    { title: "Contrato", sub: "Fechas del contrato y autorización de datos; los administradores no necesitan fecha de fin", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate", "userDataConsent"] },
 ];
 
 // donde quedan las manchas de luz del fondo en cada paso (se mueven al cambiar de paso)
@@ -52,6 +53,9 @@ export default function UserRegisterForm(){
         userContractStartDate:"",
         userContractEndDate:"",
 
+        // la persona autorizo el tratamiento de sus datos (obligatorio para crear la cuenta)
+        userDataConsent: false,
+
         isStaff: false,
         isActive: true,
         isSuperUser: false,
@@ -71,6 +75,13 @@ export default function UserRegisterForm(){
         e.preventDefault();
 
         const result = userSchema.safeParse(formData)
+
+        // sin la autorizacion de datos no se crea la cuenta
+        if (!formData.userDataConsent) {
+            setErrors({ userDataConsent: "La persona debe autorizar el tratamiento de sus datos personales" });
+            setStep(STEPS.length - 1);
+            return;
+        }
 
         if (!result.success){
             const fieldErrors = {};
@@ -101,7 +112,7 @@ export default function UserRegisterForm(){
 
         try{
             // El backend revisa que el correo y el documento no esten repetidos
-            const response = await createUser(result.data);
+            const response = await createUser({ ...result.data, userDataConsent: true });
             await showSuccesAlert({
                 title: "Usuario creado",
                 text: "El usuario fue creado correctamente",
@@ -135,6 +146,9 @@ export default function UserRegisterForm(){
         getTypeUser().then(setTypeUser);
     },[])
 
+
+    // ventana con la politica de tratamiento de datos
+    const [showPolicy, setShowPolicy] = useState(false);
 
     // ===== asistente =====
     const [step, setStep] = useState(0);
@@ -357,6 +371,25 @@ export default function UserRegisterForm(){
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
                                 {field("userContractStartDate", "date", "Fecha de inicio", "", "user-contract-start")}
                                 {field("userContractEndDate", "date", formData.userType === "ADMIN" ? "Fecha de fin (opcional)" : "Fecha de fin", "", "user-contract-end")}
+
+                                {/* autorizacion de tratamiento de datos: obligatoria (Ley 1581 de 2012) */}
+                                <div className={`sm:col-span-2 flex flex-col gap-2 p-4 rounded-m3-lg border ${errors.userDataConsent ? "border-m3-error bg-m3-error-container/40" : "border-bd-t300 bg-bg-t50"}`}>
+                                    <Checkbox
+                                        id="user-data-consent"
+                                        name="userDataConsent"
+                                        label="La persona autorizó el tratamiento de sus datos personales según la política de Flora."
+                                        checked={formData.userDataConsent}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                            setErrors((prev) => ({ ...prev, userDataConsent: undefined }));
+                                        }}
+                                        variant="latte"
+                                    />
+                                    <button type="button" onClick={() => setShowPolicy(true)} className="self-start ml-7 text-m3-label-large font-semibold text-br-t900 underline underline-offset-4">
+                                        Ver la política de tratamiento de datos
+                                    </button>
+                                    {errors.userDataConsent && <span className="ml-7 text-m3-body-small font-semibold text-m3-error">{errors.userDataConsent}</span>}
+                                </div>
                             </div>
                         )}
 
@@ -388,6 +421,8 @@ export default function UserRegisterForm(){
 
                 </form>
             </main>
+
+            <DataPolicyModal open={showPolicy} onClose={() => setShowPolicy(false)} />
         </div>
     )
 }

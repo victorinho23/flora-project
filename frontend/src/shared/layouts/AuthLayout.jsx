@@ -4,7 +4,7 @@ import authBg from "@/assets/images/cafe.png";
 import logo from "@/assets/icons/flora-icon.svg";
 import { Input, Button, Checkbox } from "@/shared";
 import { loginSchema } from "../schemas/userSchema";
-import { ForgotPasswordModal } from "../../features/users";
+import { ForgotPasswordModal, DataPolicyModal } from "../../features/users";
 import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/cafe.png";
 import { login } from "@/features/auth/services/authService";
@@ -17,6 +17,8 @@ export default function AuthLayout() {
     // Estado para los tipos de documento
     const [errors, setErrors] = useState({});
     const [showForgotPassword, setShowForgotPassword] = useState(false);
+    // ventana con la politica de tratamiento de datos
+    const [showPolicy, setShowPolicy] = useState(false);
 
     const [formData, setFormData] = useState({
         userEmail: "",
@@ -186,16 +188,22 @@ export default function AuthLayout() {
                                 </Button>
 
 
-                               <Checkbox
-                                    className="w-full max-w-80 mt-2 shrink-0"
-                                    id="isActive"
-                                    name="isActive"
-                                    label="Al hacer click aceptas las condiciones de uso, la politica de privacidad y de cookies de Flora."
-                                    checked={formData.isActive}
-                                    onChange={handleChange}
-                                    variant="latte"
-                                    error={errors.isActive}
-                                />
+                               <div className="w-full max-w-80 mt-2 flex flex-col gap-1">
+                                    <Checkbox
+                                        className="w-full shrink-0"
+                                        id="isActive"
+                                        name="isActive"
+                                        label="Acepto las condiciones de uso y la política de tratamiento de datos personales de Flora."
+                                        checked={formData.isActive}
+                                        onChange={handleChange}
+                                        variant="latte"
+                                    />
+                                    {/* abre la politica completa sin salir del login */}
+                                    <button type="button" onClick={() => setShowPolicy(true)} className="self-start ml-7 text-sm font-semibold text-br-t900 underline underline-offset-4">
+                                        Leer la política de tratamiento de datos
+                                    </button>
+                                    {errors.isActive && <span className="ml-7 text-sm font-semibold text-m3-error">{errors.isActive}</span>}
+                                </div>
 
                                 <div className="mt-4">
                                     <Button variant="espresso" size="mdl" type="submit"
@@ -210,6 +218,8 @@ export default function AuthLayout() {
                     </div>
                 </div>
             </div>
+
+            <DataPolicyModal open={showPolicy} onClose={() => setShowPolicy(false)} />
 
             {showForgotPassword && (
                 <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />

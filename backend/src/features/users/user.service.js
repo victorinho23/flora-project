@@ -112,6 +112,11 @@ const validate = async (user, { requirePassword, excludeId }) => {
 
 export const userService = {
     async createUser(data, file, currentUserId) {
+        // sin la autorizacion del tratamiento de datos no se crea la cuenta (llega como texto en el form)
+        if (String(data.userDataConsent) !== "true") {
+            throw httpError(400, "La persona debe autorizar el tratamiento de sus datos personales", "userDataConsent");
+        }
+
         const user = cleanData(data, file);
 
         await validate(user, { requirePassword: true });

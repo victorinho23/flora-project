@@ -73,7 +73,8 @@ export const userSchema = z.object({
     isActive: z.boolean(),
     isSuperUser: z.boolean(),
 
-    userImage: fileSchema.shape.files.optional()
+    // la foto es opcional: sin foto llega la lista vacia
+    userImage: fileSchema.shape.files.or(z.array(z.any()).length(0)).optional()
 
 })
 .refine(

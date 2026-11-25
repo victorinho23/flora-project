@@ -7,6 +7,7 @@ import authBg from "@/assets/icons/usuario.png";
 import { useState, useEffect } from "react";
 import { showConfirmAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 import { updateUserStatus, getUserHistory } from "../services/userServices";
+import DataPolicyModal from "./DataPolicyModal";
 import { useAccess } from "@/features/auth/services/accessService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 
@@ -37,6 +38,8 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
     const can = useAccess();
     // estado de la cuenta en pantalla, cambia apenas se confirma
     const [isActive, setIsActive] = useState(user.isActive);
+    // ventana con la politica de tratamiento de datos
+    const [showPolicy, setShowPolicy] = useState(false);
 
     // historial de cambios de la cuenta (se vuelve a pedir cuando cambia el estado)
     const [history, setHistory] = useState(null);
@@ -82,7 +85,7 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
     // bloques de datos: titulo a la izquierda y los datos a la derecha
     const sections = [
         { id: "user-identity", title: "Identificación", icon: IdCard, fields: [["Documento", user.userDocumentTypeLabel], ["Número", user.userDocumentNumber]] },
-        { id: "user-access", title: "Acceso", icon: KeyRound, fields: [["Tipo de usuario", user.userTypeLabel], ["Correo electrónico", user.userEmail]] },
+        { id: "user-access", title: "Acceso", icon: KeyRound, fields: [["Tipo de usuario", user.userTypeLabel], ["Correo electrónico", user.userEmail], ["Autorizó tratamiento de datos", user.userDataConsentDate || "Sin registro"]] },
         { id: "user-contact", title: "Contacto", icon: Phone, fields: [["Teléfono", user.userPhone], ["Teléfono secundario", user.userPhoneSecondary], ["Correo empresarial", user.userBusinessEmail], ["Dirección", user.userAddress]] },
         { id: "user-contract", title: "Contrato", icon: CalendarDays, fields: [["Inicio", user.userContractStartDate], ["Fin", user.userContractEndDate]] },
     ];
@@ -133,6 +136,12 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
                         </Button>
                     </div>
                 )}
+
+                {/* politica de tratamiento de datos: la puede leer cualquiera */}
+                <button type="button" onClick={() => setShowPolicy(true)} className="m3-state w-full flex items-center justify-center gap-2 h-10 rounded-m3-full border border-bd-t300 text-m3-label-large font-semibold text-br-t950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus">
+                    <ShieldCheck size={16} className="shrink-0" />
+                    <span className="whitespace-nowrap">Tratamiento de datos</span>
+                </button>
 
                 {can("usuarios_habilitar") && (
                     <div className="w-full mt-2">
@@ -191,6 +200,7 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
                     )}
                 </div>
             </section>
+            <DataPolicyModal open={showPolicy} onClose={() => setShowPolicy(false)} />
         </main>
     );
 

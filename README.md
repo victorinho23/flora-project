@@ -11,7 +11,7 @@ Primero el backend (puerto 4000) y después el frontend (http://localhost:5173).
 
 ## Primera vez
 
-1. Crear la base `flora` y correr las migraciones de `backend/src/databases/migrations` en orden (0001 a 0032).
+1. Crear la base `flora` y correr las migraciones de `backend/src/databases/migrations` en orden (0001 a 0033).
 2. Copiar las variables de entorno del backend (están en `backend/README.md`).
 3. Si hay fotos viejas sueltas en `backend/uploads`, correr una vez `npm run organizar-uploads` dentro de `backend`.
 
