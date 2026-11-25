@@ -13,6 +13,7 @@ import { userSchema } from "../schemas/userSchema";
 import { showSuccesAlert, showCreateUserErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { createUser } from "../services/userServices";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 // pasos del asistente: titulo, descripcion y campos que se revisan antes de seguir
@@ -33,6 +34,10 @@ const GLOW = [
 
 export default function UserRegisterForm(){
     const navigate = useNavigate();
+    const can = useAccess();
+    // si no puede ver el listado (por ejemplo, solo le dieron el permiso de crear) se vuelve al inicio
+    const listPath = can("usuarios_listar") ? "/userList" : "/home";
+
 
     const [errors, setErrors] = useState({});   
 
@@ -119,7 +124,7 @@ export default function UserRegisterForm(){
                 timer: 3000,
             });
             // replace: al volver desde el detalle no se regresa al formulario ya enviado
-            navigate("/userList", { state: { openUser: response.userId }, replace: true })
+            navigate(listPath, { state: { openUser: response.userId }, replace: true })
         } catch(error){
             console.log("Error: ", error.message)
             // si el backend dice que campo fallo se marca en el formulario
@@ -222,12 +227,12 @@ export default function UserRegisterForm(){
                 image={fotoFondo}
                 icon={User}
                 title="Crear usuario"
-                onBack={() => navigate("/userList")}
-                actions={
-                    <Button variant="crema" size="sm" type="button" onClick={() => navigate("/userList")}>
+                onBack={() => navigate(listPath)}
+                actions={can("usuarios_listar") && (
+                    <Button variant="crema" size="sm" type="button" onClick={() => navigate(listPath)}>
                         Ver listado
                     </Button>
-                }
+                )}
             />
 
             {/* fondo con manchas de luz que se mueven segun el paso */}
@@ -401,7 +406,7 @@ export default function UserRegisterForm(){
                             </Button>
                             <span className="hidden sm:block text-m3-body-medium text-br-s800">Paso {step + 1} de {STEPS.length}</span>
                             <div className="flex flex-wrap gap-3">
-                                <Button variant="contorno" size="md" type="button" onClick={() => navigate("/userList")}>
+                                <Button variant="contorno" size="md" type="button" onClick={() => navigate(listPath)}>
                                     Cancelar
                                 </Button>
                                 {isLast ? (

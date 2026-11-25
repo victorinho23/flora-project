@@ -11,11 +11,15 @@ import { supplierSchema } from "../schemas/supplierSchema";
 import { getInventoryOptions } from "@/features/inventory/services/inventoryService";
 import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/suppliers.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 
 export default function SupplierRegisterForm() {
 
     const navigate = useNavigate();
+    const can = useAccess();
+    // si no puede ver el listado (por ejemplo, solo le dieron el permiso de registrar) se vuelve al inicio
+    const listPath = can("proveedores_listar") ? "/listSuppliers" : "/home";
     // Si llega un proveedor por navegacion el formulario funciona en modo edicion
     const editing = useLocation().state?.supplier;
 
@@ -183,7 +187,7 @@ export default function SupplierRegisterForm() {
                 text: "Proveedor actualizado correctamente.",
                 timer: 2500,
             });
-            navigate("/listSuppliers", { replace: true });
+            navigate(listPath, { replace: true });
             return;
         }
 
@@ -205,7 +209,7 @@ export default function SupplierRegisterForm() {
                 timer: 3000,
             });
 
-            navigate("/listSuppliers", { replace: true });
+            navigate(listPath, { replace: true });
         } catch (error) {
             showBackendError(error);
             await showUnexpectedErrorAlert({
@@ -228,7 +232,7 @@ export default function SupplierRegisterForm() {
 
     // A donde lleva la flecha de volver
     // crear y editar siempre vuelven al listado de proveedores
-    const backTo = "/listSuppliers";
+    const backTo = listPath;
 
     return (
         <div className="min-h-screen lg:h-screen w-full grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] bg-bg-w">
@@ -243,9 +247,11 @@ export default function SupplierRegisterForm() {
                         <ArrowLeft size={18} />
                         Proveedores
                     </Button>
-                    <Button variant="sex" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
-                        Ver proveedores
-                    </Button>
+                    {can("proveedores_listar") && (
+                        <Button variant="sex" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
+                            Ver proveedores
+                        </Button>
+                    )}
                 </div>
 
                 <div className="flex flex-col gap-8 bajo:gap-5">
@@ -311,9 +317,11 @@ export default function SupplierRegisterForm() {
                         <ArrowLeft size={18} />
                         {editing ? "Actualizar proveedor" : "Registrar proveedor"}
                     </Button>
-                    <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
-                        Ver proveedores
-                    </Button>
+                    {can("proveedores_listar") && (
+                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
+                            Ver proveedores
+                        </Button>
+                    )}
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center gap-7 bajo:gap-5 max-w-2xl w-full mx-auto">

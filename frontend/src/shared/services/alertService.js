@@ -104,6 +104,8 @@ export function showConfirmDeleteAlert({
         cancelButtonText,
         showConfirmButton: true,
         showCancelButton: true,
+        // Material 3: en los dialogos la accion que confirma va a la derecha y la que cancela a la izquierda
+        reverseButtons: true,
 
         customClass: {
             popup: "rounded-m3-xl",
@@ -225,6 +227,8 @@ export function showConfirmAlert({
         cancelButtonText,
         showConfirmButton: true,
         showCancelButton: true,
+        // Material 3: en los dialogos la accion que confirma va a la derecha y la que cancela a la izquierda
+        reverseButtons: true,
 
         customClass: {
             popup: "rounded-m3-xl",

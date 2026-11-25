@@ -11,6 +11,7 @@ import { createInventoryItem, updateInventoryItem, getBrands } from "../services
 import { getUserOptions } from "@/features/users/services/userServices";
 import { Button, Input, Select, Textarea, Imageinput, Navbar } from "@/shared";
 import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
+import { useAccess } from "@/features/auth/services/accessService";
 
 // Opciones de estado del producto, ligadas al lote
 const statusOptions = [
@@ -46,11 +47,13 @@ const emptyProduct = {
 export default function InventoryRegisterForm() {
   // Navegacion hacia el listado
   const navigate = useNavigate();
+  const can = useAccess();
   // Si llega un producto por navegacion el formulario funciona en modo edicion
   const location = useLocation();
   const editing = location.state?.item;
   // pagina a la que se vuelve: la que abrio la edicion, o el listado si se llego directo
-  const backTo = location.state?.from ?? "/listInventory";
+  // si no puede ver el listado (por ejemplo, solo le dieron el permiso de crear) se vuelve al inicio
+  const backTo = location.state?.from ?? (can("inventario_listar") ? "/listInventory" : "/home");
 
   // Marcas ya registradas en la base, mas las que el usuario agregue en esta sesion
   const [brands, setBrands] = useState(editing?.brand ? [editing.brand] : []);
@@ -293,11 +296,11 @@ export default function InventoryRegisterForm() {
         }
         onBack={() => navigate(backTo)}
         className="rounded-m3-lg shadow-m3-2 shrink-0"
-        actions={
+        actions={can("inventario_listar") && (
           <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listInventory")}>
             Ver listado
           </Button>
-        }
+        )}
       />
 
       <form

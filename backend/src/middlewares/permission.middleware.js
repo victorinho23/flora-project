@@ -3,6 +3,16 @@
 
 import { accessService } from "../features/access/access.service.js";
 
+// 42P01 = no existe la tabla, 42703 = no existe la columna: pasa cuando falta correr una migracion
+// (por ejemplo la 0032 de permisos individuales); se avisa claro en vez de un error generico
+const permissionError = (res, error) => {
+    console.error(error);
+    if (["42P01", "42703"].includes(error.code)) {
+        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0036 y reinicia el backend" });
+    }
+    return res.status(500).json({ error: "Error verificando permisos" });
+};
+
 export const requirePermission = (permissionCode) => {
     return async (req, res, next) => {
         try {
@@ -17,10 +27,7 @@ export const requirePermission = (permissionCode) => {
             }
             next();
         } catch (error) {
-            console.error(error);
-            res.status(500).json({
-                error: "Error verificando permisos",
-            });
+            permissionError(res, error);
         }
     };
 };
@@ -45,8 +52,7 @@ export const requireAnyPermission = (...permissionCodes) => {
             }
             return res.status(403).json({ error: "No tienes permisos para realizar esta accion" });
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: "Error verificando permisos" });
+            permissionError(res, error);
         }
     };
 };

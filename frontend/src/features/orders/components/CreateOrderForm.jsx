@@ -10,6 +10,7 @@ import { createOrder, getTables } from "../services/orderService";
 import TablePickerModal from "./TablePickerModal";
 import { getSessionUser } from "@/features/auth/services/logoutService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
+import { useAccess } from "@/features/auth/services/accessService";
 
 const DISHES_PER_PAGE = 6;
 // alto de cada tarjeta de platillo (foto de 96px + nombre y precio)
@@ -105,6 +106,9 @@ export default function CreateOrderForm() {
     const currentPage = Math.min(dishPage, Math.max(0, dishPageCount - 1));
     const visibleDishes = filteredDishes.slice(currentPage * perPage, (currentPage + 1) * perPage);
     const navigate = useNavigate();
+    const can = useAccess();
+    // si no puede ver el listado (por ejemplo, solo le dieron el permiso de crear) se vuelve al inicio
+    const listPath = can("ordenes_listar") ? "/orderList" : "/home";
     const [errors, setErrors] = useState({});
     // si se llego desde el tablero de mesas la mesa ya viene puesta
     const [tableNumber, setTableNumber] = useState(useLocation().state?.tableNumber ?? "");
@@ -226,7 +230,7 @@ export default function CreateOrderForm() {
                     confirmButtonText: activeOrderId ? "Ver esa orden" : "Elegir otra mesa",
                 });
                 if (!choice.isConfirmed) return;
-                if (activeOrderId) navigate("/orderList", { state: { openOrder: activeOrderId } });
+                if (activeOrderId) navigate(listPath, { state: { openOrder: activeOrderId } });
                 else openTables();
                 return;
             }
@@ -237,7 +241,7 @@ export default function CreateOrderForm() {
                 timer: 3000,
             });
 
-            navigate("/orderList", { replace: true, state: { openOrder: response.orderId } });
+            navigate(listPath, { replace: true, state: { openOrder: response.orderId } });
         } catch (error) {
             console.log("Error: ", error.message);
             await showUnexpectedErrorAlert({
@@ -254,12 +258,14 @@ export default function CreateOrderForm() {
                 variant="banda"
                 image={fotoFondo}
                 title="Crear orden"
-                onBack={() => navigate("/orderList")}
+                onBack={() => navigate(listPath)}
                 actions={
                     <>
-                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/orderList")}>
-                            Ver listado
-                        </Button>
+                        {can("ordenes_listar") && (
+                            <Button variant="crema" size="sm" type="button" onClick={() => navigate("/orderList")}>
+                                Ver listado
+                            </Button>
+                        )}
                     </>
                 }
             />
@@ -524,7 +530,7 @@ export default function CreateOrderForm() {
                                 variant="contorno"
                                 size="lgg"
                                 type="button"
-                                onClick={() => navigate("/orderList")}
+                                onClick={() => navigate(listPath)}
                             >
                                 Cancelar
                             </Button>

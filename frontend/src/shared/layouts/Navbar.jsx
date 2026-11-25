@@ -18,13 +18,14 @@ import ProfileModal from "@/features/users/components/ProfileModal";
 
 // Secciones de la barra de navegacion y todas las rutas que pertenecen a cada una
 // (listado, crear, ver, editar). Asi la seccion queda marcada aunque estes dentro de un formulario
+// alt: si la persona no puede ver el listado pero si crear (permiso individual), la seccion la lleva al formulario
 const navigationLinks = [
   { to: "/home", label: "Inicio", routes: ["home"] },
-  { to: "/userList", permission: "usuarios_listar", label: "Usuarios", routes: ["userList", "viewListUsers", "userCreate", "userEdit"] },
-  { to: "/listSuppliers", permission: "proveedores_listar", label: "Proveedores", routes: ["listSuppliers", "viewlistSuppliers", "updateSuppliers", "suppliersCreate", "editSupplier"] },
+  { to: "/userList", permission: "usuarios_listar", alt: [["usuarios_crear", "/userCreate"]], label: "Usuarios", routes: ["userList", "viewListUsers", "userCreate", "userEdit"] },
+  { to: "/listSuppliers", permission: "proveedores_listar", alt: [["proveedores_registrar", "/suppliersCreate"]], label: "Proveedores", routes: ["listSuppliers", "viewlistSuppliers", "updateSuppliers", "suppliersCreate", "editSupplier"] },
   { to: "/listMenu", permission: "menu_listar", label: "Menú", routes: ["listMenu", "viewListMenu", "dishEdit", "categories"] },
-  { to: "/orderList", permission: "ordenes_listar", label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderEdit"] },
-  { to: "/listInventory", permission: "inventario_listar", label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory"] },
+  { to: "/orderList", permission: "ordenes_listar", alt: [["ordenes_crear", "/createOrders"]], label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderEdit"] },
+  { to: "/listInventory", permission: "inventario_listar", alt: [["inventario_crear", "/createInventory"]], label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory"] },
   { to: "/permissions", permission: "permisos_gestionar", label: "Permisos", routes: ["permissions"] },
   { to: "/settings", permission: "mesas_listar", label: "Configuración", routes: ["settings"] },
 ];
@@ -84,7 +85,12 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
 
   // solo se muestran los modulos que la persona puede abrir (el admin los ve todos)
   const can = useAccess();
-  const allowedLinks = navigationLinks.filter((link) => can(link.permission));
+  // secciones que puede abrir: con el permiso del listado, o si no, con el de crear (va directo al formulario)
+  const allowedLinks = navigationLinks.flatMap((link) => {
+    if (can(link.permission)) return [link];
+    const other = link.alt?.find(([permission]) => can(permission));
+    return other ? [{ ...link, to: other[1], section: link.to }] : [];
+  });
 
   // Tema actual y cambio entre claro y oscuro guardando la preferencia
   // Mi perfil se abre en ventana; al volver de editar la propia cuenta llega openProfile para abrirla de una
@@ -129,7 +135,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
     const links = (navigation || variant === "links") && (
       <div className={`w-full grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-bg-w/30 pt-3 lg:flex lg:w-fit lg:mx-auto lg:items-center lg:gap-1 lg:border-t-0 lg:pt-0 ${variant === "links" ? "lg:mx-0" : "xl:mx-0 xl:shrink-0"}`}>
         {allowedLinks.map((link) => {
-          const active = link.to === currentSection;
+          const active = (link.section ?? link.to) === currentSection;
           return (
             <Link
               key={link.to}
@@ -259,7 +265,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
 
                 <DropdownContent className="absolute right-0 top-full mt-2 z-50 w-60 max-w-[calc(100vw-1.5rem)] bg-bg-s950 border-bd-t300/40 text-bg-w">
                   {allowedLinks.slice(1).map((link) => (
-                    <DropdownItem key={link.to} to={link.to} active={link.to === currentSection}>
+                    <DropdownItem key={link.to} to={link.to} active={(link.section ?? link.to) === currentSection}>
                       {link.label}
                     </DropdownItem>
                   ))}
