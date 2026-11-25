@@ -13,13 +13,14 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/icons/flora-icon.svg";
 import { useAccess } from "@/features/auth/services/accessService";
 import { showConfirmAlert } from "@/shared/services/alertService";
+import ProfileModal from "@/features/users/components/ProfileModal";
 
 
 // Secciones de la barra de navegacion y todas las rutas que pertenecen a cada una
 // (listado, crear, ver, editar). Asi la seccion queda marcada aunque estes dentro de un formulario
 const navigationLinks = [
   { to: "/home", label: "Inicio", routes: ["home"] },
-  { to: "/userList", permission: "usuarios_listar", label: "Usuarios", routes: ["userList", "viewListUsers", "userCreate", "userEdit", "viewUser"] },
+  { to: "/userList", permission: "usuarios_listar", label: "Usuarios", routes: ["userList", "viewListUsers", "userCreate", "userEdit"] },
   { to: "/listSuppliers", permission: "proveedores_listar", label: "Proveedores", routes: ["listSuppliers", "viewlistSuppliers", "updateSuppliers", "suppliersCreate", "editSupplier"] },
   { to: "/listMenu", permission: "menu_listar", label: "Menú", routes: ["listMenu", "viewListMenu", "dishEdit", "categories"] },
   { to: "/orderList", permission: "ordenes_listar", label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderEdit"] },
@@ -44,7 +45,7 @@ const searchTargets = [
   { label: "Nuevo usuario", to: "/userCreate", permission: "usuarios_crear", words: "nuevo usuario empleado mesero registrar" },
   { label: "Permisos", to: "/permissions", permission: "permisos_gestionar", words: "permisos roles grupos accesos" },
   { label: "Configuración · Mesas", to: "/settings", permission: "mesas_listar", words: "configuracion ajustes mesas crear mesa zonas capacidad" },
-  { label: "Mi perfil", to: "/viewUser", words: "mi perfil cuenta datos" },
+  { label: "Mi perfil", to: "/home", state: { openProfile: true }, words: "mi perfil cuenta datos" },
   { label: "Inicio", to: "/home", words: "inicio home principal" },
 ];
 
@@ -66,7 +67,8 @@ const navigationBackground = "text-bg-w bg-bg-s950 bg-cover bg-center bg-[linear
 // backSide se deja por compatibilidad, pero en Material 3 volver siempre va a la izquierda del titulo
 export default function Navbar({ variant = "default", image, icon: Icon, avatar, title, subtitle, onBack, actions, navigation = false, className = "" }){
 
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const navigate = useNavigate();
   const currentSection = sectionOf(pathname);
 
@@ -85,6 +87,9 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
   const allowedLinks = navigationLinks.filter((link) => can(link.permission));
 
   // Tema actual y cambio entre claro y oscuro guardando la preferencia
+  // Mi perfil se abre en ventana; al volver de editar la propia cuenta llega openProfile para abrirla de una
+  const [profileOpen, setProfileOpen] = useState(Boolean(location.state?.openProfile));
+
   const [theme, setTheme] = useState(() => document.documentElement.dataset.theme ?? "light");
 
   const toggleTheme = () => {
@@ -211,6 +216,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
     }
 
     return (
+      <>
       <nav className="relative z-50 w-full bg-bg-s950 bg-linear-120 from-bg-s950 via-bg-s800 via-55% to-bg-t950 h-20 flex justify-center items-center shadow-m3-2">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-6">
           <div className="flex w-full h-16 items-center justify-between gap-3 sm:gap-6">
@@ -260,7 +266,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
 
                   <div className="my-1 border-t border-bg-w/15" />
 
-                  <DropdownItem to="/viewUser" active={pathname === "/viewUser"}>Mi perfil</DropdownItem>
+                  <DropdownItem onClick={() => setProfileOpen(true)}>Mi perfil</DropdownItem>
                   <DropdownItem onClick={confirmLogout}>Cerrar sesión</DropdownItem>
                 </DropdownContent>
             </Dropdown>
@@ -268,6 +274,15 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
             </div>
           </div>
       </nav>
+      <ProfileModal
+        open={profileOpen}
+        onClose={() => {
+          setProfileOpen(false);
+          // se limpia el aviso de abrir el perfil para que al recargar no salga otra vez
+          if (location.state?.openProfile) navigate(pathname, { replace: true, state: null });
+        }}
+      />
+      </>
     );
 
 

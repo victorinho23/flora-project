@@ -73,7 +73,6 @@ export default function ViewUserListPage () {
                     <UserDetails
                         key={selectedUser.id}
                         user={toUserView(selectedUser)}
-                        inModal
                         onStatusChange={(value) => setRows((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, is_active: value } : u)))}
                     />
                 )}

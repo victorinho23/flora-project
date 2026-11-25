@@ -10,7 +10,7 @@ import CategoriesPage from "@/features/products/pages/CategoriesPage";
 import ViewOrderListPage from "@/features/orders/pages/ViewOrderListPage";
 import ViewUserListPage from "../features/users/pages/ViewUserListPage";
 import OrdersLayout from "../shared/layouts/OrdersLayout";
-import { EditDishLayout, OrderEditLayout, SeeUsers, UserEditLayout } from "../shared";
+import { EditDishLayout, OrderEditLayout, UserEditLayout } from "../shared";
 import PermissionsLayout from "../shared/layouts/PermissionLayout";
 import InventoryListPage from "../features/inventory/pages/InventoryListPage";
 import { InventoryRegisterForm, InventoryUpdatePage } from "../features/inventory";
@@ -48,10 +48,6 @@ const router = createBrowserRouter([
             // {path: "userModify", element: <UserModify/>},
 
         ],
-    },
-    {
-        path: "/viewUser",
-        element: <ProtectedRoute><SeeUsers/></ProtectedRoute>,
     },
     {
         path: "/userEdit",

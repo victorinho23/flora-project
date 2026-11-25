@@ -119,7 +119,7 @@ export default function UserRegisterForm(){
                 timer: 3000,
             });
             // replace: al volver desde el detalle no se regresa al formulario ya enviado
-            navigate("/viewUser", { state: { id: response.userId, from: "/userList" }, replace: true })
+            navigate("/userList", { state: { openUser: response.userId }, replace: true })
         } catch(error){
             console.log("Error: ", error.message)
             // si el backend dice que campo fallo se marca en el formulario

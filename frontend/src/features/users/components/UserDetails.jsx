@@ -1,16 +1,14 @@
 // src/features/users/components/UserDetails.jsx
-// Pagina de detalle de un usuario en modo solo lectura
-import { useNavigate, useLocation } from "react-router-dom";
-import { Button, Navbar } from "@/shared";
+// Detalle de un usuario en modo solo lectura (va dentro de una ventana: el listado o Mi perfil)
+import { useNavigate } from "react-router-dom";
+import Button from "@/shared/components/Button";
 import { IdCard, KeyRound, Phone, CalendarDays, ShieldCheck, Pencil, Power, History, LifeBuoy } from "lucide-react";
-import authBg from "@/assets/icons/usuario.png";
 import { useState, useEffect } from "react";
 import { showConfirmAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 import { updateUserStatus, getUserHistory } from "../services/userServices";
 import DataPolicyModal, { SUPPORT_EMAIL } from "./DataPolicyModal";
 import { getSessionUser } from "@/features/auth/services/logoutService";
 import { useAccess } from "@/features/auth/services/accessService";
-import fotoFondo from "@/assets/images/fondo-users.png";
 
 // como se muestra cada accion del registro de cambios
 const ACTIONS = {
@@ -24,16 +22,14 @@ const ACTIONS = {
 // fecha corta en español, ej: "19 nov 2026, 7:58 a. m."
 const formatDate = (value) => new Date(value).toLocaleString("es-CO", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
 
-// inModal: se abre en una ventana desde el listado (sin encabezado de pagina)
+// from: desde donde se abrio ("/userList" o "/profile"), para volver ahi al terminar de editar
 // onStatusChange: avisa al listado cuando se habilita o inhabilita la cuenta
-export function UserDetails({ user, inModal = false, onStatusChange }) {
+export function UserDetails({ user, from = "/userList", onStatusChange }) {
     const navigate = useNavigate();
-    // de donde se llego al detalle, para volver alli (si no, al listado)
-    const backTo = useLocation().state?.from ?? "/userList";
 
     // Lleva a editar la cuenta
     const handleEdit = () => {
-        navigate(`/userEdit`, { state: { user: user.raw, from: inModal ? "/userList" : "/viewUser" } });
+        navigate(`/userEdit`, { state: { user: user.raw, from } });
     };
 
     const can = useAccess();
@@ -91,9 +87,9 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
         { id: "user-contract", title: "Contrato", icon: CalendarDays, fields: [["Inicio", user.userContractStartDate], ["Fin", user.userContractEndDate]] },
     ];
 
-    // panel lateral + datos: es lo mismo en la pagina y en la ventana del listado
-    const content = (
-        <main className={inModal ? "w-full flex flex-wrap items-start gap-6" : "w-full max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap items-start gap-6"}>
+    // panel lateral + datos
+    return (
+        <main className="w-full flex flex-wrap items-start gap-6">
 
             {/* ===== Panel lateral: foto, nombre, rol, estado y atajos a cada bloque ===== */}
             <aside className="grow basis-72 lg:grow-0 lg:max-w-80 flex flex-col items-center gap-3 p-6 text-center bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
@@ -129,7 +125,7 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
                     ))}
                 </nav>
 
-                {inModal && can("usuarios_actualizar") && (
+                {can("usuarios_actualizar") && (
                     <div className="w-full mt-2">
                         <Button variant="espresso" size="lggg" type="button" onClick={handleEdit}>
                             <Pencil size={16} />
@@ -217,30 +213,5 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
             </section>
             <DataPolicyModal open={showPolicy} onClose={() => setShowPolicy(false)} />
         </main>
-    );
-
-    if (inModal) return content;
-
-    return (
-        <div className="min-h-screen flex flex-col">
-
-            <Navbar
-                variant="banda"
-                image={fotoFondo}
-                avatar={authBg}
-                title="Ver usuario"
-                onBack={() => navigate(backTo)}
-                actions={
-                    can("usuarios_actualizar") && (
-                        <Button variant="crema" size="sm" type="button" onClick={handleEdit}>
-                            <Pencil size={16} />
-                            Modificar
-                        </Button>
-                    )
-                }
-            />
-
-            {content}
-        </div>
     );
 }

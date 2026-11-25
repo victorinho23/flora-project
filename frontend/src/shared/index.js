@@ -4,7 +4,6 @@ export { default as UsersCreateLayout} from "./layouts/UsersCreateLayout";
 export { default as UserEditLayout } from "./layouts/UserEditLayout"
 export { default as EditDishLayout } from "./layouts/EditDishLayout"
 export { default as OrderEditLayout } from "./layouts/OrderEditLayout"
-export { default as SeeUsers } from "./layouts/SeeUsers"
 
 
 

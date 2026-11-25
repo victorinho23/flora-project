@@ -123,7 +123,7 @@ export default function UserEditForm({ user }){
             text: "Cuenta actualizada exitosamente",
             timer: 3000,
         });
-        navigate(`/viewUser`, { state: { id: user.id }, replace: true })
+        goBack(true);
     } catch(error){
         console.log("Error: ", error.message)
         if (error.field) {
@@ -190,8 +190,11 @@ export default function UserEditForm({ user }){
         return { left: left > 0 ? `${left} días restantes` : "Contrato vencido", pct };
     }, [formData.userContractStartDate, formData.userContractEndDate, today]);
 
-    // a donde vuelve la flecha y el boton cancelar
-    const goBack = () => navigate(location.state?.from === "/userList" ? "/userList" : "/viewUser", { state: { id: user.id } });
+    // a donde vuelve la flecha, el boton cancelar y el guardar: al listado con el usuario abierto
+    // o, si se edito la propia cuenta desde Mi perfil, al inicio con Mi perfil abierto
+    const goBack = (replace = false) => (location.state?.from === "/userList"
+        ? navigate("/userList", { replace, state: { openUser: user.id } })
+        : navigate("/home", { replace, state: { openProfile: true } }));
 
     // un campo de texto con lo de siempre (mismo estilo en todas las tarjetas)
     const field = (name, type, label, placeholder, htmlFor) => (
@@ -216,7 +219,7 @@ export default function UserEditForm({ user }){
                 image={fotoFondo}
                 icon={UserCog}
                 title="Modificar usuario"
-                onBack={goBack}
+                onBack={() => goBack()}
             />
 
             {/* fondo con manchas de luz; se mueven un poco al cambiar de seccion */}
@@ -363,7 +366,7 @@ export default function UserEditForm({ user }){
                                 {changes ? `${changes} ${changes === 1 ? "cambio" : "cambios"} sin guardar` : "Sin cambios"}
                             </span>
                             <div className="ml-auto flex flex-wrap gap-3">
-                                <Button variant="contorno" size="md" type="button" onClick={goBack}>
+                                <Button variant="contorno" size="md" type="button" onClick={() => goBack()}>
                                     Descartar
                                 </Button>
                                 <Button variant="espresso" size="md" type="submit" disabled={!changes}>

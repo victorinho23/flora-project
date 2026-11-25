@@ -4,7 +4,7 @@ import { DataTable, Navbar, DetailModal } from "../../../shared";
 import { UserDetails } from "../components/UserDetails"
 import { createUserColumns, userFilters, userInitialSort } from "../table/UsersColumns"
 import { toUserView, getUsers, getUsersReport, updateUserStatus } from "../services/userServices"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "../../../shared"
 import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { userReportFields, userReportScopes } from "../reports/config/userReportFields"
@@ -23,10 +23,12 @@ export default function UserListPage () {
     // Copia de los usuarios para reflejar al instante los cambios de estado
     const [rows, setRows] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const [selectedId, setSelectedId] = useState(null);
+    // al volver de crear o editar un usuario llega su id para abrirlo de una vez en la ventana
+    const [selectedId, setSelectedId] = useState(location.state?.openUser ?? null);
     // usuario elegido para la ventana de ver (busqueda por id)
-    const selectedUser = rows.find((u) => u.id === selectedId);
+    const selectedUser = rows.find((u) => String(u.id) === String(selectedId));
 
     const handleView = (user) => setSelectedId(user.id);
     const handleEdit = (user) => navigate("/userEdit", { state: { user, from: "/userList" } });
@@ -42,6 +44,8 @@ export default function UserListPage () {
 
     // usuarios reales que llegan de la base
     useEffect(() => {
+        // se limpia el estado de la navegacion para que al recargar no se vuelva a abrir la ventana
+        if (location.state?.openUser) navigate(location.pathname, { replace: true, state: null });
         getUsers().then(setRows).catch((error) => showErrorAlert({ title: "No se pudieron cargar los usuarios", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
     }, []);
 
@@ -100,7 +104,6 @@ export default function UserListPage () {
                     <UserDetails
                         key={selectedUser.id}
                         user={toUserView(selectedUser)}
-                        inModal
                         onStatusChange={(value) => setRows((prev) => prev.map((u) => (u.id === selectedUser.id ? { ...u, is_active: value } : u)))}
                     />
                 )}
