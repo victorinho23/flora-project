@@ -52,12 +52,15 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
     const setView = setPicked;
     const close = () => {
         setPicked(null);
+        setPickedFloor(null);
         onClose();
     };
 
     // cuantas mesas tiene el restaurante y cuales estan ocupadas, segun el backend
     // todas las mesas empiezan libres; al llegar la respuesta se marcan las que tienen orden abierta
-    const [board, setBoard] = useState({ total: TOTAL_MESAS, tables: [], open: [], map: null });
+    const [board, setBoard] = useState({ total: TOTAL_MESAS, tables: [], open: [], maps: [] });
+    // piso que se esta viendo en el mapa (si no se ha elegido se abre el de la mesa buscada o el primero con mesas)
+    const [pickedFloor, setPickedFloor] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -92,8 +95,15 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
     const freeCount = tables.filter((table) => !openByTable.has(table)).length;
 
     // mesas que el administrador ya puso en el mapa
-    const map = board.map;
-    const onMap = map ? board.tables.filter((table) => table.x != null && table.y != null && table.x < map.cols && table.y < map.rows) : [];
+    // mesas ubicadas en cada piso
+    const floors = board.maps.map((floor) => ({
+        ...floor,
+        tables: board.tables.filter((table) => table.floorId === floor.id && table.x != null && table.y != null && table.x < floor.cols && table.y < floor.rows),
+    }));
+    const usedFloors = floors.filter((floor) => floor.tables.length > 0);
+    const targetFloor = usedFloors.find((floor) => floor.tables.some((table) => String(table.number) === String(highlight)));
+    const map = usedFloors.find((floor) => floor.id === pickedFloor) ?? targetFloor ?? usedFloors[0];
+    const onMap = map?.tables ?? [];
     const view = picked ?? (highlight || onMap.length ? "map" : "tables");
     const usedAreas = [...new Set(Object.values(map?.cells ?? {}))].filter((area) => AREAS[area]);
 
@@ -108,6 +118,7 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
             blocked: (mode === "select" && order && !ownTable) || (mode === "browse" && !order && !canOpenFree),
             pick: () => {
                 setPicked(null);
+                setPickedFloor(null);
                 return mode === "select" ? onPick(String(table)) : onPick(table, order);
             },
         };
@@ -172,6 +183,23 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
             {view === "map" && (
                 onMap.length > 0 ? (
                     <div className="col-span-full flex flex-col gap-3">
+                        {/* pisos: solo salen si el negocio tiene mas de uno con mesas */}
+                        {usedFloors.length > 1 && (
+                            <div className="flex flex-wrap gap-2" role="group" aria-label="Pisos">
+                                {usedFloors.map((floor) => (
+                                    <button
+                                        key={floor.id}
+                                        type="button"
+                                        aria-pressed={floor.id === map.id}
+                                        onClick={() => setPickedFloor(floor.id)}
+                                        className={`m3-state h-9 px-4 rounded-m3-full border text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${floor.id === map.id ? "bg-bg-s950 text-bg-w border-transparent" : "bg-bg-w text-br-s950 border-bd-s300"}`}
+                                    >
+                                        {floor.name}
+                                        <span className="ml-1.5 opacity-80">({floor.tables.length})</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                         {usedAreas.length > 0 && (
                             <div className="flex flex-wrap gap-x-4 gap-y-2 text-m3-label-medium text-br-s800">
                                 {usedAreas.map((area) => {
@@ -220,6 +248,7 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
 
                                 const handleClick = () => {
                                     setPicked(null);
+                                    setPickedFloor(null);
                                     if (mode === "select") onPick(String(table));
                                     else onPick(table, order);
                                 };

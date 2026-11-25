@@ -1,12 +1,14 @@
 // src/features/settings/pages/TablesSettingsPage.jsx
-// Configuracion -> Mesas: crear, editar y habilitar/deshabilitar las mesas del restaurante (no se eliminan para no perder el historial)
+// Configuracion -> Mesas: dos pestañas
+// - Lista: crear, editar y habilitar/deshabilitar las mesas (no se eliminan para no perder el historial)
+// - Mapa: dibujar el negocio por pisos y ubicar las mesas, para que el mesero sepa a donde ir
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Pencil, Plus, Users, MapPin } from "lucide-react";
+import { Settings, Pencil, Plus, Users, MapPin, List, Map as MapIcon, Layers } from "lucide-react";
 import { DataTable, Navbar, Input, Select, Button, DetailModal, Switch } from "@/shared";
-import { getAllTables, createTable, updateTable, updateTableStatus, saveTableMap } from "../services/tableService";
+import { getAllTables, createTable, updateTable, updateTableStatus, saveTableMap, createTableFloor, deleteTableFloor } from "../services/tableService";
 import RestaurantMapEditor from "../components/RestaurantMapEditor";
-import { showConfirmAlert, showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
+import { showConfirmAlert, showConfirmDeleteAlert, showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
 import { useAccess } from "@/features/auth/services/accessService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
 
@@ -18,8 +20,13 @@ export default function TablesSettingsPage() {
     const can = useAccess();
     const [rows, setRows] = useState([]);
     const [zones, setZones] = useState([]);
-    // mapa del restaurante guardado (el editor trabaja sobre una copia hasta que se guarda)
-    const [map, setMap] = useState(null);
+    // pestaña de la pagina: lista de mesas o mapa del negocio
+    const [tab, setTab] = useState("list");
+    // pisos del mapa guardados (el editor trabaja sobre una copia hasta que se guarda) y el piso abierto
+    const [maps, setMaps] = useState([]);
+    const [floorId, setFloorId] = useState(null);
+    // ventana para crear un piso
+    const [floorForm, setFloorForm] = useState(null);
     // sube cada vez que se recarga, para que el editor del mapa arranque de nuevo con lo guardado
     const [version, setVersion] = useState(0);
     // si el backend falla (por ejemplo, falta correr una migracion) se muestra el motivo en vez del mapa
@@ -34,7 +41,9 @@ export default function TablesSettingsPage() {
         .then((data) => {
             setRows(data.tables);
             setZones(data.zones);
-            setMap(data.map);
+            setMaps(data.maps);
+            // si el piso abierto ya no existe (se borro) se abre el primero
+            setFloorId((current) => (data.maps.some((floor) => floor.id === current) ? current : data.maps[0]?.id ?? null));
             setVersion((value) => value + 1);
             setLoadError("");
         })
@@ -50,15 +59,46 @@ export default function TablesSettingsPage() {
     // resumen de arriba: cuantas mesas activas y cuantos puestos hay
     const active = rows.filter((table) => table.active);
     const seats = active.reduce((sum, table) => sum + table.capacity, 0);
-    const onMap = active.filter((table) => table.x != null).length;
+    const onMap = active.filter((table) => table.floorId != null).length;
+    const floor = maps.find((item) => item.id === floorId);
 
     const handleSaveMap = async (data) => {
         try {
-            await saveTableMap(data);
+            await saveTableMap(floorId, data);
             await load();
             await showSuccesAlert({ title: "Mapa guardado", text: "Los meseros ya lo ven al buscar las mesas", timer: 2000 });
         } catch (err) {
             await showErrorAlert({ title: "No se pudo guardar el mapa", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
+        }
+    };
+
+    // piso nuevo: se crea vacio y queda abierto para dibujarlo
+    const handleCreateFloor = async () => {
+        const name = floorForm.name.trim();
+        if (!name) return setFloorForm((prev) => ({ ...prev, error: "Escribe el nombre del piso" }));
+        try {
+            const { mapId } = await createTableFloor(name);
+            setFloorForm(null);
+            setFloorId(mapId);
+            await load();
+        } catch (err) {
+            setFloorForm((prev) => ({ ...prev, error: err.message }));
+        }
+    };
+
+    const handleDeleteFloor = async () => {
+        const result = await showConfirmDeleteAlert({
+            title: `¿Eliminar ${floor.name}?`,
+            text: "Se borra el dibujo de este piso y sus mesas quedan sin ubicar (las mesas no se borran).",
+            confirmButtonText: "Eliminar piso",
+        });
+        if (!result.isConfirmed) return;
+        try {
+            await deleteTableFloor(floor.id);
+            await load();
+            await showSuccesAlert({ title: "Piso eliminado", timer: 2000 });
+        } catch (err) {
+            await showErrorAlert({ title: "No se pudo eliminar", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
         }
     };
 
@@ -196,16 +236,101 @@ export default function TablesSettingsPage() {
                     ))}
                 </div>
 
+                {/* barra de navegacion de la pagina: la lista de mesas o el mapa del negocio */}
+                <div role="tablist" aria-label="Secciones de mesas" className="grid grid-cols-2 gap-2 p-1.5 rounded-m3-full bg-bg-w border border-bd-s100 shadow-m3-1 sm:max-w-md">
+                    {[
+                        ["list", "Lista de mesas", List],
+                        ["map", "Mapa del negocio", MapIcon],
+                    ].map(([id, label, Icon]) => (
+                        <button
+                            key={id}
+                            type="button"
+                            role="tab"
+                            aria-selected={tab === id}
+                            onClick={() => setTab(id)}
+                            className={`m3-state h-11 flex items-center justify-center gap-2 rounded-m3-full text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tab === id ? "bg-bg-s950 text-bg-w shadow-m3-1" : "text-br-s900"}`}
+                        >
+                            <Icon size={18} />
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
                 {loadError && (
                     <p role="alert" className="rounded-m3-lg bg-m3-error-container text-m3-on-error-container px-5 py-4 font-semibold shadow-m3-1">
-                        No se pudo cargar el mapa: {loadError}
+                        No se pudieron cargar las mesas: {loadError}
                     </p>
                 )}
 
-                {map && <RestaurantMapEditor key={version} map={map} tables={rows} onSave={handleSaveMap} canEdit={can("mesas_actualizar")} />}
+                {tab === "list" && <DataTable variant="cafe" data={rows} columns={columns} emptyText="Todavía no hay mesas" />}
 
-                <DataTable variant="cafe" data={rows} columns={columns} emptyText="Todavía no hay mesas" />
+                {tab === "map" && (
+                    <div className="space-y-4">
+                        {/* pisos del negocio: uno por pestaña, y el boton para agregar otro */}
+                        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Pisos del mapa">
+                            <span className="flex items-center gap-1.5 mr-1 text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
+                                <Layers size={16} />
+                                Pisos
+                            </span>
+                            {maps.map((item) => (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    aria-pressed={item.id === floorId}
+                                    onClick={() => setFloorId(item.id)}
+                                    className={`m3-state h-10 px-4 rounded-m3-full border text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${item.id === floorId ? "bg-m3-secondary-container text-m3-on-secondary-container border-transparent" : "bg-bg-w text-br-s950 border-bd-s300"}`}
+                                >
+                                    {item.name}
+                                </button>
+                            ))}
+                            {can("mesas_actualizar") && (
+                                <Button size="md" variant="contorno" type="button" onClick={() => setFloorForm({ name: `Piso ${maps.length + 1}`, error: "" })}>
+                                    <Plus size={16} />
+                                    Agregar piso
+                                </Button>
+                            )}
+                        </div>
+
+                        {floor && (
+                            <RestaurantMapEditor
+                                key={`${floor.id}-${version}`}
+                                map={floor}
+                                tables={rows}
+                                floors={maps}
+                                onSave={handleSaveMap}
+                                onDelete={maps.length > 1 ? handleDeleteFloor : undefined}
+                                canEdit={can("mesas_actualizar")}
+                            />
+                        )}
+                    </div>
+                )}
             </div>
+
+            {/* piso nuevo: solo el nombre */}
+            <DetailModal
+                open={Boolean(floorForm)}
+                onClose={() => setFloorForm(null)}
+                icon={Layers}
+                title="Agregar piso"
+                subtitle="Después lo dibujas y ubicas sus mesas"
+                size="max-w-md"
+                bodyClassName="grid-cols-1 [&_.w-80]:w-full"
+                onEdit={handleCreateFloor}
+                editLabel="Crear piso"
+            >
+                <Input
+                    type="text"
+                    name="floorName"
+                    label="Nombre del piso"
+                    htmlFor="new-floor-name"
+                    variant="latte"
+                    placeholder="Ej: Segundo piso, Terraza alta"
+                    value={floorForm?.name ?? ""}
+                    maxLength={40}
+                    onChange={(e) => setFloorForm({ name: e.target.value, error: "" })}
+                    error={floorForm?.error}
+                />
+            </DetailModal>
 
             {/* crear / editar mesa: es poco contenido, por eso va en ventana */}
             <DetailModal

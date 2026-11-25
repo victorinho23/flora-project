@@ -63,7 +63,7 @@ export default function RestaurantMap({ map, tables = [], renderTable, cellProps
                 style={{
                     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
                     minWidth: `${cols * 3}rem`,
-                    ...(fitScreen && { width: "100%", maxWidth: `calc((100vh - 17rem) * ${cols / rows})`, marginInline: "auto" }),
+                    ...(fitScreen && { width: "100%", maxWidth: `calc((100vh - 20rem) * ${cols / rows})`, marginInline: "auto" }),
                 }}
             >
                 {/* la foto se estira al tamaño de la cuadricula; el piso queda transparente para verla */}

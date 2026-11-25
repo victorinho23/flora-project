@@ -10,14 +10,18 @@ const router = Router();
 
 router.use(authenticateToken);
 
-// GET /api/tables -> todas las mesas, las zonas y el mapa (?active=1 solo las activas)
+// GET /api/tables -> todas las mesas, las zonas y los pisos del mapa (?active=1 solo las activas)
 router.get("/", requirePermission("mesas_listar"), tablesController.getAll);
 
 // POST /api/tables -> nueva mesa
 router.post("/", requirePermission("mesas_crear"), tablesController.create);
 
-// PUT /api/tables/map -> guardar el mapa del restaurante y donde quedo cada mesa
-router.put("/map", requirePermission("mesas_actualizar"), tablesController.saveMap);
+// pisos del mapa del restaurante (solo quien puede actualizar mesas, o sea el administrador)
+// POST /api/tables/map -> piso nuevo; PUT /api/tables/map/:id -> guardar el dibujo y las mesas del piso
+// DELETE /api/tables/map/:id -> borrar el piso (sus mesas quedan sin ubicar)
+router.post("/map", requirePermission("mesas_actualizar"), tablesController.createMap);
+router.put("/map/:id", requirePermission("mesas_actualizar"), tablesController.saveMap);
+router.delete("/map/:id", requirePermission("mesas_actualizar"), tablesController.removeMap);
 
 // PUT /api/tables/:id -> cambiar numero, capacidad o zona
 router.put("/:id", requirePermission("mesas_actualizar"), tablesController.update);

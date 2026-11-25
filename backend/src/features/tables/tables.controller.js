@@ -8,7 +8,7 @@ const MISSING_MIGRATION = ["42P01", "42703"];
 const sendError = (res, err) => {
     if (MISSING_MIGRATION.includes(err.code)) {
         console.error("FALTA CORRER UNA MIGRACION", err.message);
-        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0035 y reinicia el backend" });
+        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0036 y reinicia el backend" });
     }
     if (!err.status) console.error("ERROR BACKEND", err);
     res.status(err.status || 500).json({
@@ -54,10 +54,28 @@ export const tablesController = {
     },
 
 
+    async createMap(req, res) {
+        try {
+            const id = await tablesService.createMap(req.body, req.user.id);
+            res.status(201).json({ message: "Piso creado", mapId: id });
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
+
     async saveMap(req, res) {
         try {
-            await tablesService.saveMap(req.body, req.user.id);
+            await tablesService.saveMap(Number(req.params.id), req.body, req.user.id);
             res.json({ message: "Mapa guardado" });
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
+
+    async removeMap(req, res) {
+        try {
+            await tablesService.removeMap(Number(req.params.id), req.user.id);
+            res.json({ message: "Piso eliminado" });
         } catch (err) {
             sendError(res, err);
         }

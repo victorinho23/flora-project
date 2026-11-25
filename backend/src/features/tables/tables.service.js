@@ -12,8 +12,12 @@ export const ZONES = ["Salón", "Terraza", "Barra", "Segundo piso"];
 // lo que se puede pintar en el mapa (el frontend tiene los mismos nombres)
 export const MAP_AREAS = ["pared", "cocina", "barra", "banos", "entrada", "caja", "terraza", "jardin"];
 
-// mapa vacio cuando todavia no se ha dibujado
-const EMPTY_MAP = { cols: 20, rows: 12, cells: {} };
+// nombre del piso: corto y sin espacios de sobra
+const cleanName = (value) => {
+    const name = String(value ?? "").trim();
+    if (!name || name.length > 40) throw httpError(400, "El nombre del piso debe tener entre 1 y 40 caracteres", "name");
+    return name;
+};
 
 // revisa y limpia lo que llega del formulario
 const clean = (data) => {
@@ -37,16 +41,38 @@ export const tablesService = {
         return {
             zones: ZONES,
             tables: await tablesRepository.getAll(query.active === "1"),
-            map: await tablesService.getMap(),
+            maps: await tablesService.getMaps(),
         };
     },
 
-    async getMap() {
-        return (await tablesRepository.getMap()) ?? EMPTY_MAP;
+    // pisos del mapa; si no hay ninguno se crea el primero vacio
+    async getMaps() {
+        const maps = await tablesRepository.getMaps();
+        if (maps.length) return maps;
+        await tablesRepository.createMap("Piso 1");
+        return tablesRepository.getMaps();
     },
 
-    // revisa el dibujo: tamaño permitido, celdas dentro de la cuadricula y una mesa por celda
-    async saveMap(data, userId) {
+    async createMap(data, userId) {
+        const name = cleanName(data.name);
+        const id = await tablesRepository.createMap(name);
+        await log(userId, `plano-${id}`, "CREAR", `Piso ${name} del mapa`);
+        return id;
+    },
+
+    // se puede borrar un piso mientras quede al menos uno
+    async removeMap(id, userId) {
+        const map = await tablesRepository.findMap(id);
+        if (!map) throw httpError(404, "No se encontró el piso");
+        if ((await tablesRepository.getMaps()).length <= 1) throw httpError(409, "El mapa necesita al menos un piso");
+        await tablesRepository.removeMap(id);
+        await log(userId, `plano-${id}`, "ELIMINAR", `Piso ${map.name} del mapa (sus mesas quedaron sin ubicar)`);
+    },
+
+    async saveMap(id, data, userId) {
+        const map = await tablesRepository.findMap(id);
+        if (!map) throw httpError(404, "No se encontró el piso");
+        const name = cleanName(data.name ?? map.name);
         const cols = Number(data.cols);
         const rows = Number(data.rows);
         if (!Number.isInteger(cols) || cols < 8 || cols > 30) throw httpError(400, "El mapa debe tener entre 8 y 30 columnas", "cols");
@@ -74,8 +100,8 @@ export const tablesService = {
             positions.push({ id: table.id, x, y });
         }
 
-        await tablesRepository.saveMap({ cols, rows, cells, positions });
-        await log(userId, "plano", "ACTUALIZAR", `Mapa del restaurante (${positions.length} mesas ubicadas)`);
+        await tablesRepository.saveMap(id, { name, cols, rows, cells, positions });
+        await log(userId, `plano-${id}`, "ACTUALIZAR", `Piso ${name} del mapa (${positions.length} mesas ubicadas)`);
     },
 
     async create(data, userId) {
