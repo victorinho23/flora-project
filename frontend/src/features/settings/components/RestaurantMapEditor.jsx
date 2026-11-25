@@ -50,10 +50,15 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
     const photoInput = useRef(null);
     // ultima celda pintada: si el mouse va rapido se salta celdas, asi que se rellena la linea entre las dos
     const lastCell = useRef(null);
+    // mesa que se esta arrastrando con el mouse o el dedo
+    const dragTable = useRef(null);
 
     // al soltar el mouse o el dedo en cualquier parte se deja de pintar
     useEffect(() => {
-        const stop = () => { painting.current = false; };
+        const stop = () => {
+            painting.current = false;
+            dragTable.current = null;
+        };
         window.addEventListener("pointerup", stop);
         return () => window.removeEventListener("pointerup", stop);
     }, []);
@@ -119,12 +124,30 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
             onPointerDown: (e) => {
                 // sin esto, en celulares el dedo queda "pegado" a la primera celda y no se puede arrastrar
                 e.currentTarget.releasePointerCapture?.(e.pointerId);
+                const here = tableAt.get(cellKey(x, y));
+                // con cualquier herramienta (menos borrar) una mesa se agarra y se arrastra a otra celda
+                if (here && tool !== "borrar") {
+                    dragTable.current = here.id;
+                    setSelectedId(here.id);
+                    return;
+                }
                 if (tool === "mesa") return placeTable(x, y);
                 painting.current = true;
                 lastCell.current = [x, y];
                 paint(x, y);
             },
+            // arrastrando una mesa: se mueve a la celda donde esta el puntero si esta libre (no se monta sobre otra)
+            onPointerMove: () => {
+                const id = dragTable.current;
+                if (!id) return;
+                const current = positions.get(id);
+                if (current?.x === x && current?.y === y) return;
+                if (tableAt.has(cellKey(x, y))) return;
+                setPositions((prev) => new Map(prev).set(id, { x, y }));
+                setDirty(true);
+            },
             onPointerEnter: () => {
+                if (dragTable.current) return;
                 if (!painting.current || tool === "mesa") return;
                 paintLine(lastCell.current ?? [x, y], [x, y]);
                 lastCell.current = [x, y];
@@ -211,8 +234,8 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
     // mensaje de ayuda segun la herramienta
     const selected = placed.find((table) => table.id === selectedId);
     const hint = tool === "mesa"
-        ? selected ? `Toca una celda para poner la mesa ${selected.number}. Toca una mesa del mapa para moverla.` : "Elige una mesa de la lista o toca una del mapa para moverla."
-        : tool === "borrar" ? "Arrastra sobre el mapa para borrar zonas o quitar mesas." : `Arrastra sobre el mapa para pintar: ${AREAS[tool].label}.`;
+        ? selected ? `Toca una celda para poner la mesa ${selected.number}, o arrastra cualquier mesa del mapa para moverla.` : "Elige una mesa de la lista para ponerla, o arrastra una mesa del mapa para moverla."
+        : tool === "borrar" ? "Arrastra sobre el mapa para borrar zonas o quitar mesas." : `Arrastra sobre el mapa para pintar: ${AREAS[tool].label}. Las mesas se mueven arrastrándolas.`;
 
     // mesa dibujada en el editor: circulo con su numero
     const renderTable = (table) => (
@@ -243,7 +266,8 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                                 Eliminar piso
                             </Button>
                         )}
-                        {dirty && <span className="px-3 py-1 rounded-m3-sm bg-m3-secondary-container text-m3-on-secondary-container text-m3-label-medium font-semibold">Cambios sin guardar</span>}
+                        {/* el aviso siempre ocupa su espacio (invisible si no hay cambios) para que el mapa no salte al pintar */}
+                        <span aria-hidden={!dirty} className={`px-3 py-1 rounded-m3-sm bg-m3-secondary-container text-m3-on-secondary-container text-m3-label-medium font-semibold ${dirty ? "" : "invisible"}`}>Cambios sin guardar</span>
                         <Button size="sm" variant="crema" type="button" onClick={handleClear}>
                             <Trash2 size={16} />
                             Limpiar

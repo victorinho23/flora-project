@@ -17,8 +17,10 @@ const DISHES_PER_PAGE = 6;
 const DISH_TILE_HEIGHT = 150;
 
 const statusOptions = [
-    { id: "ACTIVA", label: "Activa" },
-    { id: "LISTA_PARA_ENTREGA", label: "Lista para entrega" },
+    { id: "ACTIVA", label: "Esperando pedido (en cocina)" },
+    { id: "LISTA_PARA_ENTREGA", label: "Pedido listo para llevar" },
+    { id: "ENTREGADA", label: "Pedido entregado" },
+    { id: "CUENTA_PEDIDA", label: "Pidió la cuenta" },
     { id: "PAGADA", label: "Pagada" },
 ];
 

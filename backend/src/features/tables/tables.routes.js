@@ -4,7 +4,7 @@
 import { Router } from "express";
 import { tablesController } from "./tables.controller.js";
 import { authenticateToken } from "../../middlewares/auth.middleware.js";
-import { requirePermission } from "../../middlewares/permission.middleware.js";
+import { requirePermission, requireAnyPermission } from "../../middlewares/permission.middleware.js";
 
 const router = Router();
 
@@ -15,6 +15,9 @@ router.get("/", requirePermission("mesas_listar"), tablesController.getAll);
 
 // POST /api/tables -> nueva mesa
 router.post("/", requirePermission("mesas_crear"), tablesController.create);
+
+// PATCH /api/tables/:id/occupancy -> el mesero marca la mesa ocupada (clientes sentados) o la libera
+router.patch("/:id/occupancy", requireAnyPermission("ordenes_crear", "ordenes_actualizar"), tablesController.setOccupied);
 
 // pisos del mapa del restaurante (solo quien puede actualizar mesas, o sea el administrador)
 // POST /api/tables/map -> piso nuevo; PUT /api/tables/map/:id -> guardar el dibujo y las mesas del piso

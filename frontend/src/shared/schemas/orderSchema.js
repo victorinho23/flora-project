@@ -41,5 +41,5 @@ export const orderUpdateSchema = z.object({
 
     notes: z.string().optional(),
 
-    status: z.enum(["ACTIVA", "LISTA_PARA_ENTREGA", "CANCELADA", "PAGADA"]),
+    status: z.enum(["ACTIVA", "LISTA_PARA_ENTREGA", "ENTREGADA", "CUENTA_PEDIDA", "CANCELADA", "PAGADA"]),
 });

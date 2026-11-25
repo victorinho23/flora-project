@@ -45,6 +45,18 @@ export const tablesService = {
         };
     },
 
+    // el mesero marca la mesa ocupada cuando se sientan los clientes (antes de tomar el pedido)
+    // o la libera si se fueron sin pedir. Si ya tiene una orden abierta, la orden manda
+    async setOccupied(id, data) {
+        const table = await tablesRepository.findById(id);
+        if (!table) throw httpError(404, "No se encontró la mesa");
+        if (!table.active) throw httpError(400, `La mesa ${table.number} está desactivada`);
+        const occupied = Boolean(data.occupied);
+        const order = await tablesRepository.findOpenOrder(table.number);
+        if (order) throw httpError(409, `La mesa ${table.number} ya tiene la orden #${order.id}; su estado lo lleva la orden`);
+        await tablesRepository.setOccupied(id, occupied);
+    },
+
     // pisos del mapa; si no hay ninguno se crea el primero vacio
     async getMaps() {
         const maps = await tablesRepository.getMaps();
