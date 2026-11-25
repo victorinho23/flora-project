@@ -3,10 +3,10 @@
 // 1. el administrador arrastra las 4 esquinas sobre el plano de la foto (asi se endereza si se tomo torcida)
 // 2. ve el resultado sobre la cuadricula y ajusta la sensibilidad, el tamaño y las salidas antes de aplicarlo
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScanLine, ArrowLeft, ArrowRight, Check, Maximize } from "lucide-react";
+import { ScanLine, ArrowLeft, ArrowRight, Check, Maximize, Crosshair } from "lucide-react";
 import { Button, Select, Checkbox, DetailModal } from "@/shared";
 import RestaurantMap from "./RestaurantMap";
-import { straightenPhoto, analyzePhoto, cellsFromAnalysis, suggestSize, SENSITIVITY } from "../services/scanService";
+import { straightenPhoto, analyzePhoto, cellsFromAnalysis, suggestSize, detectCorners, SENSITIVITY } from "../services/scanService";
 
 // esquinas por defecto: casi toda la foto (arriba-izq, arriba-der, abajo-der, abajo-izq), en proporciones 0..1
 const DEFAULT_CORNERS = [[0.04, 0.04], [0.96, 0.04], [0.96, 0.96], [0.04, 0.96]];
@@ -25,6 +25,8 @@ export default function MapScanModal({ photo, onClose, onApply }) {
     const [dragging, setDragging] = useState(null);
     const [working, setWorking] = useState(false);
     const [error, setError] = useState("");
+    // "buscando" mientras se buscan las esquinas solas, "encontradas" o "manual" si no se pudo
+    const [autoCorners, setAutoCorners] = useState("buscando");
     const frame = useRef(null);
 
     // resultado del paso 2
@@ -43,7 +45,24 @@ export default function MapScanModal({ photo, onClose, onApply }) {
         setStraight(null);
         setAnalysis(null);
         setError("");
+        setAutoCorners("buscando");
     }
+
+    // busca las esquinas de la hoja (la persona igual las puede mover despues)
+    // "intento" sube cada vez que se toca Buscar esquinas otra vez
+    const [attempt, setAttempt] = useState(0);
+    useEffect(() => {
+        if (!photo) return;
+        let alive = true;
+        detectCorners(photo)
+            .then((found) => {
+                if (!alive) return;
+                if (found) setCorners(found);
+                setAutoCorners(found ? "encontradas" : "manual");
+            })
+            .catch(() => alive && setAutoCorners("manual"));
+        return () => { alive = false; };
+    }, [photo, attempt]);
 
     // mover una esquina con el mouse o el dedo (posicion en proporcion de la foto)
     const moveTo = (index, clientX, clientY) => {
@@ -114,8 +133,18 @@ export default function MapScanModal({ photo, onClose, onApply }) {
         >
             {step === "corners" && (
                 <div className="flex flex-col gap-4">
+                    {/* aviso de la deteccion automatica */}
+                    <p
+                        aria-live="polite"
+                        className={`self-start flex items-center gap-2 px-3 py-1.5 rounded-m3-sm text-m3-label-large font-semibold ${autoCorners === "encontradas" ? "bg-m3-success-container text-m3-success" : autoCorners === "manual" ? "bg-m3-secondary-container text-m3-on-secondary-container" : "bg-bg-s50 text-br-s900"}`}
+                    >
+                        <Crosshair size={16} />
+                        {autoCorners === "buscando" && "Buscando las esquinas de la hoja..."}
+                        {autoCorners === "encontradas" && "Encontramos la hoja sola. Revisa que los puntos estén en las esquinas."}
+                        {autoCorners === "manual" && "No se encontró la hoja sola: arrastra los puntos a las esquinas."}
+                    </p>
                     <p className="text-m3-body-medium text-br-s800">
-                        Arrastra los 4 puntos a las esquinas del plano. Si la foto quedó torcida o de lado, se endereza sola; lo que quede por fuera (mesa, dedos, pared) no se tiene en cuenta.
+                        Arrastra los 4 puntos a las esquinas del plano si hace falta. Si la foto quedó torcida o de lado, se endereza sola; lo que quede por fuera (mesa, dedos, pared) no se tiene en cuenta.
                     </p>
 
                     {/* foto con las 4 esquinas encima */}
@@ -149,6 +178,10 @@ export default function MapScanModal({ photo, onClose, onApply }) {
                     {error && <p role="alert" className="text-sm self-start px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{error}</p>}
 
                     <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 [&_button]:w-full sm:[&_button]:w-auto">
+                        <Button size="md" variant="contorno" type="button" onClick={() => { setAutoCorners("buscando"); setAttempt((value) => value + 1); }}>
+                            <Crosshair size={16} />
+                            Buscar esquinas otra vez
+                        </Button>
                         <Button size="md" variant="contorno" type="button" onClick={() => setCorners(FULL_CORNERS)}>
                             <Maximize size={16} />
                             Usar la foto completa
