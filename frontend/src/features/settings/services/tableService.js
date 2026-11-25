@@ -21,6 +21,3 @@ export async function updateTableStatus(id, active, reason) {
     return await request(`${TABLES_URL}/${id}/status`, { method: "PATCH", body: { active, reason } });
 }
 
-export async function deleteTable(id) {
-    return await request(`${TABLES_URL}/${id}`, { method: "DELETE" });
-}

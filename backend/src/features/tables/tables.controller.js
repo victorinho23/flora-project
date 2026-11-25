@@ -46,12 +46,4 @@ export const tablesController = {
         }
     },
 
-    async remove(req, res) {
-        try {
-            await tablesService.remove(Number(req.params.id), req.user.id);
-            res.json({ message: "Mesa eliminada" });
-        } catch (err) {
-            sendError(res, err);
-        }
-    },
 };

@@ -73,16 +73,4 @@ export const tablesService = {
         await log(userId, id, next ? "HABILITAR" : "INHABILITAR", reason || null);
     },
 
-    // solo se borra si nunca se ha usado; si ya tiene ordenes se desactiva para no perder el historial
-    async remove(id, userId) {
-        const current = await tablesRepository.findById(id);
-        if (!current) throw httpError(404, "No se encontró la mesa");
-
-        if (await tablesRepository.countOrders(current.number)) {
-            throw httpError(409, `La mesa ${current.number} ya tiene órdenes registradas; mejor desactívala para no perder el historial`);
-        }
-
-        await tablesRepository.remove(id);
-        await log(userId, id, "ELIMINAR", `Mesa ${current.number}`);
-    },
 };
