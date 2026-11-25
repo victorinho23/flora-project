@@ -97,7 +97,7 @@ export const userController = {
 
     async updatePermissions(req, res) {
         try {
-            await userService.updatePermissions(Number(req.params.id), req.body.permissionIds);
+            await userService.updatePermissions(Number(req.params.id), req.body);
             res.json({ message: "Permisos actualizados correctamente" });
         } catch (err) {
             sendError(res, err);
