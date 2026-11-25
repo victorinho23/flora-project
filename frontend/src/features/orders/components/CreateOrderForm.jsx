@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Minus, X, ChevronLeft, ChevronRight, Utensils } from "lucide-react";
-import { Textarea, Select, Button, Navbar, SearchField, DetailModal } from "@/shared";
+import { Textarea, Button, Navbar, SearchField, DetailModal } from "@/shared";
 import { useNavigate, useLocation } from "react-router-dom";
 import { orderSchema } from "../../../shared/schemas/orderSchema";
 import { getDishCategories } from "@/services/selectServices";
 import { getActiveDishCards, buildDishIndex, searchDishes, parseQuickAdd } from "@/features/products/services/dishService";
 import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import { createOrder, getTables } from "../services/orderService";
+import TablePickerModal from "./TablePickerModal";
 import { getSessionUser } from "@/features/auth/services/logoutService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
 
@@ -109,37 +110,26 @@ export default function CreateOrderForm() {
     const [tableNumber, setTableNumber] = useState(useLocation().state?.tableNumber ?? "");
     const [notes, setNotes] = useState("");
 
+    // ventana de mesas (el plano se carga solo al abrirla)
+    const [tablesOpen, setTablesOpen] = useState(false);
+    const openTables = () => setTablesOpen(true);
 
-    // mesas activas para el select y las ocupadas (mesa -> orden abierta).
-    // Se piden a la base al entrar y cada 20 segundos, asi se ve lo que van haciendo los demas meseros
-    const [tables, setTables] = useState([]);
+    // mesas ocupadas: mesa -> orden abierta. Se piden a la base al entrar, cada 20 segundos
+    // y al cerrar el plano, asi se ve lo que van haciendo los demas meseros
     const [occupied, setOccupied] = useState(() => new Map());
     useEffect(() => {
         const load = () => getTables()
-            .then(({ tables: list, open }) => {
-                setTables(list);
-                setOccupied(new Map(open.map((item) => [Number(item.tableNumber), item])));
-            });
+            .then(({ open }) => setOccupied(new Map(open.map((item) => [Number(item.tableNumber), item]))));
         load();
         const timer = setInterval(load, 20000);
         return () => clearInterval(timer);
-    }, []);
-
-    // opciones del select: numero, zona y capacidad; las ocupadas avisan con que orden estan
-    const tableOptions = tables.map((table) => {
-        const busy = occupied.get(Number(table.number));
-        const taken = busy && true;
-        return {
-            value: String(table.number),
-            label: `Mesa ${table.number} · ${table.zone} · ${table.capacity} personas${taken ? ` · ocupada (orden #${busy.id})` : ""}`,
-        };
-    });
+    }, [tablesOpen]);
 
     // si la mesa escrita ya tiene una orden abierta no se deja guardar (busqueda directa en el Map)
     const takenBy = occupied.get(Number(tableNumber));
     const tableTaken = Boolean(takenBy);
     // mensaje debajo de la mesa: el que mando el backend o que esta ocupada
-    const tableError = errors.tableNumber ?? (tableTaken ? `Mesa ocupada con la orden #${takenBy.id}, elige otra mesa` : undefined);
+    const tableError = errors.tableNumber ?? (tableTaken ? `Mesa ocupada con la orden #${takenBy.id}, elige otra en el plano` : undefined);
 
     // Platillos de la orden guardados por id: { "3": { dishId, quantity, ... } }
     // asi sumar, restar o quitar un platillo va directo a su id sin recorrer la lista
@@ -184,7 +174,7 @@ export default function CreateOrderForm() {
 
         // mesa ocupada: no se deja abrir otra orden hasta que la de esa mesa se pague o se anule
         if (tableTaken) {
-            setErrors({ tableNumber: `Mesa ocupada con la orden #${takenBy.id}, elige otra mesa` });
+            setErrors({ tableNumber: `Mesa ocupada con la orden #${takenBy.id}, elige otra en el plano` });
             return;
         }
 
@@ -237,6 +227,7 @@ export default function CreateOrderForm() {
                 });
                 if (!choice.isConfirmed) return;
                 if (activeOrderId) navigate("/orderList", { state: { openOrder: activeOrderId } });
+                else openTables();
                 return;
             }
 
@@ -285,22 +276,26 @@ export default function CreateOrderForm() {
                             Datos de la orden
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
-                            {/* la mesa se elige de la lista: las ocupadas dicen con que orden estan */}
+                            {/* la mesa ya no se escribe: se elige tocando el plano, asi no se equivocan de numero */}
                             <div className="w-full sm:col-span-2 xl:col-span-1">
-                                <Select
-                                    label="Mesa"
-                                    name="tableNumber"
-                                    htmlFor="table-number"
-                                    value={String(tableNumber ?? "")}
-                                    placeholder="Elige la mesa"
-                                    options={tableOptions}
-                                    onChange={(e) => {
-                                        setTableNumber(e.target.value);
-                                        setErrors((prev) => ({ ...prev, tableNumber: undefined }));
-                                    }}
-                                    error={tableError}
-                                    variant="latte"
-                                />
+                                <p className="text-sm font-semibold text-br-s900 mb-1">Mesa</p>
+                                <button
+                                    type="button"
+                                    onClick={openTables}
+                                    aria-label={tableNumber ? `Mesa ${tableNumber}, toca para cambiarla en el plano` : "Elegir la mesa en el plano"}
+                                    className={`m3-state w-full h-12 flex items-center justify-between gap-3 px-4 rounded-m3-xs border bg-bg-w text-left shadow-m3-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tableError ? "border-m3-error border-2" : "border-bd-s400"}`}
+                                >
+                                    <span className={tableNumber ? "text-m3-title-medium font-bold text-br-s950" : "text-br-s800"}>
+                                        {tableNumber ? `Mesa ${tableNumber}` : "Sin mesa elegida"}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 shrink-0 whitespace-nowrap text-m3-label-large font-semibold text-br-t900">
+                                        <Utensils size={16} />
+                                        {tableNumber ? "Cambiar" : "Ver plano"}
+                                    </span>
+                                </button>
+                                {tableError && (
+                                    <p className="text-sm inline-block mt-1 px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{tableError}</p>
+                                )}
                             </div>
 
                             <div className="w-full">
@@ -572,6 +567,16 @@ export default function CreateOrderForm() {
                 ))}
             </DetailModal>
 
+            <TablePickerModal
+                open={tablesOpen}
+                onClose={() => setTablesOpen(false)}
+                mode="select"
+                currentTable={tableNumber}
+                onPick={(table) => {
+                    setTableNumber(table);
+                    setTablesOpen(false);
+                }}
+            />
         </div>
     );
 }

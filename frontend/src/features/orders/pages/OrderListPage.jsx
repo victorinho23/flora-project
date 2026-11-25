@@ -11,7 +11,7 @@ import { Button } from "@/shared/index"
 import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { orderReportFields, orderReportScopes, orderReportFilters, orderReportDateRange } from "@/features/orders/reports/config/orderReportFields"
 import { useEffect, useMemo, useState } from "react"
-import { ClipboardList, Map as MapIcon } from "lucide-react"
+import { ClipboardList, Utensils } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-orders.png";
 import { useAccess } from "@/features/auth/services/accessService";
 
@@ -84,8 +84,8 @@ export default function OrderListPage () {
                     actions={
                         <>
                             <Button size="sm" variant="crema" onClick={() => { setMapTable(null); setTablesOpen(true); }}>
-                                <MapIcon size={16} />
-                                Mapa de mesas
+                                <Utensils size={16} />
+                                Mesas
                             </Button>
 
                             {can("ordenes_reporte") && (
