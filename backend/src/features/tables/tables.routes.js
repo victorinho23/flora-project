@@ -22,7 +22,4 @@ router.put("/:id", requirePermission("mesas_actualizar"), tablesController.updat
 // PATCH /api/tables/:id/status -> habilitar o deshabilitar
 router.patch("/:id/status", requirePermission("mesas_habilitar"), tablesController.updateStatus);
 
-// DELETE /api/tables/:id -> borrar (solo si nunca se ha usado)
-router.delete("/:id", requirePermission("mesas_eliminar"), tablesController.remove);
-
 export default router;

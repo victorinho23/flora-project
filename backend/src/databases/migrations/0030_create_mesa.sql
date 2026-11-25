@@ -1,5 +1,5 @@
 -- databases/migrations/0030_create_mesa.sql
--- mesas del restaurante: se crean, editan y desactivan desde Configuracion
+-- mesas del restaurante: se crean, editan y desactivan desde Configuracion (no se borran)
 -- numero: el que ve el mesero; capacidad: cuantas personas; zona: donde queda (salon, terraza, barra)
 
 CREATE TABLE IF NOT EXISTS mesa (
@@ -26,8 +26,7 @@ VALUES
     ('Listar mesas', 'mesas_listar', (SELECT content_type_id FROM content_type WHERE app_label = 'settings')),
     ('Crear mesas', 'mesas_crear', (SELECT content_type_id FROM content_type WHERE app_label = 'settings')),
     ('Actualizar mesas', 'mesas_actualizar', (SELECT content_type_id FROM content_type WHERE app_label = 'settings')),
-    ('Habilitar/Deshabilitar mesas', 'mesas_habilitar', (SELECT content_type_id FROM content_type WHERE app_label = 'settings')),
-    ('Eliminar mesas', 'mesas_eliminar', (SELECT content_type_id FROM content_type WHERE app_label = 'settings'))
+    ('Habilitar/Deshabilitar mesas', 'mesas_habilitar', (SELECT content_type_id FROM content_type WHERE app_label = 'settings'))
 ON CONFLICT (permission_codename) DO NOTHING;
 
 -- el administrador tiene todos

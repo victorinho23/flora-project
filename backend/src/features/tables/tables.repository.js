@@ -44,10 +44,6 @@ export const tablesRepository = {
         await pool.query(`UPDATE mesa SET estado = $2 WHERE id = $1;`, [id, active]);
     },
 
-    async remove(id) {
-        await pool.query(`DELETE FROM mesa WHERE id = $1;`, [id]);
-    },
-
     // orden abierta (en cocina o lista para entregar) que tenga la mesa
     async findOpenOrder(number) {
         const result = await pool.query(
@@ -55,11 +51,5 @@ export const tablesRepository = {
             [number],
         );
         return result.rows[0] ?? null;
-    },
-
-    // cuantas ordenes (de cualquier estado) se han hecho en la mesa
-    async countOrders(number) {
-        const result = await pool.query(`SELECT COUNT(*)::INTEGER AS total FROM orden WHERE numero_mesa = $1;`, [number]);
-        return result.rows[0].total;
     },
 };

@@ -1,11 +1,11 @@
 // src/features/settings/pages/TablesSettingsPage.jsx
-// Configuracion -> Mesas: crear, editar, habilitar/deshabilitar y eliminar las mesas del restaurante
+// Configuracion -> Mesas: crear, editar y habilitar/deshabilitar las mesas del restaurante (no se eliminan para no perder el historial)
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Settings, Pencil, Trash2, Plus, Users, MapPin } from "lucide-react";
+import { Settings, Pencil, Plus, Users, MapPin } from "lucide-react";
 import { DataTable, Navbar, Input, Select, Button, DetailModal, Switch } from "@/shared";
-import { getAllTables, createTable, updateTable, updateTableStatus, deleteTable } from "../services/tableService";
-import { showConfirmAlert, showConfirmDeleteAlert, showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
+import { getAllTables, createTable, updateTable, updateTableStatus } from "../services/tableService";
+import { showConfirmAlert, showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
 import { useAccess } from "@/features/auth/services/accessService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
 
@@ -80,21 +80,6 @@ export default function TablesSettingsPage() {
         }
     };
 
-    const handleDelete = async (table) => {
-        const result = await showConfirmDeleteAlert({
-            title: `¿Eliminar la mesa ${table.number}?`,
-            text: "Solo se puede eliminar si nunca ha tenido órdenes. Esta acción no se puede deshacer.",
-        });
-        if (!result.isConfirmed) return;
-        try {
-            await deleteTable(table.id);
-            await load();
-            await showSuccesAlert({ title: "Mesa eliminada", timer: 2000 });
-        } catch (err) {
-            await showErrorAlert({ title: "No se puede eliminar", text: err.message, confirmButtonText: "Entendido", timer: 5000 });
-        }
-    };
-
     const columns = useMemo(() => [
         {
             accessorKey: "number",
@@ -132,7 +117,7 @@ export default function TablesSettingsPage() {
                 return <Switch checked={table.active} onChange={handleChange} disabled={!can("mesas_habilitar")} />;
             },
         },
-        ...(can("mesas_actualizar") || can("mesas_eliminar") ? [{
+        ...(can("mesas_actualizar") ? [{
             id: "actions",
             header: "Acciones",
             cell: ({ row }) => (
@@ -146,17 +131,6 @@ export default function TablesSettingsPage() {
                             className="m3-state w-10 h-10 flex items-center justify-center rounded-m3-full text-bg-w focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200"
                         >
                             <Pencil size={16} />
-                        </button>
-                    )}
-                    {can("mesas_eliminar") && (
-                        <button
-                            type="button"
-                            onClick={() => handleDelete(row.original)}
-                            aria-label={`Eliminar mesa ${row.original.number}`}
-                            title="Eliminar"
-                            className="m3-state w-10 h-10 flex items-center justify-center rounded-m3-full text-bg-w focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fc-t200"
-                        >
-                            <Trash2 size={16} />
                         </button>
                     )}
                 </div>
