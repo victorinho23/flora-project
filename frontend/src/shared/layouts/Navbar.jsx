@@ -12,6 +12,7 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/icons/flora-icon.svg";
 import { useAccess } from "@/features/auth/services/accessService";
+import { showConfirmAlert } from "@/shared/services/alertService";
 
 
 // Secciones de la barra de navegacion y todas las rutas que pertenecen a cada una
@@ -68,6 +69,16 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const currentSection = sectionOf(pathname);
+
+  // cerrar sesion se confirma; al volver al login la sesion se borra
+  const confirmLogout = async () => {
+    const result = await showConfirmAlert({
+      title: "¿Cerrar sesión?",
+      text: "Tendrás que volver a escribir tu correo y contraseña para entrar.",
+      confirmButtonText: "Cerrar sesión",
+    });
+    if (result.isConfirmed) navigate("/auth");
+  };
 
   // solo se muestran los modulos que la persona puede abrir (el admin los ve todos)
   const can = useAccess();
@@ -250,7 +261,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
                   <div className="my-1 border-t border-bg-w/15" />
 
                   <DropdownItem to="/viewUser" active={pathname === "/viewUser"}>Mi perfil</DropdownItem>
-                  <DropdownItem to="/auth">Cerrar sesión</DropdownItem>
+                  <DropdownItem onClick={confirmLogout}>Cerrar sesión</DropdownItem>
                 </DropdownContent>
             </Dropdown>
 

@@ -187,6 +187,14 @@ export default function SupplierRegisterForm() {
             return;
         }
 
+        // al crear tambien se confirma antes de guardar
+        const confirmation = await showConfirmAlert({
+            title: `¿Registrar el proveedor ${result.data.companyName}?`,
+            text: "Quedará disponible para asociarlo a los productos del inventario.",
+            confirmButtonText: "Registrar proveedor",
+        });
+        if (!confirmation.isConfirmed) return;
+
         try {
             // result.data contiene los datos ya validados por Zod
             await createSupplier(result.data);
