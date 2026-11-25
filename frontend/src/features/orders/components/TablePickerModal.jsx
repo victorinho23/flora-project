@@ -46,10 +46,9 @@ function buildOpenByTable(orders) {
 
 // currentOrderId: al editar, la orden que se esta editando (su propia mesa no se bloquea)
 export default function TablePickerModal({ open, onClose, mode = "browse", currentTable, currentOrderId, onPick, canOpenFree = true, highlight }) {
-    // vista elegida: cajitas por zona o el mapa del negocio. Mientras no se elija ninguna
-    // se abre en las cajitas, o en el mapa si se busca una mesa; al cerrar vuelve a la de siempre
+    // vista elegida: cajitas por zona o el mapa del negocio. Mientras no se elija ninguna se abre en el mapa
+    // si el administrador ya lo dibujo (asi el mesero lo conoce y se ubica), si no en las cajitas
     const [picked, setPicked] = useState(null);
-    const view = picked ?? (highlight ? "map" : "tables");
     const setView = setPicked;
     const close = () => {
         setPicked(null);
@@ -95,6 +94,7 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
     // mesas que el administrador ya puso en el mapa
     const map = board.map;
     const onMap = map ? board.tables.filter((table) => table.x != null && table.y != null && table.x < map.cols && table.y < map.rows) : [];
+    const view = picked ?? (highlight || onMap.length ? "map" : "tables");
     const usedAreas = [...new Set(Object.values(map?.cells ?? {}))].filter((area) => AREAS[area]);
 
     // estado de una mesa: su orden abierta, si esta bloqueada y que pasa al tocarla (igual en las dos vistas)

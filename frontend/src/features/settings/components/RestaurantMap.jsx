@@ -40,7 +40,8 @@ function buildLabels(cells) {
 // renderTable(table, key): como se dibuja cada mesa (el editor y el mesero las pintan distinto)
 // cellProps(x, y): props extra de cada celda (el editor las usa para pintar con el mouse o el dedo)
 // fitScreen: el mapa se achica lo necesario para verse completo en la pantalla sin bajar (ventana del mesero)
-export default function RestaurantMap({ map, tables = [], renderTable, cellProps, fitScreen = false, className = "" }) {
+// photo: foto escaneada del negocio que va detras de la cuadricula para calcar encima (solo en el editor)
+export default function RestaurantMap({ map, tables = [], renderTable, cellProps, fitScreen = false, photo, className = "" }) {
     const { cols, rows, cells } = map;
 
     // mesa que hay en cada celda, para buscarla directo al dibujar
@@ -55,16 +56,20 @@ export default function RestaurantMap({ map, tables = [], renderTable, cellProps
     const labels = useMemo(() => buildLabels(cells), [cells]);
 
     return (
-        // en pantallas pequeñas el mapa no se aplasta: cada celda mide minimo 3.25rem y se desliza de lado
+        // en pantallas pequeñas el mapa no se aplasta: cada celda mide minimo 3rem y se desliza de lado
         <div className="overflow-x-auto">
             <div
-                className={`grid gap-px p-px rounded-m3-md bg-bd-s100 border border-bd-s300 select-none ${className}`}
+                className={`relative grid gap-px p-px rounded-m3-md bg-bd-s100 border border-bd-s300 select-none ${className}`}
                 style={{
                     gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-                    minWidth: `${cols * 3.25}rem`,
+                    minWidth: `${cols * 3}rem`,
                     ...(fitScreen && { width: "100%", maxWidth: `calc((100vh - 17rem) * ${cols / rows})`, marginInline: "auto" }),
                 }}
             >
+                {/* la foto se estira al tamaño de la cuadricula; el piso queda transparente para verla */}
+                {photo && (
+                    <img src={photo} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 w-full h-full object-fill opacity-60 rounded-m3-md" />
+                )}
                 {Array.from({ length: rows * cols }, (_, index) => {
                     const x = index % cols;
                     const y = Math.floor(index / cols);
@@ -79,7 +84,7 @@ export default function RestaurantMap({ map, tables = [], renderTable, cellProps
                             key={key}
                             data-x={x}
                             data-y={y}
-                            className={`relative aspect-square flex items-center justify-center ${area ? area.cell : "bg-bg-w"}`}
+                            className={`relative aspect-square flex items-center justify-center ${area ? area.cell : photo ? "bg-bg-w/30" : "bg-bg-w"}`}
                             {...cellProps?.(x, y)}
                         >
                             {/* nombre de la zona: sale por encima de las celdas vecinas para que se lea completo */}
