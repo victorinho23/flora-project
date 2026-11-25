@@ -578,7 +578,7 @@ export function OrderEditForm({ order }) {
                                 type="button"
                                 onClick={handleCancelOrder}
                             >
-                                Anular orden
+                                Anular
                             </Button>
 
                             <Button

@@ -16,9 +16,9 @@ export default function ViewUserListPage () {
     const can = useAccess();
 
     const [selectedId, setSelectedId] = useState(null);
-    // usuario elegido para la ventana de ver (busqueda por id)
-    const selectedUser = rows.find((u) => u.id === selectedId);
     const [rows, setRows] = useState([]);
+    // usuario elegido para la ventana de ver (busqueda por id); va despues de rows porque lo usa
+    const selectedUser = rows.find((u) => u.id === selectedId);
 
     // Columnas de la tabla con la accion de ver y el cambio de estado
     const columns = useMemo(
