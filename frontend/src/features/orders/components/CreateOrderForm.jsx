@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Plus, Minus, X, ChevronLeft, ChevronRight, Utensils } from "lucide-react";
-import { Input, Textarea, Button, Navbar, SearchField, DetailModal } from "@/shared";
+import { Textarea, Button, Navbar, SearchField, DetailModal } from "@/shared";
 import { useNavigate, useLocation } from "react-router-dom";
 import { orderSchema } from "../../../shared/schemas/orderSchema";
 import { getDishCategories } from "@/services/selectServices";
@@ -128,6 +128,8 @@ export default function CreateOrderForm() {
     // si la mesa escrita ya tiene una orden abierta no se deja guardar (busqueda directa en el Map)
     const takenBy = occupied.get(Number(tableNumber));
     const tableTaken = Boolean(takenBy);
+    // mensaje debajo de la mesa: el que mando el backend o que esta ocupada
+    const tableError = errors.tableNumber ?? (tableTaken ? `Mesa ocupada con la orden #${takenBy.id}, elige otra en el plano` : undefined);
 
     // Platillos de la orden guardados por id: { "3": { dishId, quantity, ... } }
     // asi sumar, restar o quitar un platillo va directo a su id sin recorrer la lista
@@ -266,21 +268,27 @@ export default function CreateOrderForm() {
                             Datos de la orden
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
-                            <Input
-                                type="text"
-                                name="tableNumber"
-                                label="Número de mesa"
-                                placeholder="Escribe el número de mesa"
-                                htmlFor="table-number"
-                                variant="latte"
-                                value={tableNumber}
-                                onChange={(e) => setTableNumber(e.target.value)}
-                                error={errors.tableNumber ?? (tableTaken ? `Mesa ocupada con la orden #${takenBy.id}, elige otra en el plano` : undefined)}
-                            />
-                            <Button type="button" variant="crema" size="sm" onClick={openTables} className="sm:col-span-2 xl:col-span-1 m3-state flex items-center justify-center gap-2 h-10 px-4 rounded-m3-full border border-bd-s300 bg-bg-w text-br-s950 text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus">
-                                <Utensils size={16} />
-                                Elegir mesa en el plano
-                            </Button>
+                            {/* la mesa ya no se escribe: se elige tocando el plano, asi no se equivocan de numero */}
+                            <div className="w-full sm:col-span-2 xl:col-span-1">
+                                <p className="text-sm font-semibold text-br-s900 mb-1">Mesa</p>
+                                <button
+                                    type="button"
+                                    onClick={openTables}
+                                    aria-label={tableNumber ? `Mesa ${tableNumber}, toca para cambiarla en el plano` : "Elegir la mesa en el plano"}
+                                    className={`m3-state w-full h-12 flex items-center justify-between gap-3 px-4 rounded-m3-xs border bg-bg-w text-left shadow-m3-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tableError ? "border-m3-error border-2" : "border-bd-s400"}`}
+                                >
+                                    <span className={tableNumber ? "text-m3-title-medium font-bold text-br-s950" : "text-br-s800"}>
+                                        {tableNumber ? `Mesa ${tableNumber}` : "Sin mesa elegida"}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 shrink-0 whitespace-nowrap text-m3-label-large font-semibold text-br-t900">
+                                        <Utensils size={16} />
+                                        {tableNumber ? "Cambiar" : "Ver plano"}
+                                    </span>
+                                </button>
+                                {tableError && (
+                                    <p className="text-sm inline-block mt-1 px-2 py-0.5 rounded bg-m3-error-container text-m3-on-error-container font-medium">{tableError}</p>
+                                )}
+                            </div>
 
                             <div className="w-full">
                                 <p className="text-sm font-semibold text-br-s900 mb-1">
