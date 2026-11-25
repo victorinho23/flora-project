@@ -11,7 +11,7 @@ import { Button } from "@/shared/index"
 import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { orderReportFields, orderReportScopes, orderReportFilters, orderReportDateRange } from "@/features/orders/reports/config/orderReportFields"
 import { useEffect, useMemo, useState } from "react"
-import { ClipboardList, Utensils } from "lucide-react"
+import { ClipboardList, Map as MapIcon } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-orders.png";
 import { useAccess } from "@/features/auth/services/accessService";
 
@@ -31,6 +31,8 @@ export default function OrderListPage () {
     // al volver de crear o editar una orden llega su id para abrirla de una vez en el modal
     const [selectedId, setSelectedId] = useState(location.state?.openOrder ?? null);
     const [tablesOpen, setTablesOpen] = useState(false);
+    // mesa que se resalta en el mapa cuando se abre desde el detalle de una orden
+    const [mapTable, setMapTable] = useState(null);
 
     const handleView = (order) => setSelectedId(order.id);
     const handleEdit = (order) => navigate(`/orderEdit/${order.id}`);
@@ -55,7 +57,7 @@ export default function OrderListPage () {
     // Diccionario por id que se arma una vez cada que llegan las ordenes, asi el modal la busca directo
     const ordersById = useMemo(() => new Map(rows.map((order) => [order.id, order])), [rows]);
 
-    // Mesas: ocupada -> abre el detalle de su orden en el modal; libre -> crear orden con la mesa puesta
+    // Mapa: mesa ocupada -> abre el detalle de su orden en el modal; libre -> crear orden con la mesa puesta
     const pickTable = (table, order) => {
         setTablesOpen(false);
         if (order) setSelectedId(order.id);
@@ -81,9 +83,9 @@ export default function OrderListPage () {
                     className="rounded-m3-lg shadow-m3-2"
                     actions={
                         <>
-                            <Button size="sm" variant="crema" onClick={() => setTablesOpen(true)}>
-                                <Utensils size={16} />
-                                Mesas
+                            <Button size="sm" variant="crema" onClick={() => { setMapTable(null); setTablesOpen(true); }}>
+                                <MapIcon size={16} />
+                                Mapa de mesas
                             </Button>
 
                             {can("ordenes_reporte") && (
@@ -124,6 +126,7 @@ export default function OrderListPage () {
                 onClose={() => setSelectedId(null)}
                 onEdit={can("ordenes_actualizar") ? handleEdit : undefined}
                 onChanged={load}
+                onShowMap={(order) => { setMapTable(order.tableNumber); setTablesOpen(true); }}
             />
 
             <TablePickerModal
@@ -131,6 +134,7 @@ export default function OrderListPage () {
                 onClose={() => setTablesOpen(false)}
                 onPick={pickTable}
                 canOpenFree={can("ordenes_crear")}
+                highlight={mapTable}
             />
 
             <ReportConfigModal

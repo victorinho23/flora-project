@@ -46,4 +46,13 @@ export const tablesController = {
         }
     },
 
+
+    async saveMap(req, res) {
+        try {
+            await tablesService.saveMap(req.body, req.user.id);
+            res.json({ message: "Mapa guardado" });
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
 };
