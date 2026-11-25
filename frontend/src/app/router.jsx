@@ -17,6 +17,7 @@ import { InventoryDetailPage, InventoryRegisterForm, InventoryUpdatePage } from 
 import SupplierRegisterForm from "../features/suppliers/components/SupplierRegisterForm";
 import { SupplierUpdatePage } from "../features/suppliers";
 import ProtectedRoute from "../shared/components/auth/ProtectedRoute";
+import TablesSettingsPage from "../features/settings/pages/TablesSettingsPage";
 
 
 // Rutas de Flora: cada modulo tiene listado, crear, ver y editar
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
     {
         path: "/categories",
         element: <ProtectedRoute permission="menu_listar"><CategoriesPage/></ProtectedRoute>,
+    },
+    {
+        path: "/settings",
+        element: <ProtectedRoute permission="mesas_listar"><TablesSettingsPage/></ProtectedRoute>,
     },
     {
         path: "/orderList",

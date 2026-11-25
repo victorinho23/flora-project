@@ -9,6 +9,7 @@ import cors from "cors";
 // Cada feature expone su propio router independiente
 import authRoutes from "./features/auth/auth.routes.js";
 import changesRoutes from "./features/changes/changes.routes.js";
+import tablesRoutes from "./features/tables/tables.routes.js";
 import userRoutes from "./features/users/user.routes.js";
 import accessRoutes from "./features/access/access.routes.js";
 import groupsRoutes from "./features/groups/groups.routes.js";
@@ -71,6 +72,7 @@ app.use("/api/brands", brandsRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/suppliers", suppliersRoutes);
 app.use("/api/changes", changesRoutes);
+app.use("/api/tables", tablesRoutes);
 
 // ruta que no existe: se responde en JSON para que el frontend muestre un mensaje claro
 app.use("/api", (req, res) => {

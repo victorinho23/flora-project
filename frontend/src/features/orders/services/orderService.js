@@ -25,23 +25,27 @@ export const TOTAL_MESAS = 12;
 
 const isOpen = (order) => order.status === "ACTIVA" || order.status === "LISTA_PARA_ENTREGA";
 
-// plano de mesas desde la base: { total, open: [ordenes abiertas con su mesa] }
-// todas las mesas empiezan libres y solo cambian si tienen una orden abierta.
-// Si el backend todavia no tiene /orders/tables (no se ha reiniciado), se sacan de la lista de ordenes,
-// y si tampoco se puede, se muestran todas libres (el backend igual no deja usar una mesa ocupada)
+// plano de mesas desde la base: { total, tables: [mesas activas con zona y capacidad], open: [ordenes abiertas] }
+// las mesas se crean en Configuracion; todas empiezan libres y solo cambian si tienen una orden abierta.
+// Si el backend no responde se arman las mesas 1..12 desde la lista de ordenes
+// (el backend igual no deja usar una mesa ocupada)
+const defaultTables = () => Array.from({ length: TOTAL_MESAS }, (_, index) => ({ number: index + 1, capacity: 4, zone: "Salón" }));
+
 export async function getTables() {
     try {
         const data = await request(`${ORDERS_URL}/tables`);
-        return { total: Number(data?.total) || TOTAL_MESAS, open: data?.open ?? [] };
+        const tables = Array.isArray(data?.tables) ? data.tables : defaultTables();
+        return { total: tables.length, tables, open: data?.open ?? [] };
     } catch {
         try {
             const orders = await getOrders();
-            return { total: TOTAL_MESAS, open: orders.filter(isOpen) };
+            return { total: TOTAL_MESAS, tables: defaultTables(), open: orders.filter(isOpen) };
         } catch {
-            return { total: TOTAL_MESAS, open: [] };
+            return { total: TOTAL_MESAS, tables: defaultTables(), open: [] };
         }
     }
 }
+
 
 // crea la orden, el mesero es el usuario de la sesion
 // si la mesa esta ocupada el backend responde 409 con activeOrderId (la orden que la tiene)

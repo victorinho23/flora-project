@@ -6,7 +6,7 @@ Node.js + Express + PostgreSQL. Misma estructura del proyecto de clase:
 ## Arrancar
 
 1. Crear la base de datos `flora` en pgAdmin y ejecutar las migraciones
-   (`src/databases/migrations` en orden, de la 0001 a la 0029).
+   (`src/databases/migrations` en orden, de la 0001 a la 0030).
 2. Revisar el archivo `.env` (puerto, usuario y contraseña de PostgreSQL y, si quieres correos de verdad, los datos SMTP de abajo).
 3. En esta carpeta:
 
@@ -32,7 +32,6 @@ Su contraseña inicial la tiene el líder del proyecto; **cámbiala apenas entre
 | `JWT_EXPIRES` | duración de la sesión | 8h |
 | `FRONTEND_URL` | única dirección que puede llamar al backend (CORS) | http://localhost:5173 |
 | `PUBLIC_URL` | dirección con la que se arman las URLs de las imágenes | http://localhost:4000 |
-| `TOTAL_MESAS` | cuántas mesas tiene el restaurante | 12 |
 | `SMTP_HOST`, `SMTP_PORT` | servidor de correo para mandar el código de recuperar contraseña (ej: `smtp.gmail.com`, `587`) | — |
 | `SMTP_USER`, `SMTP_PASS` | cuenta que manda el correo (en Gmail se usa una "contraseña de aplicación", no la normal) | — |
 | `MAIL_FROM` | nombre y correo que ve quien recibe | `Flora <SMTP_USER>` |
@@ -59,6 +58,7 @@ Si no pones los datos `SMTP_*`, el código de recuperación se muestra en la con
 | Login | /api/auth/login |
 | Recuperar contraseña | /api/auth/forgot-password → /api/auth/verify-code → /api/auth/reset-password |
 | Historial (registro de cambios) | GET /api/changes/:tabla/:id (ej: /api/changes/usuario/2) |
+| Mesas (Configuración) | /api/tables (GET, POST, PUT /:id, PATCH /:id/status, DELETE /:id) |
 | Usuarios | /api/users |
 | Grupos y permisos | /api/groups, /api/permissions, /api/access |
 | Menú | /api/dishes, /api/categories |
@@ -88,6 +88,7 @@ La migración `0026_create_index_orden_mesa.sql` agrega el índice para encontra
 La migración `0027_insert_mas_categorias.sql` agrega 20 categorías más para el menú (si ya existe una con el mismo nombre no la repite).
 La migración `0028_create_index_mesa_ocupada.sql` hace que la base no deje tener dos órdenes abiertas en la misma mesa.
 La migración `0029_alter_usuario_recuperacion.sql` agrega al usuario los datos del código para recuperar la contraseña.
+La migración `0030_create_mesa.sql` crea la tabla de mesas (con las 12 de antes en el salón) y los permisos `mesas_*`.
 
 ## Mesas
 
@@ -96,7 +97,8 @@ La migración `0029_alter_usuario_recuperacion.sql` agrega al usuario los datos 
   Lo que falte se agrega editando la orden que ya tiene.
 - Queda libre cuando su orden se **paga** o se **anula**.
 - Si dos meseros guardan la misma mesa al mismo tiempo, la base acepta solo una (índice único de la migración 0028).
-- `GET /api/orders/tables` devuelve `{ total, open }`: cuántas mesas hay y las órdenes abiertas con su mesa.
+- Las mesas se crean, editan, desactivan o eliminan en **Configuración** (`/settings`). Una mesa con orden abierta no se puede desactivar ni cambiar de número, y solo se elimina si nunca ha tenido órdenes.
+- `GET /api/orders/tables` devuelve `{ total, tables, open }`: las mesas activas con su zona y capacidad, y las órdenes abiertas con su mesa.
 
 ## Imágenes por módulo
 

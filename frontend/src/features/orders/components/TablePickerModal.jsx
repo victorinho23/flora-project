@@ -4,7 +4,7 @@
 // - modo "select" (crear/editar orden): solo se pueden tocar las mesas libres, las ocupadas quedan bloqueadas
 // El estado de las mesas se pide a la base cada vez que se abre, asi siempre esta al dia
 import { useEffect, useMemo, useState } from "react";
-import { Utensils, Clock } from "lucide-react";
+import { Utensils, Clock, Users } from "lucide-react";
 import { DetailModal } from "@/shared";
 import { getTables, TOTAL_MESAS } from "../services/orderService";
 
@@ -32,7 +32,7 @@ function buildOpenByTable(orders) {
 export default function TablePickerModal({ open, onClose, mode = "browse", currentTable, currentOrderId, onPick, canOpenFree = true }) {
     // cuantas mesas tiene el restaurante y cuales estan ocupadas, segun el backend
     // todas las mesas empiezan libres; al llegar la respuesta se marcan las que tienen orden abierta
-    const [board, setBoard] = useState({ total: TOTAL_MESAS, open: [] });
+    const [board, setBoard] = useState({ total: TOTAL_MESAS, tables: [], open: [] });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -48,9 +48,10 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
 
     const openByTable = useMemo(() => buildOpenByTable(board.open), [board]);
 
-    // mesas del tablero: las del restaurante y alguna extra si una orden vieja la usa
-    const tableCount = Math.max(board.total, ...openByTable.keys());
-    const tables = Array.from({ length: tableCount }, (_, index) => index + 1);
+    // mesas del tablero: las activas de Configuracion y alguna extra si una orden abierta usa una que ya no esta
+    const info = useMemo(() => new Map(board.tables.map((table) => [Number(table.number), table])), [board]);
+    const tables = [...new Set([...info.keys(), ...openByTable.keys()])].sort((a, b) => a - b);
+    const tableCount = tables.length;
     const freeCount = tables.filter((table) => !openByTable.has(table)).length;
 
     return (
@@ -102,6 +103,12 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
                             <span className={`w-2.5 h-2.5 rounded-m3-full ${state.dot}`} />
                         </span>
                         <span className="text-m3-label-medium font-semibold">{blocked && order ? "Ocupada" : isCurrent ? "Mesa actual" : state.label}</span>
+                        {/* zona y capacidad que se configuran en Configuracion */}
+                        {info.get(table) && (
+                            <span className="flex items-center gap-1 text-m3-body-small opacity-80">
+                                <Users size={12} />{info.get(table).capacity} · {info.get(table).zone}
+                            </span>
+                        )}
                         {order ? (
                             <span className="mt-auto flex w-full items-center justify-between gap-2 text-m3-body-small">
                                 <span>#{order.id} · ${(order.total ?? 0).toLocaleString("es-CO")}</span>

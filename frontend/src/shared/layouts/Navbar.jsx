@@ -24,6 +24,7 @@ const navigationLinks = [
   { to: "/orderList", permission: "ordenes_listar", label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderView", "orderEdit"] },
   { to: "/listInventory", permission: "inventario_listar", label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory", "detailsInventory"] },
   { to: "/permissions", permission: "permisos_gestionar", label: "Permisos", routes: ["permissions"] },
+  { to: "/settings", permission: "mesas_listar", label: "Configuración", routes: ["settings"] },
 ];
 
 // Destinos del buscador de la barra: modulos y acciones frecuentes, con palabras parecidas
@@ -41,6 +42,7 @@ const searchTargets = [
   { label: "Usuarios", to: "/userList", permission: "usuarios_listar", words: "usuarios empleados meseros personal" },
   { label: "Nuevo usuario", to: "/userCreate", permission: "usuarios_crear", words: "nuevo usuario empleado mesero registrar" },
   { label: "Permisos", to: "/permissions", permission: "permisos_gestionar", words: "permisos roles grupos accesos" },
+  { label: "Configuración · Mesas", to: "/settings", permission: "mesas_listar", words: "configuracion ajustes mesas crear mesa zonas capacidad" },
   { label: "Mi perfil", to: "/viewUser", words: "mi perfil cuenta datos" },
   { label: "Inicio", to: "/home", words: "inicio home principal" },
 ];

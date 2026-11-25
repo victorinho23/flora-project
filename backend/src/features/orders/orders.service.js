@@ -2,13 +2,12 @@
 
 import { ordersRepository } from "./orders.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
+import { tablesRepository } from "../tables/tables.repository.js";
 import { imageUrl } from "../../config/upload.js";
 import { parseIds, parseOption, parseNumber, parseDate } from "../../config/reportFilters.js";
 
 const STATUSES = ["ACTIVA", "LISTA_PARA_ENTREGA", "PAGADA", "CANCELADA"];
 
-// mesas que tiene el restaurante (se cambia en el .env con TOTAL_MESAS)
-const TOTAL_MESAS = Number(process.env.TOTAL_MESAS) || 12;
 
 // si dos meseros abren la misma mesa al mismo tiempo, la base rechaza la segunda (indice unico 0028)
 const isTableTaken = (error) => error.code === "23505" && error.constraint === "ux_orden_mesa_abierta";
@@ -56,11 +55,16 @@ const NEXT_STATUS = {
     CANCELADA: [],
 };
 
-const parseTable = (value) => {
+// la mesa tiene que existir en Configuracion y estar activa
+// (currentTable = la mesa que ya tenia la orden, esa se acepta aunque la hayan desactivado despues)
+const parseTable = async (value, currentTable = null) => {
     const tableNumber = Number(value);
-    if (!Number.isInteger(tableNumber) || tableNumber < 1 || tableNumber > TOTAL_MESAS) {
-        throw httpError(400, `La mesa debe ser un número del 1 al ${TOTAL_MESAS}`, { field: "tableNumber" });
+    if (!Number.isInteger(tableNumber) || tableNumber < 1) {
+        throw httpError(400, "Elige la mesa en el plano", { field: "tableNumber" });
     }
+    const table = await tablesRepository.findByNumber(tableNumber);
+    if (!table) throw httpError(400, `La mesa ${tableNumber} no existe`, { field: "tableNumber" });
+    if (!table.active && tableNumber !== currentTable) throw httpError(400, `La mesa ${tableNumber} está desactivada`, { field: "tableNumber" });
     return tableNumber;
 };
 
@@ -91,7 +95,9 @@ export const ordersService = {
 
     // plano de mesas para todos los meseros (sale de la base, asi todos ven lo mismo)
     async getTables() {
-        return { total: TOTAL_MESAS, open: await ordersRepository.getOpenTables() };
+        // tables = mesas activas con su zona y capacidad (las crea el administrador en Configuracion)
+        const tables = await tablesRepository.getAll(true);
+        return { total: tables.length, tables, open: await ordersRepository.getOpenTables() };
     },
 
     async getById(id) {
@@ -102,7 +108,7 @@ export const ordersService = {
 
     // el mesero es el usuario que tiene la sesion abierta
     async create(data, waiterId) {
-        const tableNumber = parseTable(data.tableNumber);
+        const tableNumber = await parseTable(data.tableNumber);
         const items = await prepareItems(data.items);
 
         const inactive = items.find((item) => !item.active);
@@ -133,7 +139,7 @@ export const ordersService = {
             throw httpError(400, "Esta orden ya está cerrada y no puede modificarse");
         }
 
-        const tableNumber = parseTable(data.tableNumber);
+        const tableNumber = await parseTable(data.tableNumber, Number(current.tableNumber ?? current.numero_mesa));
         const status = STATUSES.includes(data.status) ? data.status : current.status;
         const waiterId = Number(data.waiterId);
 
