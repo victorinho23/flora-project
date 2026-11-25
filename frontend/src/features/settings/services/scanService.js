@@ -113,6 +113,113 @@ export async function straightenPhoto(src, corners) {
     return { src: canvas.toDataURL("image/jpeg", 0.85), width, height };
 }
 
+// revisa un cuadro alrededor de cada punto: "any" = hay al menos un 1 (dilatar), "all" = todos son 1 (erosionar)
+// con la tabla de sumas cada cuadro sale en 4 operaciones
+function squareFilter(mask, width, height, radius, mode) {
+    const integral = new Int32Array((width + 1) * (height + 1));
+    for (let y = 1; y <= height; y++) {
+        let row = 0;
+        for (let x = 1; x <= width; x++) {
+            row += mask[(y - 1) * width + x - 1];
+            integral[y * (width + 1) + x] = integral[(y - 1) * (width + 1) + x] + row;
+        }
+    }
+    const out = new Uint8Array(width * height);
+    for (let y = 0; y < height; y++) {
+        const y1 = Math.max(0, y - radius);
+        const y2 = Math.min(height, y + radius + 1);
+        for (let x = 0; x < width; x++) {
+            const x1 = Math.max(0, x - radius);
+            const x2 = Math.min(width, x + radius + 1);
+            const count = integral[y2 * (width + 1) + x2] - integral[y1 * (width + 1) + x2] - integral[y2 * (width + 1) + x1] + integral[y1 * (width + 1) + x1];
+            out[y * width + x] = mode === "any" ? (count > 0 ? 1 : 0) : (count === (x2 - x1) * (y2 - y1) ? 1 : 0);
+        }
+    }
+    return out;
+}
+
+// busca sola las 4 esquinas de la hoja del plano dentro de la foto:
+// la hoja es lo claro y grande; se toma la mancha clara mas grande y sus 4 puntas
+// (arriba-izq = la menor x+y, abajo-der = la mayor x+y, arriba-der = la mayor x-y, abajo-izq = la menor x-y)
+// devuelve las esquinas en proporciones 0..1, o null si no encuentra una hoja clara
+export async function detectCorners(src) {
+    const image = await loadImage(src);
+    const canvas = toCanvas(image, 500);
+    const { width, height } = canvas;
+    const { data } = canvas.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, width, height);
+
+    // brillo de cada punto y umbral de Otsu para separar la hoja (clara) del fondo
+    const gray = new Uint8Array(width * height);
+    const histogram = new Array(256).fill(0);
+    for (let index = 0; index < gray.length; index++) {
+        const value = Math.round(0.299 * data[index * 4] + 0.587 * data[index * 4 + 1] + 0.114 * data[index * 4 + 2]);
+        gray[index] = value;
+        histogram[value]++;
+    }
+    let sum = 0;
+    for (let value = 0; value < 256; value++) sum += value * histogram[value];
+    let sumBack = 0, weightBack = 0, best = 0, threshold = 128;
+    for (let value = 0; value < 256; value++) {
+        weightBack += histogram[value];
+        if (!weightBack) continue;
+        const weightFore = gray.length - weightBack;
+        if (!weightFore) break;
+        sumBack += value * histogram[value];
+        const between = weightBack * weightFore * (sumBack / weightBack - (sum - sumBack) / weightFore) ** 2;
+        if (between > best) {
+            best = between;
+            threshold = value;
+        }
+    }
+
+    // las paredes y letras dibujadas en la hoja la parten en pedazos; se "cierran" (dilatar y luego erosionar)
+    // para que la hoja quede como una sola mancha clara
+    const bright = new Uint8Array(width * height);
+    for (let index = 0; index < gray.length; index++) bright[index] = gray[index] > threshold ? 1 : 0;
+    const radius = Math.max(2, Math.round(Math.max(width, height) * 0.02));
+    const closed = squareFilter(squareFilter(bright, width, height, radius, "any"), width, height, radius, "all");
+
+    // mancha clara mas grande (los puntos claros pegados entre si)
+    const seen = new Uint8Array(width * height);
+    const stack = new Int32Array(width * height);
+    let biggest = null;
+    for (let start = 0; start < gray.length; start++) {
+        if (seen[start] || !closed[start]) continue;
+        let top = 0;
+        stack[top++] = start;
+        seen[start] = 1;
+        const blob = { size: 0, tl: [0, 0, Infinity], br: [0, 0, -Infinity], tr: [0, 0, -Infinity], bl: [0, 0, Infinity] };
+        while (top) {
+            const index = stack[--top];
+            const x = index % width;
+            const y = (index - x) / width;
+            blob.size++;
+            if (x + y < blob.tl[2]) blob.tl = [x, y, x + y];
+            if (x + y > blob.br[2]) blob.br = [x, y, x + y];
+            if (x - y > blob.tr[2]) blob.tr = [x, y, x - y];
+            if (x - y < blob.bl[2]) blob.bl = [x, y, x - y];
+            const near = [x > 0 && index - 1, x < width - 1 && index + 1, y > 0 && index - width, y < height - 1 && index + width];
+            for (const next of near) {
+                if (next !== false && !seen[next] && closed[next]) {
+                    seen[next] = 1;
+                    stack[top++] = next;
+                }
+            }
+        }
+        if (!biggest || blob.size > biggest.size) biggest = blob;
+    }
+
+    // si la mancha es muy pequeña no hay una hoja clara (ej. foto muy oscura): se deja que la persona las marque
+    if (!biggest || biggest.size < width * height * 0.12) return null;
+    const corners = [biggest.tl, biggest.tr, biggest.br, biggest.bl].map(([x, y]) => [x / (width - 1), y / (height - 1)]);
+    // las 4 puntas tienen que formar un cuadro de buen tamaño (si no, la deteccion no sirvio)
+    const area = Math.abs(corners.reduce((total, [x1, y1], index) => {
+        const [x2, y2] = corners[(index + 1) % 4];
+        return total + x1 * y2 - x2 * y1;
+    }, 0)) / 2;
+    return area >= 0.1 ? corners : null;
+}
+
 // ---------- 2 y 3. paredes ----------
 
 // umbral adaptativo (Bradley): un punto es "linea" si es bastante mas oscuro que el promedio de su alrededor
