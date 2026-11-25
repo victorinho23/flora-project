@@ -23,6 +23,9 @@ export default function Button ({
         // crema = boton secundario: igual que los filtros de las tablas (fondo cafe, borde claro y esquinas poco redondeadas)
         // asi se lee bien tanto en fondos claros (formularios) como en los encabezados oscuros
         crema: `bg-bg-s900 text-bg-w font-semibold border border-bd-p400 rounded-m3-xs! hover:border-bd-w disabled:opacity-60!`,
+        // contorno = boton con borde (outlined de Material 3) para la accion secundaria en fondos claros
+        // (Cancelar, Volver, Cerrar): asi no compite con el boton relleno de la accion principal
+        contorno: `bg-transparent text-br-t950 font-semibold border border-m3-outline hover:border-bd-t900`,
         primary: `bg-bg-s800 text-bg-w shadow-m3-1 hover:shadow-m3-2`,
         sex: ` bg-transparent border border-bg-w/60 text-bg-w hover:border-br-t300`,
         statusActive: `bg-m3-success text-white shadow-m3-1 hover:shadow-m3-2`,

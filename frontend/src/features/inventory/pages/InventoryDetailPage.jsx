@@ -148,7 +148,7 @@ export default function InventoryDetailPage({ inModal = false, onEdit }) {
                     {suggestions.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                             {suggestions.map((record) => (
-                                <Button key={record.id} variant="crema" size="sm" type="button" onClick={() => pickSuggestion(record)}>
+                                <Button key={record.id} variant="contorno" size="sm" type="button" onClick={() => pickSuggestion(record)}>
                                     {record.name}
                                 </Button>
                             ))}

@@ -281,7 +281,7 @@ export function DishEditForm({ dish }) {
                     </section>
 
                     <div className="flex flex-wrap justify-end gap-3 py-4">
-                        <Button variant="crema" size="md" type="button" onClick={() => navigate("/listMenu", { state: { openDish: dish.menuId } })}>
+                        <Button variant="contorno" size="md" type="button" onClick={() => navigate("/listMenu", { state: { openDish: dish.menuId } })}>
                             Cancelar
                         </Button>
                         <Button variant="espresso" size="md" type="submit">

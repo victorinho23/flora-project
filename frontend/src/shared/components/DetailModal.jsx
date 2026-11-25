@@ -130,7 +130,7 @@ export default function DetailModal({
                             {editLabel}
                         </Button>
                     )}
-                    <Button size="sm" variant="crema" onClick={onClose}>
+                    <Button size="sm" variant="contorno" onClick={onClose}>
                         Cerrar
                     </Button>
                 </div>

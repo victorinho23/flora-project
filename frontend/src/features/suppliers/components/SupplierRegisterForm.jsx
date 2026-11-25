@@ -512,7 +512,7 @@ export default function SupplierRegisterForm() {
                 {/* Botones para moverse entre pasos, siempre abajo */}
                 <div className="max-w-2xl w-full mx-auto flex items-center justify-between gap-4 border-t border-bd-s100 pt-6 bajo:pt-4 mt-8 bajo:mt-5">
                     {step > 0 ? (
-                        <Button variant="crema" size="md" type="button" onClick={goBack}>
+                        <Button variant="contorno" size="md" type="button" onClick={goBack}>
                             <ChevronLeft size={18} />
                             Anterior
                         </Button>

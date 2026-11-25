@@ -395,13 +395,13 @@ export default function UserRegisterForm(){
 
                         {/* botones del asistente */}
                         <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-5 border-t border-bd-s100">
-                            <Button variant="crema" size="md" type="button" onClick={() => setStep(step - 1)} disabled={step === 0}>
+                            <Button variant="contorno" size="md" type="button" onClick={() => setStep(step - 1)} disabled={step === 0}>
                                 <ChevronLeft size={18} />
                                 Anterior
                             </Button>
                             <span className="hidden sm:block text-m3-body-medium text-br-s800">Paso {step + 1} de {STEPS.length}</span>
                             <div className="flex flex-wrap gap-3">
-                                <Button variant="crema" size="md" type="button" onClick={() => navigate("/userList")}>
+                                <Button variant="contorno" size="md" type="button" onClick={() => navigate("/userList")}>
                                     Cancelar
                                 </Button>
                                 {isLast ? (

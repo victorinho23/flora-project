@@ -141,17 +141,17 @@ export default function OrderDetailModal({ order, onClose, onEdit, onChanged, on
                 )}
                 <div className="flex flex-wrap items-center justify-end gap-3 ml-auto">
                     {onShowMap && (
-                        <Button size="md" variant="crema" type="button" onClick={() => onShowMap(order)}>
+                        <Button size="md" variant="contorno" type="button" onClick={() => onShowMap(order)}>
                             <MapPin size={16} />
                             Ver en el mapa
                         </Button>
                     )}
-                    <Button size="md" variant="crema" type="button" onClick={() => window.print()}>
+                    <Button size="md" variant="contorno" type="button" onClick={() => window.print()}>
                         <Printer size={16} />
                         Imprimir comanda
                     </Button>
                     {editable && onEdit && (
-                        <Button size="md" variant="crema" type="button" onClick={() => onEdit(order)}>
+                        <Button size="md" variant="contorno" type="button" onClick={() => onEdit(order)}>
                             <Pencil size={16} />
                             Actualizar
                         </Button>

@@ -286,11 +286,11 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
                                         />
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
-                                        <Button size="sm" variant="crema" type="button" disabled={scanning} onClick={() => scanWalls(photo, draft.cols, draft.rows, sensitivity)}>
+                                        <Button size="sm" variant="contorno" type="button" disabled={scanning} onClick={() => scanWalls(photo, draft.cols, draft.rows, sensitivity)}>
                                             <ScanLine size={14} />
                                             Detectar
                                         </Button>
-                                        <Button size="sm" variant="crema" type="button" onClick={() => setPhoto(null)}>
+                                        <Button size="sm" variant="contorno" type="button" onClick={() => setPhoto(null)}>
                                             <ImageOff size={14} />
                                             Quitar foto
                                         </Button>
