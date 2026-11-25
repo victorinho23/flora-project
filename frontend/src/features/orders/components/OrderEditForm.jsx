@@ -291,7 +291,7 @@ export function OrderEditForm({ order }) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-br-s950 font-medium px-4 text-center">
                 <p>Esta orden ya esta {order.status === "PAGADA" ? "pagada" : "cancelada"} y no puede modificarse.</p>
-                <Button variant="crema" size="lgg" type="button" onClick={() => navigate("/orderList", { state: { openOrder: order.id } })}>
+                <Button variant="contorno" size="lgg" type="button" onClick={() => navigate("/orderList", { state: { openOrder: order.id } })}>
                     Volver
                 </Button>
             </div>
@@ -582,7 +582,7 @@ export function OrderEditForm({ order }) {
                             </Button>
 
                             <Button
-                                variant="crema"
+                                variant="contorno"
                                 size="w"
                                 type="button"
                                 onClick={() => navigate("/orderList", { state: { openOrder: order.id } })}

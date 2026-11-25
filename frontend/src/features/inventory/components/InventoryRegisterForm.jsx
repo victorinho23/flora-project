@@ -435,7 +435,7 @@ export default function InventoryRegisterForm() {
                       />
                     </div>
                     {!showNewBrand && (
-                      <Button variant="crema" size="md" type="button" onClick={() => setShowNewBrand(true)}>
+                      <Button variant="contorno" size="md" type="button" onClick={() => setShowNewBrand(true)}>
                         + Nueva
                       </Button>
                     )}
@@ -637,7 +637,7 @@ export default function InventoryRegisterForm() {
           {/* Botones para moverse entre pasos, siempre abajo */}
           <div className="flex items-center justify-between gap-4 border-t border-bd-s100 pt-5 mt-6 bajo:mt-4">
             {step > 0 ? (
-              <Button variant="crema" size="md" type="button" onClick={goBack}>
+              <Button variant="contorno" size="md" type="button" onClick={goBack}>
                 <ChevronLeft size={18} />
                 Anterior
               </Button>

@@ -250,7 +250,7 @@ export default function CreateDishsForm({ onDone, onCancel, onManageCategories, 
                 </section>
 
                 <div className="flex flex-wrap justify-end gap-3 pt-4">
-                    <Button variant="crema" size="md" type="button" onClick={onCancel}>
+                    <Button variant="contorno" size="md" type="button" onClick={onCancel}>
                         Cancelar
                     </Button>
                     <Button variant="espresso" size="md" type="submit">

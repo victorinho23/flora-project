@@ -363,7 +363,7 @@ export default function UserEditForm({ user }){
                                 {changes ? `${changes} ${changes === 1 ? "cambio" : "cambios"} sin guardar` : "Sin cambios"}
                             </span>
                             <div className="ml-auto flex flex-wrap gap-3">
-                                <Button variant="crema" size="md" type="button" onClick={goBack}>
+                                <Button variant="contorno" size="md" type="button" onClick={goBack}>
                                     Descartar
                                 </Button>
                                 <Button variant="espresso" size="md" type="submit" disabled={!changes}>

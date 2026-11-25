@@ -521,7 +521,7 @@ export default function CreateOrderForm() {
 
                         <div className="flex flex-wrap justify-center gap-4">
                             <Button
-                                variant="crema"
+                                variant="contorno"
                                 size="lgg"
                                 type="button"
                                 onClick={() => navigate("/orderList")}

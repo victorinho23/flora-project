@@ -366,7 +366,7 @@ export default function ReportConfigModal ({
                 </div>
 
                 <div className="flex flex-wrap justify-center sm:justify-end gap-3 px-6 py-4 border-t border-bd-s100 bg-bg-s50 rounded-b-2xl">
-                    <Button variant="crema" onClick={onClose}>
+                    <Button variant="contorno" onClick={onClose}>
                         Cancelar
                     </Button>
 
