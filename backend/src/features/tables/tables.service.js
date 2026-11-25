@@ -9,6 +9,12 @@ const httpError = (status, message, field) => Object.assign(new Error(message), 
 
 export const ZONES = ["Salón", "Terraza", "Barra", "Segundo piso"];
 
+// lo que se puede pintar en el mapa (el frontend tiene los mismos nombres)
+export const MAP_AREAS = ["pared", "cocina", "barra", "banos", "entrada", "caja", "terraza", "jardin"];
+
+// mapa vacio cuando todavia no se ha dibujado
+const EMPTY_MAP = { cols: 20, rows: 12, cells: {} };
+
 // revisa y limpia lo que llega del formulario
 const clean = (data) => {
     const number = Number(data.number);
@@ -31,7 +37,45 @@ export const tablesService = {
         return {
             zones: ZONES,
             tables: await tablesRepository.getAll(query.active === "1"),
+            map: await tablesService.getMap(),
         };
+    },
+
+    async getMap() {
+        return (await tablesRepository.getMap()) ?? EMPTY_MAP;
+    },
+
+    // revisa el dibujo: tamaño permitido, celdas dentro de la cuadricula y una mesa por celda
+    async saveMap(data, userId) {
+        const cols = Number(data.cols);
+        const rows = Number(data.rows);
+        if (!Number.isInteger(cols) || cols < 8 || cols > 30) throw httpError(400, "El mapa debe tener entre 8 y 30 columnas", "cols");
+        if (!Number.isInteger(rows) || rows < 6 || rows > 20) throw httpError(400, "El mapa debe tener entre 6 y 20 filas", "rows");
+
+        const inside = (x, y) => Number.isInteger(x) && Number.isInteger(y) && x >= 0 && y >= 0 && x < cols && y < rows;
+
+        // solo se guardan las celdas validas; lo que este fuera del tamaño se descarta
+        const cells = {};
+        for (const [key, area] of Object.entries(data.cells ?? {})) {
+            const [x, y] = key.split(",").map(Number);
+            if (inside(x, y) && MAP_AREAS.includes(area)) cells[`${x},${y}`] = area;
+        }
+
+        const tables = new Map((await tablesRepository.getAll()).map((table) => [table.id, table]));
+        const used = new Set();
+        const positions = [];
+        for (const item of data.tables ?? []) {
+            const table = tables.get(Number(item.id));
+            const x = Number(item.x);
+            const y = Number(item.y);
+            if (!table || !inside(x, y)) continue;
+            if (used.has(`${x},${y}`)) throw httpError(400, `Dos mesas quedaron en la misma celda (mesa ${table.number})`, "tables");
+            used.add(`${x},${y}`);
+            positions.push({ id: table.id, x, y });
+        }
+
+        await tablesRepository.saveMap({ cols, rows, cells, positions });
+        await log(userId, "plano", "ACTUALIZAR", `Mapa del restaurante (${positions.length} mesas ubicadas)`);
     },
 
     async create(data, userId) {

@@ -10,11 +10,14 @@ const router = Router();
 
 router.use(authenticateToken);
 
-// GET /api/tables -> todas las mesas y las zonas (?active=1 solo las activas)
+// GET /api/tables -> todas las mesas, las zonas y el mapa (?active=1 solo las activas)
 router.get("/", requirePermission("mesas_listar"), tablesController.getAll);
 
 // POST /api/tables -> nueva mesa
 router.post("/", requirePermission("mesas_crear"), tablesController.create);
+
+// PUT /api/tables/map -> guardar el mapa del restaurante y donde quedo cada mesa
+router.put("/map", requirePermission("mesas_actualizar"), tablesController.saveMap);
 
 // PUT /api/tables/:id -> cambiar numero, capacidad o zona
 router.put("/:id", requirePermission("mesas_actualizar"), tablesController.update);

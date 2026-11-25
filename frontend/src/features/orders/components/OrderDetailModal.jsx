@@ -1,7 +1,7 @@
 // src/features/orders/components/OrderDetailModal.jsx
 // Modal con el detalle de una orden (desde la tabla o desde el mapa de mesas):
 // aqui mismo se cambia el estado, se imprime la comanda y se anula, ya no hay pagina aparte
-import { ClipboardList, Printer, ChefHat, Wallet, Undo2, Pencil, Ban } from "lucide-react";
+import { ClipboardList, Printer, ChefHat, Wallet, Undo2, Pencil, Ban, MapPin } from "lucide-react";
 import { DetailModal, Button } from "@/shared";
 import { cancelOrder, changeOrderStatus } from "../services/orderService";
 import { showConfirmAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
@@ -34,7 +34,8 @@ const field = "border border-bd-s100 border-l-4 border-l-bd-t800 bg-linear-120 f
 
 // onChanged: se llama cuando la orden cambia de estado o se anula, para que la lista se recargue
 // (si no llega, el modal es solo de consulta: no muestra los botones de estado ni anular)
-export default function OrderDetailModal({ order, onClose, onEdit, onChanged }) {
+// onShowMap: abre el mapa con la mesa de la orden resaltada, para que el mesero sepa a donde llevarla
+export default function OrderDetailModal({ order, onClose, onEdit, onChanged, onShowMap }) {
     const can = useAccess();
 
     // Si no hay orden seleccionada el modal no se muestra
@@ -139,6 +140,12 @@ export default function OrderDetailModal({ order, onClose, onEdit, onChanged }) 
                     </Button>
                 )}
                 <div className="flex flex-wrap items-center justify-end gap-3 ml-auto">
+                    {onShowMap && (
+                        <Button size="md" variant="crema" type="button" onClick={() => onShowMap(order)}>
+                            <MapPin size={16} />
+                            Ver en el mapa
+                        </Button>
+                    )}
                     <Button size="md" variant="crema" type="button" onClick={() => window.print()}>
                         <Printer size={16} />
                         Imprimir comanda

@@ -2,6 +2,7 @@
 
 import { ordersRepository } from "./orders.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
+import { tablesService } from "../tables/tables.service.js";
 import { tablesRepository } from "../tables/tables.repository.js";
 import { accessService } from "../access/access.service.js";
 import { imageUrl } from "../../config/upload.js";
@@ -97,8 +98,9 @@ export const ordersService = {
     // plano de mesas para todos los meseros (sale de la base, asi todos ven lo mismo)
     async getTables() {
         // tables = mesas activas con su zona y capacidad (las crea el administrador en Configuracion)
+        // map = el dibujo del restaurante, para que el mesero vea donde queda cada mesa
         const tables = await tablesRepository.getAll(true);
-        return { total: tables.length, tables, open: await ordersRepository.getOpenTables() };
+        return { total: tables.length, tables, open: await ordersRepository.getOpenTables(), map: await tablesService.getMap() };
     },
 
     async getById(id) {
