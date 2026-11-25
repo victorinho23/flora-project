@@ -211,7 +211,7 @@ export default function PermissionsForm() {
                         ))}
                     </div>
 
-                    <div className="mb-8 [&_select]:w-full">
+                    <div className="mb-8 [&_.w-80]:w-full">
                         {mode === "group" ? (
                             <Select
                                 label="Seleccionar grupo"
