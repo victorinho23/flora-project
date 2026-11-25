@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Mail, ShieldCheck, KeyRound, Check, X, ArrowLeft, RotateCw, Eye, EyeOff } from "lucide-react";
 import { Input, Button } from "@/shared";
 import { forgotPasswordSchema, resetPasswordSchema } from "../../schemas/userSchema";
+import { SUPPORT_EMAIL } from "../DataPolicyModal";
 import { requestRecoveryCode, verifyRecoveryCode, resetPassword } from "@/features/auth/services/authService";
 
 // pasos del panel izquierdo
@@ -173,7 +174,8 @@ export default function ForgotPasswordModal({ onClose }) {
                         })}
                     </ol>
                     <p className="relative hidden sm:block mt-auto text-m3-body-small text-br-s800">
-                        Si no te llega el correo, revisa la carpeta de spam o pide ayuda al administrador.
+                        Si no te llega el correo, revisa la carpeta de spam o escribe a soporte:{" "}
+                        <a href={`mailto:${SUPPORT_EMAIL}?subject=Soporte%20Flora`} className="font-semibold text-br-t900 underline break-all">{SUPPORT_EMAIL}</a>
                     </p>
                 </aside>
 

@@ -2,12 +2,13 @@
 // Pagina de detalle de un usuario en modo solo lectura
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button, Navbar } from "@/shared";
-import { IdCard, KeyRound, Phone, CalendarDays, ShieldCheck, Pencil, Power, History } from "lucide-react";
+import { IdCard, KeyRound, Phone, CalendarDays, ShieldCheck, Pencil, Power, History, LifeBuoy } from "lucide-react";
 import authBg from "@/assets/icons/usuario.png";
 import { useState, useEffect } from "react";
 import { showConfirmAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 import { updateUserStatus, getUserHistory } from "../services/userServices";
-import DataPolicyModal from "./DataPolicyModal";
+import DataPolicyModal, { SUPPORT_EMAIL } from "./DataPolicyModal";
+import { getSessionUser } from "@/features/auth/services/logoutService";
 import { useAccess } from "@/features/auth/services/accessService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 
@@ -134,6 +135,20 @@ export function UserDetails({ user, inModal = false, onStatusChange }) {
                             <Pencil size={16} />
                             Modificar
                         </Button>
+                    </div>
+                )}
+
+                {/* Mi perfil: correo de soporte por si la persona necesita ayuda con su cuenta */}
+                {String(user.id) === String(getSessionUser()?.id) && (
+                    <div className="w-full flex flex-col items-center gap-1 p-4 rounded-m3-lg bg-bg-t50 border border-bd-t300">
+                        <span className="flex items-center gap-1.5 text-m3-label-large font-bold text-br-t950">
+                            <LifeBuoy size={16} />
+                            ¿Necesitas ayuda?
+                        </span>
+                        <span className="text-m3-body-small text-br-s800">Escríbenos a soporte</span>
+                        <a href={`mailto:${SUPPORT_EMAIL}?subject=Soporte%20Flora`} className="text-m3-label-large font-semibold text-br-t900 underline underline-offset-4 break-all">
+                            {SUPPORT_EMAIL}
+                        </a>
                     </div>
                 )}
 
