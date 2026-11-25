@@ -16,6 +16,7 @@ const USER_COLUMNS = `
     u.foto_perfil AS image,
     TO_CHAR(u.fecha_inicio_laboral, 'YYYY-MM-DD') AS start_date,
     COALESCE(TO_CHAR(u.fecha_fin_laboral, 'YYYY-MM-DD'), '') AS end_date,
+    COALESCE(TO_CHAR(u.autorizacion_datos, 'YYYY-MM-DD'), '') AS data_consent_date,
     u.estado AS is_active,
     u.is_superuser,
     (
@@ -120,9 +121,10 @@ export const userRepository = {
               contrasena,
               estado,
               fecha_inicio_laboral,
-              fecha_fin_laboral
+              fecha_fin_laboral,
+              autorizacion_datos
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
           RETURNING id
       `;
 

@@ -87,6 +87,8 @@ export function toUserView(data) {
         userPhoneSecondary: data.userphone2,
         userContractStartDate: data.start_date,
         userContractEndDate: data.end_date,
+        // fecha en que autorizo el tratamiento de datos (vacia en cuentas viejas)
+        userDataConsentDate: data.data_consent_date,
         isActive: data.is_active,
         imageUrl: data.image,
         // el usuario tal cual llega del backend, para mandarlo a editar

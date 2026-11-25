@@ -126,7 +126,7 @@ export const loginSchema = z.object({
     .regex(/[a-z]/, "Debe contener al menos una minuscula")
     .regex(/[0-9]/, "Debe contener al menos un número")
     .regex(/[^A-Za-z0-9]/, "Debe contener al menos un caracter especial"),
-    isActive: z.literal(true, { error: "Debes aceptar las condiciones de uso" }),
+    isActive: z.literal(true, { error: "Debes aceptar las condiciones de uso y el tratamiento de datos" }),
     // userDocumentTypes: z.string().min(1, "Debe seleccionar un tipo de documento"),
     // userDocumentNumber: z.string().min(5, "Número de documento inválido"),
 });
