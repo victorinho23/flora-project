@@ -199,6 +199,14 @@ export default function CreateOrderForm() {
             return;
         }
 
+        // confirmacion antes de mandar la orden a cocina
+        const confirmation = await showConfirmAlert({
+            title: `¿Enviar la orden de la mesa ${tableNumber} a cocina?`,
+            text: `${itemList.reduce((sum, item) => sum + item.quantity, 0)} platillo(s) por $${total.toLocaleString("es-CO")}`,
+            confirmButtonText: "Enviar a cocina",
+        });
+        if (!confirmation.isConfirmed) return;
+
         setErrors({});
 
         try {

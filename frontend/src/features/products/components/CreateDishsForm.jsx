@@ -6,7 +6,7 @@ import { UtensilsCrossed, Eye, Plus, Tag, Pencil, Image as ImageIcon } from "luc
 import { getDishCategories } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom";
 import { dishSchema } from "../../../shared/schemas/disheSchema";
-import { showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-dish.png";
 import { createDish } from "../services/dishService";
 import { useAccess } from "@/features/auth/services/accessService";
@@ -54,6 +54,14 @@ export default function CreateDishsForm() {
         }
 
         setErrors({});
+
+        // confirmacion antes de agregar el platillo al menu
+        const confirmation = await showConfirmAlert({
+            title: `¿Agregar ${result.data.dishName ?? "el platillo"} al menú?`,
+            text: "Aparecerá en el menú y al tomar órdenes.",
+            confirmButtonText: "Agregar platillo",
+        });
+        if (!confirmation.isConfirmed) return;
 
         try {
             // El backend revisa que no se repita el nombre en la misma categoria

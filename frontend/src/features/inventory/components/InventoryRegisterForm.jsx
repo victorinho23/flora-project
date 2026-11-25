@@ -219,15 +219,13 @@ export default function InventoryRegisterForm() {
     // Si la validacion paso, limpiamos errores previos
     setErrors({});
 
-    // En edicion pide confirmacion, avisa y vuelve a actualizar inventario
-    if (editing) {
-      const confirmation = await showConfirmAlert({
-        title: `¿Guardar los cambios de ${result.data.name}?`,
-        text: "Se actualizará la información del producto en el inventario.",
-        confirmButtonText: "Guardar cambios",
-      });
-      if (!confirmation.isConfirmed) return;
-    }
+    // antes de guardar se confirma: en edicion los cambios, al crear el producto nuevo
+    const confirmation = await showConfirmAlert({
+      title: editing ? `¿Guardar los cambios de ${result.data.name}?` : `¿Registrar ${result.data.name} en el inventario?`,
+      text: editing ? "Se actualizará la información del producto en el inventario." : "Se creará el producto con su lote inicial.",
+      confirmButtonText: editing ? "Guardar cambios" : "Registrar producto",
+    });
+    if (!confirmation.isConfirmed) return;
 
     try {
       if (editing) {

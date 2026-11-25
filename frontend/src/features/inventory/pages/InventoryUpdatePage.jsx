@@ -1,5 +1,5 @@
 // src/features/inventory/pages/InventoryUpdatePage.jsx
-import { showSuccesAlert, showErrorAlert } from "@/shared/services/alertService";
+import { showSuccesAlert, showErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import InventoryDetailModal from "../components/InventoryDetailModal";
 
 // Hook de React para manejar el estado de busqueda y las cantidades editadas
@@ -120,6 +120,12 @@ export default function InventoryUpdatePage() {
 
     // Guarda las cantidades editadas en el ultimo lote de cada producto
     const handleSave = async () => {
+        const confirmation = await showConfirmAlert({
+            title: "¿Guardar las cantidades?",
+            text: "Se actualizará la cantidad del último lote de cada producto.",
+            confirmButtonText: "Guardar cantidades",
+        });
+        if (!confirmation.isConfirmed) return;
         try {
             await updateInventoryQuantities(items.map((item) => ({ id: item.id, quantity: item.quantity })));
         } catch (error) {

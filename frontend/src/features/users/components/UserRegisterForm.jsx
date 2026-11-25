@@ -9,7 +9,7 @@ import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
 import { useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
-import { showSuccesAlert, showCreateUserErrorAlert } from "@/shared/services/alertService";
+import { showSuccesAlert, showCreateUserErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { createUser } from "../services/userServices";
 
@@ -90,6 +90,14 @@ export default function UserRegisterForm(){
         }
 
         setErrors({});
+
+        // confirmacion antes de crear la cuenta
+        const confirmation = await showConfirmAlert({
+            title: `¿Crear la cuenta de ${result.data.userName}?`,
+            text: "Podrá entrar a Flora con su correo y la contraseña que escribiste.",
+            confirmButtonText: "Crear usuario",
+        });
+        if (!confirmation.isConfirmed) return;
 
         try{
             // El backend revisa que el correo y el documento no esten repetidos

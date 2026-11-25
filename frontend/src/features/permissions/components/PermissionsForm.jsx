@@ -8,6 +8,7 @@ import { getGroups, updateGroupPermissions } from "../services/groupService";
 import { getAllPermissions, getGroupPermissions } from "../services/permissionService";
 import { getUserOptions, getUserPermissions, updateUserPermissions } from "@/features/users/services/userServices";
 import fotoFondo from "@/assets/images/cafe.png";
+import { showConfirmAlert } from "@/shared/services/alertService";
 
 
 export default function PermissionsForm() {
@@ -76,6 +77,15 @@ export default function PermissionsForm() {
         }
 
         setErrors({});
+
+        // cambiar permisos es delicado: se confirma antes de guardar
+        const confirmation = await showConfirmAlert({
+            title: "¿Guardar los permisos?",
+            text: targetGroup ? "Se aplicarán a todos los usuarios de este grupo." : "Se aplicarán solo a este usuario.",
+            confirmButtonText: "Guardar permisos",
+        });
+        if (!confirmation.isConfirmed) return;
+
          try{
 
         // mandamos solo los ids de los permisos que quedaron activos

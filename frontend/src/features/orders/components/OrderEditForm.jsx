@@ -8,7 +8,7 @@ import { getActiveDishCards, buildDishIndex, searchDishes, parseQuickAdd } from 
 import { updateOrder, cancelOrder, getTables } from "../services/orderService";
 import { useAccess } from "@/features/auth/services/accessService";
 import TablePickerModal from "./TablePickerModal";
-import { showSuccesAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
+import { showSuccesAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
 import { getUserOptions } from "@/features/users/services/userServices";
 
@@ -227,6 +227,14 @@ export function OrderEditForm({ order }) {
         }
 
         setErrors({});
+
+        // confirmacion antes de guardar los cambios de la orden
+        const confirmation = await showConfirmAlert({
+            title: `¿Guardar los cambios de la orden #${order.id}?`,
+            text: `Mesa ${tableNumber} · $${total.toLocaleString("es-CO")}`,
+            confirmButtonText: "Guardar cambios",
+        });
+        if (!confirmation.isConfirmed) return;
 
         try {
             await updateOrder(order.id, { ...result.data, waiterId: waiterName });
