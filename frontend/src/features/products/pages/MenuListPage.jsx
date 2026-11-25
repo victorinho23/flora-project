@@ -3,15 +3,16 @@
 import { DataTable, Navbar, DetailModal } from "@/shared/index";
 import CategoriesPage from "@/features/products/pages/CategoriesPage";
 import DishDetailModal from "@/features/products/components/DishDetailModal"
+import CreateDishsForm from "@/features/products/components/CreateDishsForm"
 import { createMenuColumns, menuFilters, menuInitialSort } from "@/features/products/table/ColumnsMenu"
 import { getDishes, getDishesReport, updateDishStatus } from "@/features/products/services/dishService"
 import { showErrorAlert } from "@/shared/services/alertService"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/shared/index"
 import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { menuReportFields, menuReportScopes } from "@/features/products/reports/config/menuReportFields"
 import { useEffect, useMemo, useState } from "react"
-import { UtensilsCrossed, Tags } from "lucide-react"
+import { UtensilsCrossed, Tags, Plus } from "lucide-react"
 import fotoFondo from "@/assets/images/fondo-dish.png";
 import { useAccess } from "@/features/auth/services/accessService";
 
@@ -24,8 +25,13 @@ export default function MenuListPage () {
     // Copia de los platillos para reflejar al instante los cambios de estado
     const [rows, setRows] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const [selectedId, setSelectedId] = useState(null);
+    // al volver de editar llega el id del platillo para abrir su detalle; desde el buscador llega createDish
+    const [selectedId, setSelectedId] = useState(location.state?.openDish ?? null);
+    const [createOpen, setCreateOpen] = useState(Boolean(location.state?.createDish));
+    // cambia cada vez que se cierran las categorias, asi el formulario de crear recarga su select
+    const [categoriesKey, setCategoriesKey] = useState(0);
 
     const handleView = (dish) => setSelectedId(dish.id);
     // categorias: lista corta, se maneja en una ventana sin salir del menu
@@ -46,8 +52,17 @@ export default function MenuListPage () {
     const loadRows = () => getDishes().then(setRows).catch((error) => showErrorAlert({ title: "No se pudo cargar el menú", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
 
     useEffect(() => {
-        getDishes().then(setRows).catch((error) => showErrorAlert({ title: "No se pudo cargar el menú", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
+        // se limpia el estado de la navegacion para que al recargar no se vuelva a abrir la ventana
+        if (location.state) navigate(location.pathname, { replace: true, state: null });
+        loadRows();
     }, []);
+
+    // platillo guardado: se cierra la ventana, se recarga el menu y se abre su detalle
+    const handleCreated = async (dishId) => {
+        setCreateOpen(false);
+        await loadRows();
+        setSelectedId(dishId);
+    };
 
     // Datos para las tarjetas de resumen
     const totalDishes = rows.length;
@@ -80,7 +95,7 @@ export default function MenuListPage () {
                             )}
 
                             {can("menu_agregar") && (
-                                <Button size="sm" variant="crema" onClick={() => navigate("/createDishes")}>
+                                <Button size="sm" variant="crema" onClick={() => setCreateOpen(true)}>
                                     Agregar platillo
                                 </Button>
                             )}
@@ -107,11 +122,32 @@ export default function MenuListPage () {
                 onEdit={can("menu_actualizar") ? handleEdit : undefined}
             />
 
+            {/* crear platillo en ventana: no se cierra tocando afuera para no perder lo escrito */}
+            <DetailModal
+                open={createOpen}
+                onClose={() => setCreateOpen(false)}
+                icon={Plus}
+                title="Crear plato"
+                subtitle="Foto, nombre, precio, categoría y descripción del platillo"
+                size="max-w-6xl"
+                bodyClassName="grid-cols-1"
+                footer={false}
+                closeOnBackdrop={false}
+            >
+                <CreateDishsForm
+                    onDone={handleCreated}
+                    onCancel={() => setCreateOpen(false)}
+                    onManageCategories={() => setCategoriesOpen(true)}
+                    categoriesKey={categoriesKey}
+                />
+            </DetailModal>
+
             {/* categorias en ventana; al cerrarla se recarga el menu por si cambio algun nombre */}
             <DetailModal
                 open={categoriesOpen}
                 onClose={() => {
                     setCategoriesOpen(false);
+                    setCategoriesKey((key) => key + 1);
                     loadRows();
                 }}
                 icon={Tags}

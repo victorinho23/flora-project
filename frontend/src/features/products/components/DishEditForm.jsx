@@ -83,7 +83,7 @@ export function DishEditForm({ dish }) {
                 text: "El menú ha sido actualizado correctamente",
                 timer: 3000,
             });
-            navigate("/viewDish", { state: { id: dish.menuId }, replace: true });
+            navigate("/listMenu", { replace: true, state: { openDish: dish.menuId } });
         } catch (error) {
             console.log("Error: ", error.message);
             if (error.field) setErrors({ [error.field]: error.message });
@@ -122,7 +122,7 @@ export function DishEditForm({ dish }) {
                 image={fotoFondo}
                 title="Actualizar plato"
                 icon={UtensilsCrossed}
-                onBack={() => navigate("/viewDish", { state: { id: dish.menuId } })}
+                onBack={() => navigate("/listMenu", { state: { openDish: dish.menuId } })}
                 actions={
                     <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listMenu")}>
                         Ver listado
@@ -281,7 +281,7 @@ export function DishEditForm({ dish }) {
                     </section>
 
                     <div className="flex flex-wrap justify-end gap-3 py-4">
-                        <Button variant="crema" size="md" type="button" onClick={() => navigate("/viewDish", { state: { id: dish.menuId } })}>
+                        <Button variant="crema" size="md" type="button" onClick={() => navigate("/listMenu", { state: { openDish: dish.menuId } })}>
                             Cancelar
                         </Button>
                         <Button variant="espresso" size="md" type="submit">

@@ -6,7 +6,7 @@ import TablePickerModal from "@/features/orders/components/TablePickerModal"
 import { createOrderColumns, orderFilters, orderDateFilter, orderInitialSort } from "@/features/orders/table/OrderColumns"
 import { getOrders, getOrdersReport } from "@/features/orders/services/orderService"
 import { showErrorAlert } from "@/shared/services/alertService"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/shared/index"
 import ReportConfigModal from "@/shared/reports/components/ReportConfigModal"
 import { orderReportFields, orderReportScopes, orderReportFilters, orderReportDateRange } from "@/features/orders/reports/config/orderReportFields"
@@ -26,8 +26,10 @@ export default function OrderListPage () {
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [rows, setRows] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const [selectedId, setSelectedId] = useState(null);
+    // al volver de crear o editar una orden llega su id para abrirla de una vez en el modal
+    const [selectedId, setSelectedId] = useState(location.state?.openOrder ?? null);
     const [tablesOpen, setTablesOpen] = useState(false);
 
     const handleView = (order) => setSelectedId(order.id);
@@ -40,8 +42,11 @@ export default function OrderListPage () {
     );
 
     // ordenes reales que llegan de la base, y se refrescan solas cada 30 segundos
+    const load = () => getOrders().then(setRows).catch((error) => showErrorAlert({ title: "No se pudieron cargar las órdenes", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
+
     useEffect(() => {
-        const load = () => getOrders().then(setRows).catch((error) => showErrorAlert({ title: "No se pudieron cargar las órdenes", text: error.message, confirmButtonText: "Entendido", timer: 4000 }));
+        // se limpia el estado de la navegacion para que al recargar no se vuelva a abrir el modal
+        if (location.state?.openOrder) navigate(location.pathname, { replace: true, state: null });
         load();
         const timer = setInterval(load, REFRESH_MS);
         return () => clearInterval(timer);
@@ -118,6 +123,7 @@ export default function OrderListPage () {
                 order={ordersById.get(selectedId)}
                 onClose={() => setSelectedId(null)}
                 onEdit={can("ordenes_actualizar") ? handleEdit : undefined}
+                onChanged={load}
             />
 
             <TablePickerModal

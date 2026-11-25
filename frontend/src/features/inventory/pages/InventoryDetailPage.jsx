@@ -218,7 +218,7 @@ export default function InventoryDetailPage({ inModal = false, onEdit }) {
                                 <Button
                                     variant="crema"
                                     size="sm"
-                                    onClick={() => navigate("/editInventory", { state: { item, from: "/detailsInventory" } })}
+                                    onClick={() => navigate("/editInventory", { state: { item, from: "/listInventory" } })}
                                 >
                                     <Pencil size={16} />
                                     Modificar
