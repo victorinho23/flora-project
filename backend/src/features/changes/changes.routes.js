@@ -19,6 +19,7 @@ const VIEW_PERMISSION = {
     producto: "inventario_visualizar",
     lote: "inventario_visualizar",
     proveedor: "proveedores_visualizar",
+    mesa: "mesas_listar",
 };
 
 // revisa el permiso segun la tabla que piden

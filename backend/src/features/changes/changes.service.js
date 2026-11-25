@@ -7,7 +7,7 @@ import { changesRepository } from "./changes.repository.js";
 const httpError = (status, message) => Object.assign(new Error(message), { status });
 
 // tablas que se pueden consultar
-export const TABLES = ["usuario", "platillo", "categoria", "orden", "producto", "lote", "proveedor"];
+export const TABLES = ["usuario", "platillo", "categoria", "orden", "producto", "lote", "proveedor", "mesa"];
 
 export const changesService = {
     async getHistory({ tabla, registroId }) {
