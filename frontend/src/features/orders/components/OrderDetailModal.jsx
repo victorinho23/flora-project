@@ -132,14 +132,15 @@ export default function OrderDetailModal({ order, onClose, onEdit, onChanged, on
             </div>
 
             {/* acciones: el siguiente paso de la comanda, actualizar, imprimir y anular (separada a la izquierda) */}
-            <div className="sm:col-span-2 flex flex-wrap items-center gap-3 pt-2">
+            {/* en celular los botones van uno debajo del otro y a todo el ancho */}
+            <div className="sm:col-span-2 flex flex-col-reverse sm:flex-row sm:flex-wrap sm:items-center gap-3 pt-2 [&_button]:w-full sm:[&_button]:w-auto">
                 {canCancel && (
                     <Button size="md" variant="danger" type="button" onClick={handleCancelOrder}>
                         <Ban size={16} />
                         Anular
                     </Button>
                 )}
-                <div className="flex flex-wrap items-center justify-end gap-3 ml-auto">
+                <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-end gap-3 sm:ml-auto">
                     {onShowMap && (
                         <Button size="md" variant="contorno" type="button" onClick={() => onShowMap(order)}>
                             <MapPin size={16} />
