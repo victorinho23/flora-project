@@ -4,11 +4,18 @@
 // paredes, cocina, barra, baños, entrada... y despues pone cada mesa en su lugar.
 // Asi el mesero, con solo mirar el mapa, sabe a donde tiene que ir
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2 } from "lucide-react";
+import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff } from "lucide-react";
 import { Button, Select } from "@/shared";
 import RestaurantMap from "./RestaurantMap";
 import { AREAS, cellKey } from "./mapAreas";
-import { showConfirmAlert, showConfirmDeleteAlert } from "@/shared/services/alertService";
+import { showConfirmAlert, showConfirmDeleteAlert, showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
+import { readPhoto, detectWalls, suggestSize } from "../services/scanService";
+
+const SENSITIVITY_OPTIONS = [
+    { value: "baja", label: "Baja (solo líneas gruesas)" },
+    { value: "media", label: "Media" },
+    { value: "alta", label: "Alta (líneas delgadas)" },
+];
 
 // opciones de tamaño del mapa (los mismos limites del backend)
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => ({ value: String(from + index), label: String(from + index) }));
@@ -34,6 +41,11 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
     const [selectedId, setSelectedId] = useState(null);
     const [dirty, setDirty] = useState(false);
     const painting = useRef(false);
+    // foto escaneada: queda de fondo para calcar y de ella se sacan las paredes
+    const [photo, setPhoto] = useState(null);
+    const [sensitivity, setSensitivity] = useState("media");
+    const [scanning, setScanning] = useState(false);
+    const photoInput = useRef(null);
     // ultima celda pintada: si el mouse va rapido se salta celdas, asi que se rellena la linea entre las dos
     const lastCell = useRef(null);
 
@@ -117,6 +129,47 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
             },
         })
         : undefined;
+
+    // busca las lineas oscuras de la foto y las pinta como pared (las paredes de antes se reemplazan)
+    const scanWalls = async (src, cols, rows, level) => {
+        setScanning(true);
+        try {
+            const walls = await detectWalls(src, cols, rows, level);
+            setDraft((prev) => {
+                const cells = Object.fromEntries(Object.entries(prev.cells).filter(([, area]) => area !== "pared"));
+                walls.forEach((key) => { cells[key] = "pared"; });
+                return { ...prev, cols, rows, cells };
+            });
+            setDirty(true);
+            return walls.length;
+        } finally {
+            setScanning(false);
+        }
+    };
+
+    // foto nueva (camara o galeria): se ajusta el tamaño del mapa a su forma y se detectan las paredes solas
+    const handlePhoto = async (e) => {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            await showErrorAlert({ title: "Ese archivo no es una foto", text: "Usa una foto JPG, PNG o WEBP", confirmButtonText: "Entendido", timer: 4000 });
+            return;
+        }
+        try {
+            const src = await readPhoto(file);
+            const size = await suggestSize(src);
+            setPhoto(src);
+            const found = await scanWalls(src, size.cols, size.rows, sensitivity);
+            await showSuccesAlert({
+                title: "Negocio escaneado",
+                text: found ? `Se marcaron ${found} celdas de pared. Revisa, corrige con las herramientas y pon las mesas.` : "No se encontraron paredes; prueba con sensibilidad alta o calca encima de la foto.",
+                timer: 3500,
+            });
+        } catch (err) {
+            await showErrorAlert({ title: "No se pudo escanear", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
+        }
+    };
 
     const changeSize = (e) => {
         setDraft((prev) => ({ ...prev, [e.target.name]: Number(e.target.value) }));
@@ -204,6 +257,48 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
             <div className={`grid gap-5 p-5 ${canEdit ? "xl:grid-cols-[17rem_minmax(0,1fr)]" : ""}`}>
                 {canEdit && (
                     <aside className="flex flex-col gap-5">
+                        {/* escanear: foto del plano o croquis del negocio con la camara del celular o desde la galeria */}
+                        <div className="flex flex-col gap-2 rounded-m3-md border border-dashed border-bd-t800 bg-bg-p50 p-3">
+                            <p className="flex items-center gap-2 text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
+                                <ScanLine size={16} />
+                                Escanear el negocio
+                            </p>
+                            <p className="text-m3-body-small text-br-s800">
+                                Toma una foto desde arriba del plano o de un croquis del local. Las paredes se marcan solas y la foto queda de fondo para terminar de pintar.
+                            </p>
+                            <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
+                            <Button size="md" variant="caramelo" type="button" disabled={scanning} onClick={() => photoInput.current?.click()}>
+                                <Camera size={16} />
+                                {scanning ? "Escaneando..." : photo ? "Escanear otra foto" : "Tomar o subir foto"}
+                            </Button>
+                            {photo && (
+                                <>
+                                    <div className="[&_.w-80]:w-full">
+                                        <Select
+                                            label="Sensibilidad"
+                                            name="sensitivity"
+                                            htmlFor="scan-sensitivity"
+                                            value={sensitivity}
+                                            placeholder={false}
+                                            options={SENSITIVITY_OPTIONS}
+                                            onChange={(e) => setSensitivity(e.target.value)}
+                                            variant="latte"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button size="sm" variant="crema" type="button" disabled={scanning} onClick={() => scanWalls(photo, draft.cols, draft.rows, sensitivity)}>
+                                            <ScanLine size={14} />
+                                            Detectar
+                                        </Button>
+                                        <Button size="sm" variant="crema" type="button" onClick={() => setPhoto(null)}>
+                                            <ImageOff size={14} />
+                                            Quitar foto
+                                        </Button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
                         {/* herramientas */}
                         <div>
                             <p className="mb-2 text-m3-title-small font-bold uppercase tracking-wider text-br-t950">Herramientas</p>
@@ -264,6 +359,7 @@ export default function RestaurantMapEditor({ map, tables, onSave, canEdit }) {
                     tables={placed}
                     renderTable={renderTable}
                     cellProps={cellProps}
+                    photo={photo}
                     className={canEdit ? `touch-none ${tool === "mesa" ? "cursor-pointer" : "cursor-crosshair"}` : ""}
                 />
             </div>

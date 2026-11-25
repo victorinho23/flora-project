@@ -22,6 +22,8 @@ export default function TablesSettingsPage() {
     const [map, setMap] = useState(null);
     // sube cada vez que se recarga, para que el editor del mapa arranque de nuevo con lo guardado
     const [version, setVersion] = useState(0);
+    // si el backend falla (por ejemplo, falta correr una migracion) se muestra el motivo en vez del mapa
+    const [loadError, setLoadError] = useState("");
 
     // ventana de crear / editar: editing = null (cerrada), "new" o la mesa que se edita
     const [editing, setEditing] = useState(null);
@@ -34,8 +36,12 @@ export default function TablesSettingsPage() {
             setZones(data.zones);
             setMap(data.map);
             setVersion((value) => value + 1);
+            setLoadError("");
         })
-        .catch((err) => showErrorAlert({ title: "No se pudieron cargar las mesas", text: err.message, confirmButtonText: "Entendido", timer: 4000 }));
+        .catch((err) => {
+            setLoadError(err.message);
+            return showErrorAlert({ title: "No se pudieron cargar las mesas", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
+        });
 
     useEffect(() => {
         load();
@@ -189,6 +195,12 @@ export default function TablesSettingsPage() {
                         </div>
                     ))}
                 </div>
+
+                {loadError && (
+                    <p role="alert" className="rounded-m3-lg bg-m3-error-container text-m3-on-error-container px-5 py-4 font-semibold shadow-m3-1">
+                        No se pudo cargar el mapa: {loadError}
+                    </p>
+                )}
 
                 {map && <RestaurantMapEditor key={version} map={map} tables={rows} onSave={handleSaveMap} canEdit={can("mesas_actualizar")} />}
 

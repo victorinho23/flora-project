@@ -2,7 +2,14 @@
 
 import { ordersService } from "./orders.service.js";
 
+// 42P01 = no existe la tabla, 42703 = no existe la columna: pasa cuando falta correr una migracion
+const MISSING_MIGRATION = ["42P01", "42703"];
+
 const sendError = (res, err) => {
+    if (MISSING_MIGRATION.includes(err.code)) {
+        console.error("FALTA CORRER UNA MIGRACION", err.message);
+        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0035 y reinicia el backend" });
+    }
     console.error("ERROR BACKEND", err);
     res.status(err.status || 500).json({
         error: err.status ? err.message : "Error interno del servidor",
