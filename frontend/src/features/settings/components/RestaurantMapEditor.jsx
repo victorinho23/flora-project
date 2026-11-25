@@ -4,18 +4,13 @@
 // paredes, cocina, barra, baños, entrada... y despues pone cada mesa en su lugar.
 // Asi el mesero, con solo mirar el mapa, sabe a donde tiene que ir
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff, Layers } from "lucide-react";
+import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff, Layers, Undo2 } from "lucide-react";
 import { Button, Select, Input } from "@/shared";
 import RestaurantMap from "./RestaurantMap";
 import { AREAS, cellKey } from "./mapAreas";
 import { showConfirmAlert, showConfirmDeleteAlert, showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
-import { readPhoto, detectWalls, suggestSize } from "../services/scanService";
-
-const SENSITIVITY_OPTIONS = [
-    { value: "baja", label: "Baja (solo líneas gruesas)" },
-    { value: "media", label: "Media" },
-    { value: "alta", label: "Alta (líneas delgadas)" },
-];
+import { readPhoto } from "../services/scanService";
+import MapScanModal from "./MapScanModal";
 
 // opciones de tamaño del mapa (los mismos limites del backend)
 const range = (from, to) => Array.from({ length: to - from + 1 }, (_, index) => ({ value: String(from + index), label: String(from + index) }));
@@ -46,10 +41,12 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
     const [selectedId, setSelectedId] = useState(null);
     const [dirty, setDirty] = useState(false);
     const painting = useRef(false);
-    // foto escaneada: queda de fondo para calcar y de ella se sacan las paredes
+    // foto escaneada (ya enderezada): queda de fondo para calcar
     const [photo, setPhoto] = useState(null);
-    const [sensitivity, setSensitivity] = useState("media");
-    const [scanning, setScanning] = useState(false);
+    // foto recien tomada que se esta escaneando en la ventana
+    const [scanPhoto, setScanPhoto] = useState(null);
+    // como estaba el mapa antes de aplicar el escaneo, para poder deshacerlo
+    const [beforeScan, setBeforeScan] = useState(null);
     const photoInput = useRef(null);
     // ultima celda pintada: si el mouse va rapido se salta celdas, asi que se rellena la linea entre las dos
     const lastCell = useRef(null);
@@ -135,24 +132,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
         })
         : undefined;
 
-    // busca las lineas oscuras de la foto y las pinta como pared (las paredes de antes se reemplazan)
-    const scanWalls = async (src, cols, rows, level) => {
-        setScanning(true);
-        try {
-            const walls = await detectWalls(src, cols, rows, level);
-            setDraft((prev) => {
-                const cells = Object.fromEntries(Object.entries(prev.cells).filter(([, area]) => area !== "pared"));
-                walls.forEach((key) => { cells[key] = "pared"; });
-                return { ...prev, cols, rows, cells };
-            });
-            setDirty(true);
-            return walls.length;
-        } finally {
-            setScanning(false);
-        }
-    };
-
-    // foto nueva (camara o galeria): se ajusta el tamaño del mapa a su forma y se detectan las paredes solas
+    // foto nueva (camara o galeria): se abre la ventana para marcar las esquinas y revisar el resultado
     const handlePhoto = async (e) => {
         const file = e.target.files?.[0];
         e.target.value = "";
@@ -162,18 +142,32 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
             return;
         }
         try {
-            const src = await readPhoto(file);
-            const size = await suggestSize(src);
-            setPhoto(src);
-            const found = await scanWalls(src, size.cols, size.rows, sensitivity);
-            await showSuccesAlert({
-                title: "Negocio escaneado",
-                text: found ? `Se marcaron ${found} celdas de pared. Revisa, corrige con las herramientas y pon las mesas.` : "No se encontraron paredes; prueba con sensibilidad alta o calca encima de la foto.",
-                timer: 3500,
-            });
+            setScanPhoto(await readPhoto(file));
         } catch (err) {
-            await showErrorAlert({ title: "No se pudo escanear", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
+            await showErrorAlert({ title: "No se pudo abrir la foto", text: err.message, confirmButtonText: "Entendido", timer: 4000 });
         }
+    };
+
+    // pone el escaneo en el mapa: reemplaza las paredes, agrega las salidas en celdas vacias
+    // y deja las demas zonas pintadas como estaban
+    const applyScan = async ({ cols, rows, walls, exits, photo: straight }) => {
+        setBeforeScan({ draft, photo });
+        setDraft((prev) => {
+            const cells = Object.fromEntries(Object.entries(prev.cells).filter(([, area]) => area !== "pared"));
+            exits.forEach((key) => { cells[key] ??= "entrada"; });
+            walls.forEach((key) => { cells[key] = "pared"; });
+            return { ...prev, cols, rows, cells };
+        });
+        setPhoto(straight);
+        setScanPhoto(null);
+        setDirty(true);
+        await showSuccesAlert({ title: "Escaneo aplicado", text: "Revisa, pinta lo que falte (cocina, barra, baños...) y pon las mesas. No se guarda hasta que toques Guardar mapa.", timer: 3500 });
+    };
+
+    const undoScan = () => {
+        setDraft(beforeScan.draft);
+        setPhoto(beforeScan.photo);
+        setBeforeScan(null);
     };
 
     const changeSize = (e) => {
@@ -293,38 +287,24 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                                 Escanear el negocio
                             </p>
                             <p className="text-m3-body-small text-br-s800">
-                                Toma una foto desde arriba del plano o de un croquis del local. Las paredes se marcan solas y la foto queda de fondo para terminar de pintar.
+                                Foto del mapa de evacuación, de un croquis o captura de una app de planos. Marcas las esquinas, las paredes se detectan solas y la foto queda de fondo para terminar de pintar.
                             </p>
                             <input ref={photoInput} type="file" accept="image/*" className="hidden" onChange={handlePhoto} />
-                            <Button size="md" variant="caramelo" type="button" disabled={scanning} onClick={() => photoInput.current?.click()}>
+                            <Button size="md" variant="caramelo" type="button" onClick={() => photoInput.current?.click()}>
                                 <Camera size={16} />
-                                {scanning ? "Escaneando..." : photo ? "Escanear otra foto" : "Tomar o subir foto"}
+                                {photo ? "Escanear otra foto" : "Tomar o subir foto"}
                             </Button>
-                            {photo && (
-                                <>
-                                    <div className="[&_.w-80]:w-full">
-                                        <Select
-                                            label="Sensibilidad"
-                                            name="sensitivity"
-                                            htmlFor="scan-sensitivity"
-                                            value={sensitivity}
-                                            placeholder={false}
-                                            options={SENSITIVITY_OPTIONS}
-                                            onChange={(e) => setSensitivity(e.target.value)}
-                                            variant="latte"
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button size="sm" variant="contorno" type="button" disabled={scanning} onClick={() => scanWalls(photo, draft.cols, draft.rows, sensitivity)}>
-                                            <ScanLine size={14} />
-                                            Detectar
-                                        </Button>
-                                        <Button size="sm" variant="contorno" type="button" onClick={() => setPhoto(null)}>
-                                            <ImageOff size={14} />
-                                            Quitar foto
-                                        </Button>
-                                    </div>
-                                </>
+                            {(photo || beforeScan) && (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button size="sm" variant="contorno" type="button" disabled={!beforeScan} onClick={undoScan}>
+                                        <Undo2 size={14} />
+                                        Deshacer
+                                    </Button>
+                                    <Button size="sm" variant="contorno" type="button" disabled={!photo} onClick={() => setPhoto(null)}>
+                                        <ImageOff size={14} />
+                                        Quitar foto
+                                    </Button>
+                                </div>
                             )}
                         </div>
 
@@ -392,9 +372,11 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                     renderTable={renderTable}
                     cellProps={cellProps}
                     photo={photo}
+                    minCell={2.5}
                     className={canEdit ? `touch-none ${tool === "mesa" ? "cursor-pointer" : "cursor-crosshair"}` : ""}
                 />
             </div>
+            <MapScanModal photo={scanPhoto} onClose={() => setScanPhoto(null)} onApply={applyScan} />
         </section>
     );
 }
