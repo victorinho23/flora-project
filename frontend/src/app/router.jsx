@@ -10,10 +10,10 @@ import CategoriesPage from "@/features/products/pages/CategoriesPage";
 import ViewOrderListPage from "@/features/orders/pages/ViewOrderListPage";
 import ViewUserListPage from "../features/users/pages/ViewUserListPage";
 import OrdersLayout from "../shared/layouts/OrdersLayout";
-import { CreateDishesLayout, DishDetailsLayout, EditDishLayout, OrderDetailsLayout, OrderEditLayout, SeeUsers, UserEditLayout } from "../shared";
+import { EditDishLayout, OrderEditLayout, SeeUsers, UserEditLayout } from "../shared";
 import PermissionsLayout from "../shared/layouts/PermissionLayout";
 import InventoryListPage from "../features/inventory/pages/InventoryListPage";
-import { InventoryDetailPage, InventoryRegisterForm, InventoryUpdatePage } from "../features/inventory";
+import { InventoryRegisterForm, InventoryUpdatePage } from "../features/inventory";
 import SupplierRegisterForm from "../features/suppliers/components/SupplierRegisterForm";
 import { SupplierUpdatePage } from "../features/suppliers";
 import ProtectedRoute from "../shared/components/auth/ProtectedRoute";
@@ -106,24 +106,12 @@ const router = createBrowserRouter([
         element: <ProtectedRoute permission="usuarios_listar"><ViewUserListPage/></ProtectedRoute>,
     },
     {
-        path: "/createDishes",
-        element: <ProtectedRoute permission="menu_agregar"><CreateDishesLayout/></ProtectedRoute>,
-    },
-    {
-        path: "/viewDish",
-        element: <ProtectedRoute permission="menu_visualizar"><DishDetailsLayout/></ProtectedRoute>,
-    },
-    {
         path: "/dishEdit/:id",
         element: <ProtectedRoute permission="menu_actualizar"><EditDishLayout/></ProtectedRoute>,
     },
     {
         path: "/createOrders",
         element: <ProtectedRoute permission="ordenes_crear"><OrdersLayout/></ProtectedRoute>,
-    },
-    {
-        path: "/orderView/:id",
-        element: <ProtectedRoute permission="ordenes_visualizar"><OrderDetailsLayout/></ProtectedRoute>,
     },
        {
         path: "/orderEdit/:id",
@@ -150,10 +138,6 @@ const router = createBrowserRouter([
     {
         path: "/listInventory",
         element: <ProtectedRoute permission="inventario_listar"><InventoryListPage/></ProtectedRoute>,
-    },
-    {
-        path: "/detailsInventory",
-        element: <ProtectedRoute permission="inventario_visualizar"><InventoryDetailPage/></ProtectedRoute>,
     },
     {
         path: "/updateInventory",

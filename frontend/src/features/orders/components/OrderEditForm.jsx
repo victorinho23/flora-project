@@ -244,7 +244,7 @@ export function OrderEditForm({ order }) {
                 text: "La orden fue actualizada correctamente",
                 timer: 3000,
             });
-            navigate(`/orderView/${order.id}`, { replace: true });
+            navigate("/orderList", { replace: true, state: { openOrder: order.id } });
         } catch (error) {
             console.log("Error: ", error.message);
             await showUnexpectedErrorAlert({
@@ -278,7 +278,7 @@ export function OrderEditForm({ order }) {
                 text: "La orden ha sido anulada correctamente",
                 timer: 3000,
             });
-            navigate(`/orderView/${order.id}`, { replace: true });
+            navigate("/orderList", { replace: true, state: { openOrder: order.id } });
         } catch (error) {
             await showUnexpectedErrorAlert({
                 text: error.message,
@@ -291,7 +291,7 @@ export function OrderEditForm({ order }) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-br-s950 font-medium px-4 text-center">
                 <p>Esta orden ya esta {order.status === "PAGADA" ? "pagada" : "cancelada"} y no puede modificarse.</p>
-                <Button variant="crema" size="lgg" type="button" onClick={() => navigate(`/orderView/${order.id}`)}>
+                <Button variant="crema" size="lgg" type="button" onClick={() => navigate("/orderList", { state: { openOrder: order.id } })}>
                     Volver
                 </Button>
             </div>
@@ -305,7 +305,7 @@ export function OrderEditForm({ order }) {
                 variant="banda"
                 image={fotoFondo}
                 title="Actualizar orden"
-                onBack={() => navigate(`/orderView/${order.id}`)}
+                onBack={() => navigate("/orderList", { state: { openOrder: order.id } })}
             />
 
             <div className="flex-1 px-4 sm:px-8 py-6 xl:py-4">
@@ -585,7 +585,7 @@ export function OrderEditForm({ order }) {
                                 variant="crema"
                                 size="w"
                                 type="button"
-                                onClick={() => navigate(`/orderView/${order.id}`)}
+                                onClick={() => navigate("/orderList", { state: { openOrder: order.id } })}
                             >
                                 Cancelar
                             </Button>

@@ -2,10 +2,7 @@ export { default as AuthLayout} from "./layouts/AuthLayout";
 export { default as DashboardLayout} from "./layouts/DashboardLayout";
 export { default as UsersCreateLayout} from "./layouts/UsersCreateLayout";
 export { default as UserEditLayout } from "./layouts/UserEditLayout"
-export { default as CreateDishesLayout } from "./layouts/CreateDishesLayout"
-export { default as DishDetailsLayout } from "./layouts/DishDetailsLayout"
 export { default as EditDishLayout } from "./layouts/EditDishLayout"
-export { default as OrderDetailsLayout } from "./layouts/OrderDetailsLayout"
 export { default as OrderEditLayout } from "./layouts/OrderEditLayout"
 export { default as SeeUsers } from "./layouts/SeeUsers"
 

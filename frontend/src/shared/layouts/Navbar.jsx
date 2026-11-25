@@ -21,9 +21,9 @@ const navigationLinks = [
   { to: "/home", label: "Inicio", routes: ["home"] },
   { to: "/userList", permission: "usuarios_listar", label: "Usuarios", routes: ["userList", "viewListUsers", "userCreate", "userEdit", "viewUser"] },
   { to: "/listSuppliers", permission: "proveedores_listar", label: "Proveedores", routes: ["listSuppliers", "viewlistSuppliers", "updateSuppliers", "suppliersCreate", "editSupplier"] },
-  { to: "/listMenu", permission: "menu_listar", label: "Menú", routes: ["listMenu", "viewListMenu", "createDishes", "viewDish", "dishEdit", "categories"] },
-  { to: "/orderList", permission: "ordenes_listar", label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderView", "orderEdit"] },
-  { to: "/listInventory", permission: "inventario_listar", label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory", "detailsInventory"] },
+  { to: "/listMenu", permission: "menu_listar", label: "Menú", routes: ["listMenu", "viewListMenu", "dishEdit", "categories"] },
+  { to: "/orderList", permission: "ordenes_listar", label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderEdit"] },
+  { to: "/listInventory", permission: "inventario_listar", label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory"] },
   { to: "/permissions", permission: "permisos_gestionar", label: "Permisos", routes: ["permissions"] },
   { to: "/settings", permission: "mesas_listar", label: "Configuración", routes: ["settings"] },
 ];
@@ -34,7 +34,7 @@ const searchTargets = [
   { label: "Órdenes", to: "/orderList", permission: "ordenes_listar", words: "ordenes pedidos comandas mesas cocina" },
   { label: "Nueva orden", to: "/createOrders", permission: "ordenes_crear", words: "nueva orden pedido tomar comanda mesa" },
   { label: "Menú", to: "/listMenu", permission: "menu_listar", words: "menu carta platos platillos comida" },
-  { label: "Crear platillo", to: "/createDishes", permission: "menu_agregar", words: "crear nuevo plato platillo agregar menu" },
+  { label: "Crear platillo", to: "/listMenu", state: { createDish: true }, permission: "menu_agregar", words: "crear nuevo plato platillo agregar menu" },
   { label: "Categorías del menú", to: "/categories", permission: "menu_listar", words: "categorias tipos secciones carta" },
   { label: "Inventario", to: "/listInventory", permission: "inventario_listar", words: "inventario productos stock existencias bodega lotes" },
   { label: "Nuevo producto", to: "/createInventory", permission: "inventario_crear", words: "nuevo producto inventario registrar insumo" },
@@ -54,7 +54,7 @@ const sectionByRoute = Object.fromEntries(
   navigationLinks.flatMap((link) => link.routes.map((route) => [route, link.to]))
 );
 
-// /orderView/12 -> "orderView"
+// /orderEdit/12 -> "orderEdit"
 const sectionOf = (pathname) => sectionByRoute[pathname.split("/")[1]];
 
 // quita tildes y mayusculas para que "ordenes" encuentre "Órdenes"
@@ -111,7 +111,7 @@ export default function Navbar({ variant = "default", image, icon: Icon, avatar,
       allowed.find((target) => normalize(target.label).startsWith(query)) ??
       allowed.find((target) => words.every((word) => normalize(`${target.label} ${target.words}`).includes(word)));
     if (found) {
-      navigate(found.to);
+      navigate(found.to, { state: found.state });
       setSearch("");
     }
   };

@@ -226,7 +226,7 @@ export default function CreateOrderForm() {
                     confirmButtonText: activeOrderId ? "Ver esa orden" : "Elegir otra mesa",
                 });
                 if (!choice.isConfirmed) return;
-                if (activeOrderId) navigate(`/orderView/${activeOrderId}`);
+                if (activeOrderId) navigate("/orderList", { state: { openOrder: activeOrderId } });
                 else openTables();
                 return;
             }
@@ -237,7 +237,7 @@ export default function CreateOrderForm() {
                 timer: 3000,
             });
 
-            navigate(`/orderView/${response.orderId}`, { replace: true });
+            navigate("/orderList", { replace: true, state: { openOrder: response.orderId } });
         } catch (error) {
             console.log("Error: ", error.message);
             await showUnexpectedErrorAlert({
