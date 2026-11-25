@@ -570,10 +570,20 @@ export function OrderEditForm({ order }) {
                             </span>
                         </div>
 
-                        <div className="flex flex-wrap justify-center gap-4">
+                        {/* las 3 acciones en una sola fila y del mismo ancho: anular a la izquierda (separada), cancelar y guardar a la derecha */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <Button
+                                variant="danger"
+                                size="w"
+                                type="button"
+                                onClick={handleCancelOrder}
+                            >
+                                Anular orden
+                            </Button>
+
                             <Button
                                 variant="crema"
-                                size="lgg"
+                                size="w"
                                 type="button"
                                 onClick={() => navigate(`/orderView/${order.id}`)}
                             >
@@ -582,21 +592,12 @@ export function OrderEditForm({ order }) {
 
                             <Button
                                 variant="espresso"
-                                size="lgg"
+                                size="w"
                                 type="submit"
                             >
-                                Guardar cambios
+                                Guardar
                             </Button>
                         </div>
-
-                        <Button
-                            variant="danger"
-                            size="lgg"
-                            type="button"
-                            onClick={handleCancelOrder}
-                        >
-                            Anular orden
-                        </Button>
 
                     </div>
 
