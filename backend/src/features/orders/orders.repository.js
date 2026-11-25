@@ -121,7 +121,7 @@ export const ordersRepository = {
             FROM orden o
             INNER JOIN usuario u ON u.id = o.mesero_id
             LEFT JOIN orden_platillo op ON op.orden_id = o.id
-            WHERE o.estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA')
+            WHERE o.estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA', 'ENTREGADA', 'CUENTA_PEDIDA')
             GROUP BY o.id, u.nombre
             ORDER BY o.numero_mesa;
         `;
@@ -136,7 +136,7 @@ export const ordersRepository = {
             SELECT id
             FROM orden
             WHERE numero_mesa = $1
-              AND estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA')
+              AND estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA', 'ENTREGADA', 'CUENTA_PEDIDA')
               AND id <> $2
             LIMIT 1;
         `;

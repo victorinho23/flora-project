@@ -4,7 +4,7 @@
 import { pool } from "../../config/db.js";
 
 // columnas con los nombres que usa el frontend
-const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y, plano_id AS "floorId"`;
+const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y, plano_id AS "floorId", ocupada_desde AS "occupiedSince"`;
 
 export const tablesRepository = {
     // todas (pagina de configuracion) o solo las activas (plano de las ordenes)
@@ -40,6 +40,15 @@ export const tablesRepository = {
         await pool.query(`UPDATE mesa SET numero = $2, capacidad = $3, zona = $4 WHERE id = $1;`, [id, number, capacity, zone]);
     },
 
+    // clientes sentados sin pedir: se guarda desde cuando (o se borra al liberar la mesa)
+    async setOccupied(id, occupied) {
+        await pool.query(`UPDATE mesa SET ocupada_desde = ${occupied ? "NOW()" : "NULL"} WHERE id = $1;`, [id]);
+    },
+
+    async setOccupiedByNumber(number, occupied) {
+        await pool.query(`UPDATE mesa SET ocupada_desde = ${occupied ? "NOW()" : "NULL"} WHERE numero = $1;`, [number]);
+    },
+
     async updateStatus(id, active) {
         await pool.query(`UPDATE mesa SET estado = $2 WHERE id = $1;`, [id, active]);
     },
@@ -47,7 +56,7 @@ export const tablesRepository = {
     // orden abierta (en cocina o lista para entregar) que tenga la mesa
     async findOpenOrder(number) {
         const result = await pool.query(
-            `SELECT id FROM orden WHERE numero_mesa = $1 AND estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA') LIMIT 1;`,
+            `SELECT id FROM orden WHERE numero_mesa = $1 AND estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA', 'ENTREGADA', 'CUENTA_PEDIDA') LIMIT 1;`,
             [number],
         );
         return result.rows[0] ?? null;

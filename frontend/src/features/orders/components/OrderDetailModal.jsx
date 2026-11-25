@@ -1,16 +1,18 @@
 // src/features/orders/components/OrderDetailModal.jsx
 // Modal con el detalle de una orden (desde la tabla o desde el mapa de mesas):
 // aqui mismo se cambia el estado, se imprime la comanda y se anula, ya no hay pagina aparte
-import { ClipboardList, Printer, ChefHat, Wallet, Undo2, Pencil, Ban, MapPin } from "lucide-react";
+import { ClipboardList, Printer, ChefHat, Wallet, Undo2, Pencil, Ban, MapPin, HandPlatter, Receipt } from "lucide-react";
 import { DetailModal, Button } from "@/shared";
-import { cancelOrder, changeOrderStatus } from "../services/orderService";
+import { cancelOrder, changeOrderStatus, OPEN_STATUSES } from "../services/orderService";
 import { showConfirmAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showSuccesAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 import { useAccess } from "@/features/auth/services/accessService";
 
 // Colores de la etiqueta segun el estado (los mismos del plano de mesas y del detalle)
 const statusStyles = {
-    ACTIVA: { label: "Activa · en cocina", className: "bg-m3-secondary-container text-m3-on-secondary-container" },
-    LISTA_PARA_ENTREGA: { label: "Lista para entregar", className: "bg-m3-success-container text-m3-success" },
+    ACTIVA: { label: "Esperando pedido · en cocina", className: "bg-bg-t100 text-br-t950" },
+    LISTA_PARA_ENTREGA: { label: "Pedido listo para llevar", className: "bg-m3-success-container text-m3-success" },
+    ENTREGADA: { label: "Pedido entregado", className: "bg-m3-info-container text-m3-info" },
+    CUENTA_PEDIDA: { label: "Pidió la cuenta", className: "bg-m3-error-container text-m3-on-error-container" },
     PAGADA: { label: "Pagada", className: "bg-bg-s50 text-br-s950" },
     CANCELADA: { label: "Cancelada", className: "bg-m3-error-container text-m3-on-error-container" },
 };
@@ -18,10 +20,19 @@ const statusStyles = {
 // siguiente paso de la comanda segun el estado (igual que en el backend)
 const NEXT_STEPS = {
     ACTIVA: [
-        { status: "LISTA_PARA_ENTREGA", label: "Lista para entregar", icon: ChefHat, variant: "caramelo", confirm: "La cocina terminó la comanda y la orden pasa a lista para entregar." },
+        { status: "LISTA_PARA_ENTREGA", label: "Pedido listo", icon: ChefHat, variant: "espresso", confirm: "La cocina terminó la comanda y el pedido queda listo para llevar a la mesa." },
     ],
     LISTA_PARA_ENTREGA: [
-        { status: "ACTIVA", label: "Devolver a cocina", icon: Undo2, variant: "crema", confirm: "La orden vuelve a cocina (por ejemplo, si a la mesa le faltó algo)." },
+        { status: "ACTIVA", label: "Devolver a cocina", icon: Undo2, variant: "contorno", confirm: "La orden vuelve a cocina (por ejemplo, si a la mesa le faltó algo)." },
+        { status: "ENTREGADA", label: "Entregado a la mesa", icon: HandPlatter, variant: "espresso", confirm: "La mesa ya recibió su pedido." },
+    ],
+    ENTREGADA: [
+        { status: "ACTIVA", label: "Devolver a cocina", icon: Undo2, variant: "contorno", confirm: "La orden vuelve a cocina (por ejemplo, si pidieron algo más)." },
+        { status: "CUENTA_PEDIDA", label: "Pidió la cuenta", icon: Receipt, variant: "caramelo", confirm: "La mesa pidió la cuenta; en el mapa queda marcada para que alguien la lleve." },
+        { status: "PAGADA", label: "Registrar pago", icon: Wallet, variant: "espresso", confirm: "La mesa queda libre y la orden ya no se podrá modificar." },
+    ],
+    CUENTA_PEDIDA: [
+        { status: "ENTREGADA", label: "Aún no paga", icon: Undo2, variant: "contorno", confirm: "La mesa vuelve a quedar como pedido entregado." },
         { status: "PAGADA", label: "Registrar pago", icon: Wallet, variant: "espresso", confirm: "La mesa queda libre y la orden ya no se podrá modificar." },
     ],
 };
@@ -43,7 +54,7 @@ export default function OrderDetailModal({ order, onClose, onEdit, onChanged, on
 
     const status = statusStyles[order.status] ?? { label: order.status, className: "bg-bg-s50 text-br-s950" };
     // Solo se puede editar si la orden no esta pagada ni cancelada
-    const editable = order.status === "ACTIVA" || order.status === "LISTA_PARA_ENTREGA";
+    const editable = OPEN_STATUSES.includes(order.status);
     const items = order.items ?? [];
     const steps = onChanged && can("ordenes_actualizar") ? NEXT_STEPS[order.status] ?? [] : [];
     const canCancel = onChanged && editable && can("ordenes_anular");

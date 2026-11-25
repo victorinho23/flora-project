@@ -8,7 +8,7 @@ import { accessService } from "../access/access.service.js";
 import { imageUrl } from "../../config/upload.js";
 import { parseIds, parseOption, parseNumber, parseDate } from "../../config/reportFilters.js";
 
-const STATUSES = ["ACTIVA", "LISTA_PARA_ENTREGA", "PAGADA", "CANCELADA"];
+const STATUSES = ["ACTIVA", "LISTA_PARA_ENTREGA", "ENTREGADA", "CUENTA_PEDIDA", "PAGADA", "CANCELADA"];
 
 
 // si dos meseros abren la misma mesa al mismo tiempo, la base rechaza la segunda (indice unico 0028)
@@ -48,11 +48,14 @@ const prepareItems = async (rawItems = []) => {
 };
 
 // a que estado puede pasar una orden desde el estado en que esta
-// ACTIVA = en cocina, LISTA_PARA_ENTREGA = la comanda salio, PAGADA = mesa cerrada
-// LISTA_PARA_ENTREGA puede volver a ACTIVA si a la mesa le falto algo
+// ACTIVA = en cocina, LISTA_PARA_ENTREGA = la comanda salio, ENTREGADA = la mesa ya tiene su pedido,
+// CUENTA_PEDIDA = pidio la cuenta, PAGADA = mesa cerrada
+// se puede devolver un paso (ej. a la mesa le falto algo y vuelve a cocina)
 const NEXT_STATUS = {
     ACTIVA: ["LISTA_PARA_ENTREGA"],
-    LISTA_PARA_ENTREGA: ["ACTIVA", "PAGADA"],
+    LISTA_PARA_ENTREGA: ["ACTIVA", "ENTREGADA", "PAGADA"],
+    ENTREGADA: ["ACTIVA", "CUENTA_PEDIDA", "PAGADA"],
+    CUENTA_PEDIDA: ["ENTREGADA", "PAGADA"],
     PAGADA: [],
     CANCELADA: [],
 };
@@ -127,7 +130,10 @@ export const ordersService = {
         }
 
         try {
-            return await ordersRepository.create({ waiterId, tableNumber, notes: notes || null, items });
+            const created = await ordersRepository.create({ waiterId, tableNumber, notes: notes || null, items });
+            // la mesa ya tiene pedido: deja de estar "ocupada sin pedir"
+            await tablesRepository.setOccupiedByNumber(tableNumber, false);
+            return created;
         } catch (error) {
             if (isTableTaken(error)) throw httpError(409, `La mesa ${tableNumber} se acaba de ocupar, elige otra`, { field: "tableNumber" });
             throw error;

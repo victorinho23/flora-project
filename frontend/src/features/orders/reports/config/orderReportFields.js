@@ -4,6 +4,8 @@
 export const orderStatusLabels = {
     ACTIVA: "Activa",
     LISTA_PARA_ENTREGA: "Lista para entrega",
+    ENTREGADA: "Entregada",
+    CUENTA_PEDIDA: "Pidió la cuenta",
     PAGADA: "Pagada",
     CANCELADA: "Cancelada",
 };

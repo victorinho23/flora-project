@@ -80,4 +80,13 @@ export const tablesController = {
             sendError(res, err);
         }
     },
+
+    async setOccupied(req, res) {
+        try {
+            await tablesService.setOccupied(Number(req.params.id), req.body);
+            res.json({ message: req.body?.occupied ? "Mesa ocupada" : "Mesa libre" });
+        } catch (err) {
+            sendError(res, err);
+        }
+    },
 };

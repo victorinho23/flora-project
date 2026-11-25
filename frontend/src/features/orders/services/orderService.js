@@ -23,7 +23,25 @@ export async function getOrderById(id) {
 // mesas del restaurante si el backend no dice otra cantidad
 export const TOTAL_MESAS = 12;
 
-const isOpen = (order) => order.status === "ACTIVA" || order.status === "LISTA_PARA_ENTREGA";
+// estados de una orden abierta (la mesa esta ocupada con ella); PAGADA y CANCELADA ya la cierran
+export const OPEN_STATUSES = ["ACTIVA", "LISTA_PARA_ENTREGA", "ENTREGADA", "CUENTA_PEDIDA"];
+const isOpen = (order) => OPEN_STATUSES.includes(order.status);
+
+// en que va cada mesa y su color (el mapa usa "tile", fuerte; las cajitas usan "box", suave)
+// attention = la mesa necesita que alguien vaya (pedido listo o pidio la cuenta): sale con un punto que titila
+export const TABLE_STATES = {
+    LIBRE: { label: "Libre", tile: "bg-bg-w border-2 border-bd-s500 text-br-s950", box: "bg-bg-w border-bd-s300 text-br-s950", dot: "bg-bg-w border-2 border-bd-s500" },
+    OCUPADA: { label: "Ocupada · sin pedir", tile: "bg-m3-info-container border-2 border-m3-info text-m3-info", box: "bg-bg-w border-2 border-dashed border-m3-info text-m3-info", dot: "bg-m3-info-container border-2 border-m3-info" },
+    ACTIVA: { label: "Esperando pedido", tile: "bg-bg-t300 border-2 border-bg-w text-br-s950", box: "bg-bg-t100 border-bd-t800 text-br-t950", dot: "bg-bg-t300" },
+    LISTA_PARA_ENTREGA: { label: "Pedido listo · llevar", tile: "bg-m3-success border-2 border-bg-w text-bg-w", box: "bg-m3-success-container border-m3-success text-m3-success", dot: "bg-m3-success", attention: true },
+    ENTREGADA: { label: "Pedido entregado", tile: "bg-m3-info border-2 border-bg-w text-bg-w", box: "bg-m3-info-container border-m3-info text-m3-info", dot: "bg-m3-info" },
+    CUENTA_PEDIDA: { label: "Pidió la cuenta", tile: "bg-m3-error border-2 border-bg-w text-m3-on-error", box: "bg-m3-error-container border-m3-error text-m3-on-error-container", dot: "bg-m3-error", attention: true },
+};
+
+// el mesero marca la mesa ocupada cuando se sientan los clientes, o la libera si se fueron sin pedir
+export async function setTableOccupied(tableId, occupied) {
+    return await request(`/tables/${tableId}/occupancy`, { method: "PATCH", body: { occupied } });
+}
 
 // mesas desde la base: { total, tables: [mesas activas con zona, capacidad y celda del mapa], open: [ordenes abiertas], maps: pisos del mapa del restaurante }
 // las mesas se crean en Configuracion; todas empiezan libres y solo cambian si tienen una orden abierta.
@@ -63,7 +81,7 @@ export async function updateOrder(id, orderData) {
     });
 }
 
-// mueve la orden en el flujo de la comanda: ACTIVA -> LISTA_PARA_ENTREGA -> PAGADA
+// mueve la orden en el flujo de la comanda: ACTIVA -> LISTA_PARA_ENTREGA -> ENTREGADA -> CUENTA_PEDIDA -> PAGADA
 export async function changeOrderStatus(id, status) {
     return await request(`${ORDERS_URL}/${id}/status`, {
         method: "PATCH",

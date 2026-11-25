@@ -125,7 +125,7 @@ export const dishesRepository = {
             FROM orden_platillo op
             INNER JOIN orden o ON o.id = op.orden_id
             WHERE op.platillo_id = $1
-              AND o.estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA')
+              AND o.estado IN ('ACTIVA', 'LISTA_PARA_ENTREGA', 'ENTREGADA', 'CUENTA_PEDIDA')
             LIMIT 1;
         `;
 
