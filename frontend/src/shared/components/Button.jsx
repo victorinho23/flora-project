@@ -20,8 +20,9 @@ export default function Button ({
         caramelo: `bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 text-bg-w font-semibold shadow-m3-1 hover:shadow-m3-2`,
         // enlace = boton de texto
         enlace: `bg-transparent text-br-t950 text-sm font-semibold underline-offset-4 hover:underline`,
-        // crema = boton con borde (outlined)
-        crema: ` text-br-w font-semibold border border-bd-w hover:border-bd-s500`,
+        // crema = boton secundario: fondo crema con texto espresso y borde marcado
+        // asi se lee bien tanto en fondos claros (formularios) como en los encabezados oscuros de las tablas
+        crema: `bg-bg-p50 text-br-s950 font-semibold border border-bd-s500 shadow-m3-1 hover:border-bd-s950 hover:shadow-m3-2`,
         primary: `bg-bg-s800 text-bg-w shadow-m3-1 hover:shadow-m3-2`,
         sex: ` bg-transparent border border-bg-w/60 text-bg-w hover:border-br-t300`,
         statusActive: `bg-m3-success text-white shadow-m3-1 hover:shadow-m3-2`,
