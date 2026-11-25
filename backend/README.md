@@ -6,7 +6,7 @@ Node.js + Express + PostgreSQL. Misma estructura del proyecto de clase:
 ## Arrancar
 
 1. Crear la base de datos `flora` en pgAdmin y ejecutar las migraciones
-   (`src/databases/migrations` en orden, de la 0001 a la 0030).
+   (`src/databases/migrations` en orden, de la 0001 a la 0031).
 2. Revisar el archivo `.env` (puerto, usuario y contraseña de PostgreSQL y, si quieres correos de verdad, los datos SMTP de abajo).
 3. En esta carpeta:
 
@@ -89,6 +89,7 @@ La migración `0027_insert_mas_categorias.sql` agrega 20 categorías más para e
 La migración `0028_create_index_mesa_ocupada.sql` hace que la base no deje tener dos órdenes abiertas en la misma mesa.
 La migración `0029_alter_usuario_recuperacion.sql` agrega al usuario los datos del código para recuperar la contraseña.
 La migración `0030_create_mesa.sql` crea la tabla de mesas (con las 12 de antes en el salón) y los permisos `mesas_*`.
+La migración `0031_insert_permiso_asignar_mesero.sql` agrega el permiso para cambiar el mesero de una orden (solo el administrador).
 
 ## Mesas
 

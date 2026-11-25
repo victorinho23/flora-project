@@ -6,6 +6,7 @@ import { orderUpdateSchema } from "@/shared/schemas/orderSchema";
 import { getDishCategories } from "@/services/selectServices";
 import { getActiveDishCards, buildDishIndex, searchDishes, parseQuickAdd } from "@/features/products/services/dishService";
 import { updateOrder, cancelOrder, getTables } from "../services/orderService";
+import { useAccess } from "@/features/auth/services/accessService";
 import TablePickerModal from "./TablePickerModal";
 import { showSuccesAlert, showConfirmDeleteAlert, showDeleteSuccessAlert, showDeleteCancelAlert, showUnexpectedErrorAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-orders.png";
@@ -22,17 +23,25 @@ const statusOptions = [
 ];
 
 export function OrderEditForm({ order }) {
+    // la orden queda a nombre de quien la abrio; solo con el permiso de asignar mesero se puede cambiar
+    const can = useAccess();
+    const canAssign = can("ordenes_asignar_mesero");
+
     // platillos activos del menu y meseros activos que vienen del backend
     const [availableDishes, setAvailableDishes] = useState([]);
     const [waiterOptions, setWaiterOptions] = useState([]);
 
     useEffect(() => {
         getActiveDishCards().then(setAvailableDishes).catch(console.error);
+    }, []);
+
+    useEffect(() => {
+        if (!canAssign) return;
         // Meseros activos que el administrador puede asignar a la orden
         getUserOptions()
             .then((users) => setWaiterOptions(users.filter((user) => user.usertype === "MESERO" && user.is_active).map((user) => ({ id: String(user.id), label: user.username }))))
             .catch(console.error);
-    }, []);
+    }, [canAssign]);
 
     // ===== Busqueda de platillos =====
     // el indice se arma una vez cuando llegan los platillos; al escribir solo se compara
@@ -325,16 +334,27 @@ export function OrderEditForm({ order }) {
                                 )}
                             </div>
 
-                            <Select
-                                label="Mesero responsable (solo administrador)"
-                                name="waiterName"
-                                value={waiterName}
-                                htmlFor="waiter-name"
-                                options={waiterChoices}
-                                onChange={(e) => setWaiterName(e.target.value)}
-                                error={errors.waiterName}
-                                variant="latte"
-                            />
+                            {canAssign ? (
+                                <Select
+                                    label="Mesero responsable"
+                                    name="waiterName"
+                                    value={waiterName}
+                                    htmlFor="waiter-name"
+                                    options={waiterChoices}
+                                    onChange={(e) => setWaiterName(e.target.value)}
+                                    error={errors.waiterName}
+                                    variant="latte"
+                                />
+                            ) : (
+                                // sin permiso el mesero no se cambia: es el que abrio la orden
+                                <div className="w-full">
+                                    <p className="text-sm font-semibold text-br-s900 mb-1">Mesero responsable</p>
+                                    <div className="h-12 rounded-m3-xs border border-bd-s400 bg-bg-s50 flex items-center px-4 text-br-s950 font-medium">
+                                        {order.waiterName}
+                                    </div>
+                                    <p className="mt-1 text-m3-body-small text-br-s800">Quedó asignado al abrir la orden</p>
+                                </div>
+                            )}
 
                             <Select
                                 label="Estado de la orden"
