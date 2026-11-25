@@ -3,6 +3,7 @@
 import { ordersRepository } from "./orders.repository.js";
 import { changesRepository } from "../changes/changes.repository.js";
 import { tablesRepository } from "../tables/tables.repository.js";
+import { accessService } from "../access/access.service.js";
 import { imageUrl } from "../../config/upload.js";
 import { parseIds, parseOption, parseNumber, parseDate } from "../../config/reportFilters.js";
 
@@ -131,7 +132,7 @@ export const ordersService = {
         }
     },
 
-    async update(id, data) {
+    async update(id, data, userId) {
         const current = await ordersRepository.findById(id);
         if (!current) throw httpError(404, "No se encontro la orden solicitada");
 
@@ -141,9 +142,11 @@ export const ordersService = {
 
         const tableNumber = await parseTable(data.tableNumber, Number(current.tableNumber ?? current.numero_mesa));
         const status = STATUSES.includes(data.status) ? data.status : current.status;
-        const waiterId = Number(data.waiterId);
+        // la orden sigue a nombre de quien la abrio; solo con el permiso de asignar mesero se puede cambiar
+        const canAssign = await accessService.hasPermission(userId, "ordenes_asignar_mesero");
+        const waiterId = canAssign ? Number(data.waiterId) : Number(current.waiterId);
 
-        if (!waiterId || !(await ordersRepository.isActiveWaiter(waiterId))) {
+        if (canAssign && (!waiterId || !(await ordersRepository.isActiveWaiter(waiterId)))) {
             throw httpError(400, "Debe seleccionar el mesero responsable", { field: "waiterName" });
         }
 

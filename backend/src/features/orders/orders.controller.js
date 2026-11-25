@@ -57,7 +57,7 @@ export const ordersController = {
 
     async update(req, res) {
         try {
-            await ordersService.update(Number(req.params.id), req.body);
+            await ordersService.update(Number(req.params.id), req.body, req.user.id);
             res.json({ message: "La orden fue actualizada correctamente" });
         } catch (err) {
             sendError(res, err);

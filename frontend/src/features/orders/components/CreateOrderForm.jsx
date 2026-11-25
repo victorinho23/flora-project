@@ -297,6 +297,7 @@ export default function CreateOrderForm() {
                                 <div className="h-12 rounded-m3-xs border border-bd-s400 bg-bg-s50 flex items-center px-4 text-br-s950 font-medium">
                                     {currentWaiter.name}
                                 </div>
+                                <p className="mt-1 text-m3-body-small text-br-s800">Se asigna solo con la sesión que está abierta</p>
                             </div>
                         </div>
 
