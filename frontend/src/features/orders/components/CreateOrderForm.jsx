@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { orderSchema } from "../../../shared/schemas/orderSchema";
 import { getDishCategories } from "@/services/selectServices";
 import { getActiveDishCards, buildDishIndex, searchDishes, parseQuickAdd } from "@/features/products/services/dishService";
-import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
+import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert, showConfirmDeleteAlert } from "@/shared/services/alertService";
 import { createOrder, getTables } from "../services/orderService";
 import TablePickerModal from "./TablePickerModal";
 import { getSessionUser } from "@/features/auth/services/logoutService";
@@ -151,16 +151,24 @@ export default function CreateOrderForm() {
     };
 
     const changeQuantity = (dishId, delta) => {
+        // si con el menos queda en 0, es quitar el platillo: se pide confirmacion
+        if (orderItems[dishId] && orderItems[dishId].quantity + delta <= 0) return removeItem(dishId);
         setOrderItems((prev) => {
             const quantity = prev[dishId].quantity + delta;
-            if (quantity > 0) return { ...prev, [dishId]: { ...prev[dishId], quantity } };
-            const rest = { ...prev };
-            delete rest[dishId];
-            return rest;
+            return { ...prev, [dishId]: { ...prev[dishId], quantity } };
         });
     };
 
-    const removeItem = (dishId) => {
+    // quitar un platillo de la orden, preguntando antes para no borrarlo por error
+    const removeItem = async (dishId) => {
+        const item = orderItems[dishId];
+        if (!item) return;
+        const result = await showConfirmDeleteAlert({
+            title: "¿Quitar el platillo?",
+            text: `Se quitará ${item.quantity > 1 ? `${item.quantity} x ` : ""}${item.dishName} de la orden.`,
+            confirmButtonText: "Quitar",
+        });
+        if (!result.isConfirmed) return;
         setOrderItems((prev) => {
             const rest = { ...prev };
             delete rest[dishId];
