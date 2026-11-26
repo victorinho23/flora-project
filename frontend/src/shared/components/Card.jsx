@@ -1,3 +1,4 @@
+import { Image as ImageIcon } from "lucide-react";
 import imagenPorDefecto from "@/assets/images/menu.png";
 
 const variants = {
@@ -25,13 +26,21 @@ const Card = ({ product, variant = "coffe" }) => {
             ${variants[variant]}
         `}>
 
-            <img 
-                src={image} 
-                alt={title} 
-                // si la foto no carga se muestra la imagen general del menu en vez del icono roto
-                onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imagenPorDefecto; }}
-                className="w-full h-48 object-cover" 
-            />
+            {image ? (
+                <img 
+                    src={image} 
+                    alt={title} 
+                    // si la foto no carga se muestra la imagen general del menu en vez del icono roto
+                    onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = imagenPorDefecto; }}
+                    className="w-full h-48 object-cover" 
+                />
+            ) : (
+                // sin foto todavia (ej. la vista previa al crear un platillo): espacio con un icono en vez de una foto cualquiera
+                <div className="w-full h-48 flex flex-col items-center justify-center gap-2 bg-bg-w/10 text-br-p100">
+                    <ImageIcon size={32} aria-hidden="true" />
+                    <span className="text-m3-label-large font-semibold">Aquí va la foto</span>
+                </div>
+            )}
 
             <div className="p-5 space-y-3">
 
