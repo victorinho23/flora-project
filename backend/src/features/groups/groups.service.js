@@ -20,7 +20,7 @@ export const groupsService = {
         const actor = await accessService.getAccess(actorId);
 
         if (!actor.isSuperUser) {
-            // el grupo Administrador siempre tiene todo y solo el superusuario lo toca
+            // los permisos del grupo Administrador solo los cambia el superusuario
             const group = (await groupsRepository.getAll()).find((item) => item.group_id === groupId);
             if (group?.group_name === ADMIN_GROUP) {
                 throw httpError(403, "Los permisos del grupo Administrador solo los cambia un superusuario");

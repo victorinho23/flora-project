@@ -114,9 +114,11 @@ export default function PermissionsForm() {
 
     // por que no se puede cambiar lo que se eligio (null = si se puede)
     const selectedGroup = groupOptions.find((group) => group.id === targetGroup);
-    const lockReason = mode === "group" && selectedGroup?.label === GROUP_NAMES.ADMIN ? "El grupo Administrador siempre tiene todos los permisos."
-        : mode === "user" && (selectedUser?.isSuperuser || selectedUser?.group === GROUP_NAMES.ADMIN) ? "Los administradores y superusuarios ya tienen todos los permisos."
+    // el superusuario siempre tiene todo; a los administradores (y su grupo) solo el superusuario les cambia permisos
+    const lockReason = mode === "user" && selectedUser?.isSuperuser ? "El superusuario siempre tiene todos los permisos, no se le pueden quitar."
         : isSuperuser ? null
+        : mode === "group" && selectedGroup?.label === GROUP_NAMES.ADMIN ? "Los permisos del grupo Administrador solo los cambia un superusuario."
+        : mode === "user" && selectedUser?.group === GROUP_NAMES.ADMIN ? "Los permisos de un administrador solo los cambia un superusuario."
         : mode === "group" && targetGroup && groupIds.map(String).includes(targetGroup) ? "Este es tu propio grupo: sus permisos solo los cambia un superusuario."
         : mode === "user" && targetUser && targetUser === myId ? "No puedes cambiar tus propios permisos: pídeselo a un superusuario."
         : null;

@@ -324,13 +324,18 @@ export const userService = {
         const remove = toIds(denied).filter((id) => !give.includes(id));
 
         const actor = await accessService.getAccess(currentUserId);
+        // el superusuario siempre tiene todo: no tiene sentido darle ni quitarle permisos
+        if (user.is_superuser) {
+            throw httpError(403, "El superusuario siempre tiene todos los permisos, no se le pueden quitar");
+        }
         if (!actor.isSuperUser) {
             // nadie se da permisos a si mismo
             if (Number(userId) === Number(currentUserId)) {
                 throw httpError(403, "No puedes cambiar tus propios permisos. Pídeselo a un superusuario");
             }
-            if (user.is_superuser || user.group_name === GROUP_BY_TYPE.ADMIN) {
-                throw httpError(403, "Los administradores y superusuarios ya tienen todos los permisos, solo un superusuario los puede modificar");
+            // a un administrador solo el superusuario le da o le quita permisos
+            if (user.group_name === GROUP_BY_TYPE.ADMIN) {
+                throw httpError(403, "Los permisos de un administrador solo los cambia un superusuario");
             }
             // se compara como estaba cada permiso (dado, quitado o como su grupo) con como queda,
             // y solo los que cambian tienen que estar entre los permisos de quien hace el cambio

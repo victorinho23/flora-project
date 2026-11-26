@@ -386,7 +386,7 @@ export default function UserEditForm({ user }){
                                         onChange={toggleSuperUser}
                                         label="Superusuario"
                                     />
-                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Puede hacer de todo, incluso crear administradores y otros superusuarios. El administrador también tiene todos los permisos, pero no puede crear administradores ni superusuarios</span>
+                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Puede hacer de todo, incluso crear administradores y otros superusuarios. El administrador arranca con todos los permisos (el superusuario le puede quitar los que quiera) y no puede crear administradores ni superusuarios</span>
                                 </div>
                                 {!iAmSuperuser && (
                                     <p className="flex items-center gap-2 text-m3-body-medium text-br-s800">
