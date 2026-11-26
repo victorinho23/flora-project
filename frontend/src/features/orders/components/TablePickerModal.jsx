@@ -12,8 +12,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Utensils, Clock, Users, DoorOpen, Trees, Wine, Building2, LayoutGrid, Map as MapIcon, Info, UserCheck, UserX, ClipboardPlus } from "lucide-react";
 import { DetailModal, Button } from "@/shared";
-import RestaurantMap, { TableShape, MapStyleToggle } from "@/features/settings/components/RestaurantMap";
-import { AREAS, REAL_AREAS, useMapStyle } from "@/features/settings/components/mapAreas";
+import RestaurantMap, { TableShape } from "@/features/settings/components/RestaurantMap";
+import { AREAS, REAL_AREAS } from "@/features/settings/components/mapAreas";
 import { getTables, setTableOccupied, TOTAL_MESAS, TABLE_STATES, OPEN_STATUSES } from "../services/orderService";
 import { showErrorAlert } from "@/shared/services/alertService";
 
@@ -50,8 +50,6 @@ function buildOpenByTable(orders) {
 
 // currentOrderId: al editar, la orden que se esta editando (su propia mesa no se bloquea)
 export default function TablePickerModal({ open, onClose, mode = "browse", currentTable, currentOrderId, onPick, canOpenFree = true, highlight }) {
-    // vista del mapa elegida (realista o clasica)
-    const mapStyle = useMapStyle();
     // vista elegida: cajitas por zona o el mapa del negocio. Mientras no se elija ninguna se abre en el mapa
     // si el administrador ya lo dibujo (asi el mesero lo conoce y se ubica), si no en las cajitas
     const [picked, setPicked] = useState(null);
@@ -173,41 +171,12 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
     const selected = selectedTable != null ? { number: selectedTable, ...describe(selectedTable) } : null;
 
     // mesa dentro del mapa: circulo del color de su estado con el numero grande
-    const renderMapTable = (info, key, realistic) => {
+    // la mesa en el mapa: vista desde arriba con sus sillas, pintada con el color de su estado
+    const renderMapTable = (info) => {
         const table = Number(info.number);
         const { order, state, since, isCurrent, blocked, pick } = describe(table);
         const isTarget = String(table) === String(highlight) || table === selectedTable;
         const marked = isTarget || (isCurrent && !blocked);
-
-        // vista realista: la mesa con sus sillas, pintada con el color de su estado
-        if (realistic) {
-            return (
-                <button
-                    type="button"
-                    onClick={pick}
-                    disabled={blocked}
-                    aria-label={`Mesa ${table}, ${info.capacity} personas, ${state.label}${order ? `, orden ${order.id}` : ""}`}
-                    title={`Mesa ${table} · ${state.label}`}
-                    className={`m3-target relative z-10 w-full h-full rounded-m3-sm transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:scale-105 ${marked ? "scale-110" : ""}`}
-                >
-                    <TableShape
-                        capacity={info.capacity}
-                        rotation={info.rotation}
-                        topClassName={`transition-colors duration-300 ${state.tile} ${marked ? "ring-4 ring-m3-focus ring-offset-2" : ""}`}
-                    >
-                        <span className="text-m3-title-medium font-bold">{table}</span>
-                        {/* las sillas ya dicen cuantas personas caben; si esta ocupada se ve hace cuanto */}
-                        {since && <span className="text-m3-label-small font-semibold opacity-90">{timeSince(since)}</span>}
-                    </TableShape>
-                    {state.attention && (
-                        <span aria-hidden="true" className="absolute top-0 right-0 flex w-3.5 h-3.5">
-                            <span className={`absolute inline-flex w-full h-full rounded-m3-full ${state.dot} opacity-75 animate-ping`} />
-                            <span className={`relative inline-flex w-3.5 h-3.5 rounded-m3-full border-2 border-bg-w ${state.dot}`} />
-                        </span>
-                    )}
-                </button>
-            );
-        }
 
         return (
             <button
@@ -216,17 +185,23 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
                 disabled={blocked}
                 aria-label={`Mesa ${table}, ${info.capacity} personas, ${state.label}${order ? `, orden ${order.id}` : ""}`}
                 title={`Mesa ${table} · ${state.label}`}
-                className={`m3-state relative z-10 w-[86%] aspect-square flex flex-col items-center justify-center gap-0.5 rounded-m3-full shadow-m3-2 leading-none transition-colors duration-300 enabled:hover:shadow-m3-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:cursor-not-allowed disabled:opacity-60 ${state.tile} ${isTarget || (isCurrent && !blocked) ? "ring-4 ring-m3-focus ring-offset-2 scale-110" : ""}`}
+                className={`m3-target relative z-10 w-full h-full rounded-m3-sm transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:scale-105 ${marked ? "scale-110" : ""}`}
             >
-                {/* punto que titila cuando alguien tiene que ir a la mesa */}
+                <TableShape
+                    capacity={info.capacity}
+                    rotation={info.rotation}
+                    topClassName={`transition-colors duration-300 ${state.tile} ${marked ? "ring-4 ring-m3-focus ring-offset-2" : ""}`}
+                >
+                    <span className="text-m3-title-medium font-bold">{table}</span>
+                    {/* las sillas ya dicen cuantas personas caben; si esta ocupada se ve hace cuanto */}
+                    {since && <span className="text-m3-label-small font-semibold opacity-90">{timeSince(since)}</span>}
+                </TableShape>
                 {state.attention && (
-                    <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 flex w-3.5 h-3.5">
+                    <span aria-hidden="true" className="absolute top-0 right-0 flex w-3.5 h-3.5">
                         <span className={`absolute inline-flex w-full h-full rounded-m3-full ${state.dot} opacity-75 animate-ping`} />
                         <span className={`relative inline-flex w-3.5 h-3.5 rounded-m3-full border-2 border-bg-w ${state.dot}`} />
                     </span>
                 )}
-                <span className="text-m3-title-large font-bold">{table}</span>
-                <span className="text-m3-label-small font-semibold opacity-90">{since ? timeSince(since) : `${info.capacity}p`}</span>
             </button>
         );
     };
@@ -240,6 +215,8 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
             subtitle={loading ? "Cargando mesas..." : `${freeCount} de ${tableCount} mesas libres`}
             size="max-w-7xl"
             bodyClassName="grid-cols-1"
+            // sin boton "Cerrar" abajo: ya esta la X de arriba
+            footer={false}
         >
             {/* las dos vistas: cajitas por zona o el mapa del negocio */}
             <div className="col-span-full flex flex-wrap gap-2" role="group" aria-label="Vista de las mesas">
@@ -296,15 +273,13 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
                                     return (
                                         <span key={area} className="flex items-center gap-1.5">
                                             {/* la muestra de color usa la misma textura que el mapa */}
-                                            <span className={`w-5 h-5 flex items-center justify-center rounded-m3-xs ${cell}`} style={mapStyle === "realista" ? REAL_AREAS[area] : undefined}><Icon size={12} /></span>
+                                            <span className={`w-5 h-5 flex items-center justify-center rounded-m3-xs ${cell}`} style={REAL_AREAS[area]}><Icon size={12} /></span>
                                             {label}
                                         </span>
                                     );
                                 })}
                             </div>
                         )}
-                        {/* vista realista o clasica (la de antes) */}
-                        <MapStyleToggle className="ml-auto" />
                         </div>
                         <RestaurantMap map={map} tables={onMap} renderTable={renderMapTable} fitScreen />
                     </div>

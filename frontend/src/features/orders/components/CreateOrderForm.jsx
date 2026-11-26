@@ -267,15 +267,6 @@ export default function CreateOrderForm() {
                 image={fotoFondo}
                 title="Crear orden"
                 onBack={() => navigate(listPath)}
-                actions={
-                    <>
-                        {can("ordenes_listar") && (
-                            <Button variant="crema" size="sm" type="button" onClick={() => navigate("/orderList")}>
-                                Ver listado
-                            </Button>
-                        )}
-                    </>
-                }
             />
 
             <div className="flex-1 px-4 sm:px-8 py-6 xl:py-4">

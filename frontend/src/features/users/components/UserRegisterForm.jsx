@@ -232,11 +232,6 @@ export default function UserRegisterForm(){
                 icon={User}
                 title="Crear usuario"
                 onBack={() => navigate(listPath)}
-                actions={can("usuarios_listar") && (
-                    <Button variant="crema" size="sm" type="button" onClick={() => navigate(listPath)}>
-                        Ver listado
-                    </Button>
-                )}
             />
 
             {/* fondo con manchas de luz que se mueven segun el paso */}

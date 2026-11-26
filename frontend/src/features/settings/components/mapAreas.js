@@ -1,7 +1,6 @@
 // src/features/settings/components/mapAreas.js
 // lo que se puede pintar en el mapa del restaurante, con su icono y su color
 // (en archivo aparte porque lo usan el mapa, el editor y la ventana de mesas del mesero)
-import { useSyncExternalStore } from "react";
 import { BrickWall, ChefHat, Wine, Bath, DoorOpen, Wallet, Sun, Trees } from "lucide-react";
 
 // los mismos nombres que acepta el backend
@@ -118,33 +117,3 @@ export const chairsFor = (capacity) => {
         ...(ends >= 2 ? [{ x: 50 + w / 2 + gap, y: 50, turn: 90 }] : []),
     ];
 };
-
-// vista elegida para el mapa: "realista" (por defecto) o "clasica" (la de antes).
-// se guarda en el navegador, asi cada quien deja la que le guste y se puede volver a la de antes cuando quiera
-const STYLE_KEY = "flora-map-style";
-const listeners = new Set();
-const readStyle = () => {
-    try {
-        return localStorage.getItem(STYLE_KEY) === "clasica" ? "clasica" : "realista";
-    } catch {
-        return "realista";
-    }
-};
-let mapStyle = readStyle();
-
-export const setMapStyle = (style) => {
-    mapStyle = style === "clasica" ? "clasica" : "realista";
-    try {
-        localStorage.setItem(STYLE_KEY, mapStyle);
-    } catch {
-        // si el navegador no deja guardar, igual cambia mientras la pagina este abierta
-    }
-    listeners.forEach((listener) => listener());
-};
-
-export function useMapStyle() {
-    return useSyncExternalStore((listener) => {
-        listeners.add(listener);
-        return () => listeners.delete(listener);
-    }, () => mapStyle);
-}

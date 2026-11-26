@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Eraser, Armchair, Map as MapIcon, RotateCcw, RotateCw, Save, Trash2, Camera, ScanLine, ImageOff, Layers, Undo2 } from "lucide-react";
 import { Button, Select, Input } from "@/shared";
-import RestaurantMap, { TableShape, MapStyleToggle } from "./RestaurantMap";
+import RestaurantMap, { TableShape } from "./RestaurantMap";
 import { AREAS, cellKey } from "./mapAreas";
 import { showConfirmAlert, showConfirmDeleteAlert, showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
 import { readPhoto } from "../services/scanService";
@@ -247,7 +247,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
         ? selected ? `Toca una celda para poner la mesa ${selected.number}, o arrastra cualquier mesa del mapa para moverla.` : "Elige una mesa de la lista para ponerla, o arrastra una mesa del mapa para moverla."
         : tool === "borrar" ? "Arrastra sobre el mapa para borrar zonas o quitar mesas." : `Arrastra sobre el mapa para pintar: ${AREAS[tool].label}. Las mesas se mueven arrastrándolas.`;
 
-    // mesa dibujada en el editor: circulo con su numero (clasica) o la mesa con sus sillas (realista)
+    // mesa dibujada en el editor: la mesa con sus sillas, o un circulo con su numero cuando hay foto de fondo
     const renderTable = (table, key, realistic) => realistic ? (
         <span className={`pointer-events-none relative z-10 w-full h-full ${table.active ? "" : "opacity-50"}`}>
             <TableShape
@@ -420,9 +420,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                     </aside>
                 )}
 
-                <div className="flex flex-col gap-3 min-w-0">
-                {/* vista realista o clasica (la de antes): queda guardada en este navegador */}
-                <MapStyleToggle className="self-end" />
+                <div className="min-w-0">
                 <RestaurantMap
                     map={draft}
                     tables={placed}

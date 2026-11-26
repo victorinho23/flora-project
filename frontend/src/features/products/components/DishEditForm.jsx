@@ -123,11 +123,6 @@ export function DishEditForm({ dish }) {
                 title="Actualizar plato"
                 icon={UtensilsCrossed}
                 onBack={() => navigate("/listMenu", { state: { openDish: dish.menuId } })}
-                actions={
-                    <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listMenu")}>
-                        Ver listado
-                    </Button>
-                }
             />
 
             <form

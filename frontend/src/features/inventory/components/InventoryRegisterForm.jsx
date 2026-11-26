@@ -296,11 +296,6 @@ export default function InventoryRegisterForm() {
         }
         onBack={() => navigate(backTo)}
         className="rounded-m3-lg shadow-m3-2 shrink-0"
-        actions={can("inventario_listar") && (
-          <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listInventory")}>
-            Ver listado
-          </Button>
-        )}
       />
 
       <form
