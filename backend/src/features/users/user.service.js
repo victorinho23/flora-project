@@ -49,8 +49,8 @@ const cleanData = (data, file) => {
         userContractEndDate: userType === "ADMIN" ? null : data.userContractEndDate || null,
         isActive: String(data.isActive) !== "false",
         isSuperUser: String(data.isSuperUser) === "true",
-        // staff (puede gestionar permisos) = superusuario o administrador, no se marca aparte
-        isStaff: userType === "ADMIN" || String(data.isSuperUser) === "true",
+        // staff = administrador, sale del rol (el superusuario va aparte)
+        isStaff: userType === "ADMIN",
         userImage: imagePath(file),
         userPassword: data.userPassword || null,
     };

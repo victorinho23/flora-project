@@ -378,6 +378,17 @@ export default function UserEditForm({ user }){
                                     <span className="text-m3-body-medium text-br-s800">{formData.isActive ? "Puede entrar a Flora" : "No puede entrar ni hacer nada"}</span>
                                 </div>
 
+                                {/* staff = administrador: no se mueve aqui, se prende solo cuando el tipo de usuario es Administrador */}
+                                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
+                                    <ToggleSwitch
+                                        checked={formData.userType === "ADMIN"}
+                                        disabled
+                                        onChange={() => {}}
+                                        label="Staff (administrador)"
+                                    />
+                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Se activa solo cuando el tipo de usuario es Administrador. Para cambiarlo, cambia el tipo de usuario</span>
+                                </div>
+
                                 {/* superusuario = todo, incluso nombrar administradores y otros superusuarios */}
                                 <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
                                     <ToggleSwitch
