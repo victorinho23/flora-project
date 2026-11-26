@@ -1,13 +1,13 @@
 // backend/src/features/access/access.service.js
-// regla: usuario inhabilitado -> se niega; superusuario o administrador -> todo;
-// si no, permisos directos del usuario + permisos de sus grupos activos
+// regla: usuario inhabilitado -> se niega; superusuario -> todo;
+// si no, permisos de sus grupos activos + los que se le dieron - los que se le quitaron
 //
 // superusuario vs administrador:
-//   los dos tienen TODOS los permisos de Flora
-//   superusuario  = ademas es el unico que puede crear o quitar administradores y superusuarios,
-//                   y el unico que puede modificar a un administrador
-//   administrador = gestiona usuarios y permisos, pero nunca por encima de lo que el tiene
-//                   (no puede crear administradores ni superusuarios)
+//   superusuario  = tiene todo siempre y es el unico que puede crear o quitar administradores
+//                   y superusuarios, modificar a un administrador y quitarle permisos
+//   administrador = arranca con todos los permisos (el grupo Administrador los tiene todos),
+//                   pero el superusuario le puede quitar los que quiera; gestiona usuarios y
+//                   permisos sin pasarse nunca de lo que el tiene (no crea administradores ni superusuarios)
 // staff = puede entrar a gestionar permisos: lo son el superusuario y los administradores
 
 import { accessRepository } from "./access.repository.js";
@@ -42,10 +42,9 @@ const loadAccess = async (userId) => {
     const isAdmin = Boolean(user?.is_admin);
     const isStaff = isSuperUser || isAdmin;
 
-    // el administrador tiene todos los permisos que existan (aunque se creen nuevos despues)
-    let list = [];
-    if (isAdmin && !isSuperUser) list = await accessRepository.getAllCodenames();
-    else if (!isSuperUser) list = await accessRepository.getUserPermissions(userId);
+    // el administrador se calcula igual que los demas (su grupo + individuales),
+    // asi los permisos que el superusuario le quite de verdad dejan de servirle
+    const list = isSuperUser ? [] : await accessRepository.getUserPermissions(userId);
 
     const access = {
         active: Boolean(user?.estado),

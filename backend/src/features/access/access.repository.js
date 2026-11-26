@@ -24,12 +24,6 @@ export const accessRepository = {
     return result.rows.map((row) => row.group_id);
   },
 
-  // todos los codigos de permisos que existen (el administrador los tiene todos)
-  async getAllCodenames() {
-    const result = await pool.query(`SELECT permission_codename FROM permissions;`);
-    return result.rows.map((row) => row.permission_codename);
-  },
-
   // nombre y codigo de unos permisos por su id
   async getPermissionsByIds(permissionIds) {
     const result = await pool.query(
