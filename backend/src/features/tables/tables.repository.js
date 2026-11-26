@@ -4,7 +4,7 @@
 import { pool } from "../../config/db.js";
 
 // columnas con los nombres que usa el frontend
-const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y, plano_id AS "floorId", ocupada_desde AS "occupiedSince"`;
+const COLUMNS = `id, numero AS "number", capacidad AS capacity, zona AS zone, estado AS active, pos_x AS x, pos_y AS y, rotacion AS rotation, plano_id AS "floorId", ocupada_desde AS "occupiedSince"`;
 
 export const tablesRepository = {
     // todas (pagina de configuracion) o solo las activas (plano de las ordenes)
@@ -99,7 +99,7 @@ export const tablesRepository = {
             // (si una mesa estaba en otro piso, se pasa a este)
             await client.query(`UPDATE mesa SET pos_x = NULL, pos_y = NULL, plano_id = NULL WHERE plano_id = $1;`, [id]);
             for (const position of positions) {
-                await client.query(`UPDATE mesa SET pos_x = $2, pos_y = $3, plano_id = $4 WHERE id = $1;`, [position.id, position.x, position.y, id]);
+                await client.query(`UPDATE mesa SET pos_x = $2, pos_y = $3, plano_id = $4, rotacion = $5 WHERE id = $1;`, [position.id, position.x, position.y, id, position.rotation]);
             }
             await client.query("COMMIT");
         } catch (err) {

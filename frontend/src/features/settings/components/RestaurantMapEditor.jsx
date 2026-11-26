@@ -4,9 +4,9 @@
 // paredes, cocina, barra, baños, entrada... y despues pone cada mesa en su lugar.
 // Asi el mesero, con solo mirar el mapa, sabe a donde tiene que ir
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Eraser, Armchair, Map as MapIcon, RotateCcw, Save, Trash2, Camera, ScanLine, ImageOff, Layers, Undo2 } from "lucide-react";
+import { Eraser, Armchair, Map as MapIcon, RotateCcw, RotateCw, Save, Trash2, Camera, ScanLine, ImageOff, Layers, Undo2 } from "lucide-react";
 import { Button, Select, Input } from "@/shared";
-import RestaurantMap from "./RestaurantMap";
+import RestaurantMap, { TableShape, MapStyleToggle } from "./RestaurantMap";
 import { AREAS, cellKey } from "./mapAreas";
 import { showConfirmAlert, showConfirmDeleteAlert, showErrorAlert, showSuccesAlert } from "@/shared/services/alertService";
 import { readPhoto } from "../services/scanService";
@@ -24,9 +24,9 @@ const TOOLS = [
     { id: "mesa", label: "Mesas", icon: Armchair, swatch: "bg-bg-t900 text-bg-w" },
 ];
 
-// posiciones de las mesas de este piso que vienen de la base: id -> { x, y }
+// posiciones de las mesas de este piso que vienen de la base: id -> { x, y, rotation }
 const positionsOf = (tables, floorId) => new Map(
-    tables.filter((table) => table.floorId === floorId && table.x != null && table.y != null).map((table) => [table.id, { x: table.x, y: table.y }]),
+    tables.filter((table) => table.floorId === floorId && table.x != null && table.y != null).map((table) => [table.id, { x: table.x, y: table.y, rotation: table.rotation ?? 0 }]),
 );
 
 // map: el piso guardado { id, name, cols, rows, cells }; tables: todas las mesas; floors: todos los pisos (para avisar
@@ -111,7 +111,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
             return;
         }
         if (!selectedId) return;
-        setPositions((prev) => new Map(prev).set(selectedId, { x, y }));
+        setPositions((prev) => new Map(prev).set(selectedId, { rotation: 0, ...prev.get(selectedId), x, y }));
         setDirty(true);
         // sigue con la siguiente mesa que falte por ubicar, asi se ponen todas rapido
         const nextTable = unplaced.find((table) => table.id !== selectedId);
@@ -143,7 +143,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                 const current = positions.get(id);
                 if (current?.x === x && current?.y === y) return;
                 if (tableAt.has(cellKey(x, y))) return;
-                setPositions((prev) => new Map(prev).set(id, { x, y }));
+                setPositions((prev) => new Map(prev).set(id, { rotation: 0, ...prev.get(id), x, y }));
                 setDirty(true);
             },
             onPointerEnter: () => {
@@ -198,6 +198,16 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
         setDirty(true);
     };
 
+    // gira la mesa elegida (vista realista): acostada <-> parada
+    const rotateSelected = () => {
+        setPositions((prev) => {
+            const current = prev.get(selectedId);
+            if (!current) return prev;
+            return new Map(prev).set(selectedId, { ...current, rotation: current.rotation === 90 ? 0 : 90 });
+        });
+        setDirty(true);
+    };
+
     const pickTable = (table) => {
         setTool("mesa");
         setSelectedId(table.id);
@@ -237,8 +247,19 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
         ? selected ? `Toca una celda para poner la mesa ${selected.number}, o arrastra cualquier mesa del mapa para moverla.` : "Elige una mesa de la lista para ponerla, o arrastra una mesa del mapa para moverla."
         : tool === "borrar" ? "Arrastra sobre el mapa para borrar zonas o quitar mesas." : `Arrastra sobre el mapa para pintar: ${AREAS[tool].label}. Las mesas se mueven arrastrándolas.`;
 
-    // mesa dibujada en el editor: circulo con su numero
-    const renderTable = (table) => (
+    // mesa dibujada en el editor: circulo con su numero (clasica) o la mesa con sus sillas (realista)
+    const renderTable = (table, key, realistic) => realistic ? (
+        <span className={`pointer-events-none relative z-10 w-full h-full ${table.active ? "" : "opacity-50"}`}>
+            <TableShape
+                capacity={table.capacity}
+                rotation={table.rotation}
+                topClassName={`bg-bg-t800 text-bg-w ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""}`}
+            >
+                {/* las sillas ya dicen cuantas personas caben, solo va el numero */}
+                <span className="text-m3-title-medium font-bold">{table.number}</span>
+            </TableShape>
+        </span>
+    ) : (
         <span
             className={`pointer-events-none z-10 w-[78%] aspect-square flex flex-col items-center justify-center rounded-m3-full bg-bg-t900 text-bg-w shadow-m3-1 leading-none ${table.active ? "" : "opacity-50"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""}`}
         >
@@ -386,10 +407,22 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                                     );
                                 })}
                             </div>
+                            {/* girar la mesa elegida (se nota en la vista realista) */}
+                            {selected && positions.has(selected.id) && (
+                                <div className="mt-3">
+                                    <Button size="sm" variant="contorno" type="button" onClick={rotateSelected}>
+                                        <RotateCw size={14} />
+                                        Girar mesa {selected.number}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </aside>
                 )}
 
+                <div className="flex flex-col gap-3 min-w-0">
+                {/* vista realista o clasica (la de antes): queda guardada en este navegador */}
+                <MapStyleToggle className="self-end" />
                 <RestaurantMap
                     map={draft}
                     tables={placed}
@@ -397,8 +430,10 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                     cellProps={cellProps}
                     photo={photo}
                     minCell={2.5}
+                    showGrid={canEdit}
                     className={canEdit ? `touch-none ${tool === "mesa" ? "cursor-pointer" : "cursor-crosshair"}` : ""}
                 />
+                </div>
             </div>
             <MapScanModal photo={scanPhoto} onClose={() => setScanPhoto(null)} onApply={applyScan} />
         </section>

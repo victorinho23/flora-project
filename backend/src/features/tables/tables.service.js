@@ -109,7 +109,8 @@ export const tablesService = {
             if (!table || !inside(x, y)) continue;
             if (used.has(`${x},${y}`)) throw httpError(400, `Dos mesas quedaron en la misma celda (mesa ${table.number})`, "tables");
             used.add(`${x},${y}`);
-            positions.push({ id: table.id, x, y });
+            // giro de la mesa en la vista realista: solo 0 o 90
+            positions.push({ id: table.id, x, y, rotation: Number(item.rotation) === 90 ? 90 : 0 });
         }
 
         await tablesRepository.saveMap(id, { name, cols, rows, cells, positions });
