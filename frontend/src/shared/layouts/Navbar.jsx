@@ -11,7 +11,7 @@ import {
 } from "@/shared";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import logo from "@/assets/icons/flora-icon.svg";
-import { useAccess } from "@/features/auth/services/accessService";
+import { useAccess, ADMIN_ONLY } from "@/features/auth/services/accessService";
 import { showConfirmAlert } from "@/shared/services/alertService";
 import ProfileModal from "@/features/users/components/ProfileModal";
 
@@ -27,7 +27,7 @@ const navigationLinks = [
   { to: "/orderList", permission: "ordenes_listar", alt: [["ordenes_crear", "/createOrders"]], label: "Órdenes", routes: ["orderList", "viewListOrders", "createOrders", "orderEdit"] },
   { to: "/listInventory", permission: "inventario_listar", alt: [["inventario_crear", "/createInventory"]], label: "Inventario", routes: ["listInventory", "updateInventory", "createInventory", "editInventory"] },
   { to: "/permissions", permission: "permisos_gestionar", label: "Permisos", routes: ["permissions"] },
-  { to: "/settings", permission: "mesas_listar", label: "Configuración", routes: ["settings"] },
+  { to: "/settings", permission: ADMIN_ONLY, label: "Configuración", routes: ["settings"] },
 ];
 
 // Destinos del buscador de la barra: modulos y acciones frecuentes, con palabras parecidas
@@ -45,7 +45,7 @@ const searchTargets = [
   { label: "Usuarios", to: "/userList", permission: "usuarios_listar", words: "usuarios empleados meseros personal" },
   { label: "Nuevo usuario", to: "/userCreate", permission: "usuarios_crear", words: "nuevo usuario empleado mesero registrar" },
   { label: "Permisos", to: "/permissions", permission: "permisos_gestionar", words: "permisos roles grupos accesos" },
-  { label: "Configuración · Mesas", to: "/settings", permission: "mesas_listar", words: "configuracion ajustes mesas crear mesa zonas capacidad" },
+  { label: "Configuración · Mesas", to: "/settings", permission: ADMIN_ONLY, words: "configuracion ajustes mesas crear mesa zonas capacidad" },
   { label: "Mi perfil", to: "/home", state: { openProfile: true }, words: "mi perfil cuenta datos" },
   { label: "Inicio", to: "/home", words: "inicio home principal" },
 ];

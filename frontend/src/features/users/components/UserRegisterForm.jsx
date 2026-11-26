@@ -8,6 +8,7 @@ import { getGroups } from "@/features/permissions/services/groupService";
 import { getGroupPermissions } from "@/features/permissions/services/permissionService";
 import { getDocumentTypes } from "@/services/selectServices";
 import { getTypeUser } from "@/services/selectServices";
+import { useAccessProfile } from "@/features/auth/services/accessService";
 import { useNavigate } from "react-router-dom"
 import { userSchema } from "../schemas/userSchema";
 import { showSuccesAlert, showCreateUserErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
@@ -142,6 +143,9 @@ export default function UserRegisterForm(){
 
     const [documentTypes, setDocumentTypes] = useState([])
     const [typesUser, setTypeUser] = useState([])
+    // administradores solo los crea el superusuario, por eso a los demas no les sale esa opcion
+    const { isSuperuser: iAmSuperuser } = useAccessProfile();
+    const roleOptions = iAmSuperuser ? typesUser : typesUser.filter((type) => type.id !== "ADMIN");
 
     useEffect(()=>{
         getDocumentTypes().then(setDocumentTypes);
@@ -318,7 +322,7 @@ export default function UserRegisterForm(){
                             <div className="flex flex-col gap-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
                                     {field("userName", "text", "Nombre completo", "Ej: Laura Gómez", "user-name")}
-                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={typesUser} onChange={handleChange} error={errors.userType} variant="latte" />
+                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={roleOptions} onChange={handleChange} error={errors.userType} variant="latte" />
                                     <Select label="Tipo de documento" name="userDocumentTypes" value={formData.userDocumentTypes} htmlFor="userDocumentTypes" options={documentTypes} onChange={handleChange} error={errors.userDocumentTypes} variant="latte" />
                                     {field("userDocumentNumber", "text", "Número de documento", "Solo números", "user-document-number")}
                                 </div>

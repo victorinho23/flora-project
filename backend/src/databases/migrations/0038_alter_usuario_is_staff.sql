@@ -1,13 +1,14 @@
 -- databases/migrations/0038_alter_usuario_is_staff.sql
--- separa staff de superusuario:
---   is_superuser = tiene TODOS los permisos sin que se los den y puede cambiar cualquier cosa
---   is_staff     = personal administrativo: puede entrar a la gestion de permisos,
---                  pero solo con los permisos que de verdad tiene y sin pasarse de ellos
+-- separa superusuario de administrador:
+--   is_superuser = tiene todos los permisos y es el unico que crea o quita administradores y superusuarios
+--   is_staff     = puede entrar a la gestion de permisos (superusuario y administradores);
+--                  el backend lo deja igual al rol cada vez que se guarda el usuario
 
 ALTER TABLE usuario ADD COLUMN IF NOT EXISTS is_staff BOOLEAN NOT NULL DEFAULT FALSE;
 
--- el superusuario siempre es staff, y los que ya estaban en Administrador
--- quedan como staff para que no pierdan lo que ya podian hacer
+-- el superusuario y los que estan en Administrador quedan como staff, los demas no
+-- (se puede volver a correr sin problema)
+UPDATE usuario SET is_staff = FALSE;
 UPDATE usuario
 SET is_staff = TRUE
 WHERE is_superuser = TRUE

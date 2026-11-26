@@ -17,6 +17,7 @@ import { InventoryRegisterForm, InventoryUpdatePage } from "../features/inventor
 import SupplierRegisterForm from "../features/suppliers/components/SupplierRegisterForm";
 import { SupplierUpdatePage } from "../features/suppliers";
 import ProtectedRoute from "../shared/components/auth/ProtectedRoute";
+import { ADMIN_ONLY } from "@/features/auth/services/accessService";
 import TablesSettingsPage from "../features/settings/pages/TablesSettingsPage";
 
 
@@ -67,7 +68,8 @@ const router = createBrowserRouter([
     },
     {
         path: "/settings",
-        element: <ProtectedRoute permission="mesas_listar"><TablesSettingsPage/></ProtectedRoute>,
+        // Configuracion: solo administrador y superusuario (el mesero ve el mapa desde las ordenes)
+        element: <ProtectedRoute permission={ADMIN_ONLY}><TablesSettingsPage/></ProtectedRoute>,
     },
     {
         path: "/orderList",

@@ -20,7 +20,7 @@ const SECTIONS = [
     { id: "acceso", title: "Acceso y seguridad", sub: "Correo para entrar y contraseña", icon: KeyRound, fields: ["userEmail", "userEmailConfirm", "userBusinessEmail", "userPassword"] },
     { id: "contacto", title: "Contacto", sub: "Teléfonos y dirección", icon: Phone, fields: ["userPhone", "userPhoneSecondary", "userAddress", "userImage"] },
     { id: "contrato", title: "Contrato", sub: "Fechas del contrato", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate"] },
-    { id: "estado", title: "Estado de la cuenta", sub: "Si puede entrar y qué tanto puede administrar", icon: Lock, fields: ["isActive", "isStaff", "isSuperUser"] },
+    { id: "estado", title: "Estado de la cuenta", sub: "Si puede entrar y qué tanto puede administrar", icon: Lock, fields: ["isActive", "isSuperUser"] },
 ];
 
 export default function UserEditForm({ user }){
@@ -56,11 +56,9 @@ export default function UserEditForm({ user }){
     }));
     const [formData, setFormData] = useState(initial);
 
-    // staff y superusuario solo los cambia un superusuario
+    // superusuarios y administradores solo los nombra un superusuario
     const { isSuperuser: iAmSuperuser } = useAccessProfile();
 
-    // superusuario siempre es staff: si se marca superusuario se marca staff, y si se quita staff se quita superusuario
-    const toggleStaff = (next) => setFormData((prev) => ({ ...prev, isStaff: next, isSuperUser: next ? prev.isSuperUser : false }));
     const toggleSuperUser = async (next) => {
         const result = await showConfirmAlert({
             title: next ? "¿Hacerlo superusuario?" : "¿Quitarle el superusuario?",
@@ -70,7 +68,7 @@ export default function UserEditForm({ user }){
             confirmButtonText: next ? "Hacer superusuario" : "Quitar superusuario",
         });
         if (!result.isConfirmed) return;
-        setFormData((prev) => ({ ...prev, isSuperUser: next, isStaff: next ? true : prev.isStaff }));
+        setFormData((prev) => ({ ...prev, isSuperUser: next }));
     };
 
 
@@ -195,6 +193,10 @@ export default function UserEditForm({ user }){
     const avatar = newImage ?? user.imageUrl;
     const initials = formData.userName.trim().split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
     const roleLabel = typesUser.find((type) => type.id === formData.userType)?.label ?? "Sin rol";
+    // el rol Administrador solo lo da o lo quita el superusuario: a los demas no les sale
+    // (si la persona ya es administradora se deja la opcion para que se vea su rol, y el select queda bloqueado)
+    const lockedRole = !iAmSuperuser && initial.userType === "ADMIN";
+    const roleOptions = iAmSuperuser || lockedRole ? typesUser : typesUser.filter((type) => type.id !== "ADMIN");
 
     // datos rapidos del contrato, calculados con las fechas del formulario (la fecha de hoy se toma una vez al abrir)
     const [today] = useState(() => Date.now());
@@ -320,7 +322,7 @@ export default function UserEditForm({ user }){
                             {section === "datos" && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-6 items-start">
                                     {field("userName", "text", "Nombre completo", "Escribe el nombre", "user-name")}
-                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={typesUser} onChange={handleChange} error={errors.userType} variant="latte" />
+                                    <Select label="Tipo de usuario" name="userType" value={formData.userType} htmlFor="userType" options={roleOptions} onChange={handleChange} error={errors.userType} variant="latte" disabled={lockedRole} />
                                     <Select label="Tipo de documento" name="userDocumentTypes" value={formData.userDocumentTypes} htmlFor="userDocumentTypes" options={documentTypes} onChange={handleChange} error={errors.userDocumentTypes} variant="latte" />
                                     {field("userDocumentNumber", "text", "Número de documento", "Solo números", "user-document-number")}
                                 </div>
@@ -376,16 +378,7 @@ export default function UserEditForm({ user }){
                                     <span className="text-m3-body-medium text-br-s800">{formData.isActive ? "Puede entrar a Flora" : "No puede entrar ni hacer nada"}</span>
                                 </div>
 
-                                {/* staff = puede gestionar permisos (solo los que tiene); superusuario = tiene todo */}
-                                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
-                                    <ToggleSwitch
-                                        checked={formData.isStaff}
-                                        disabled={!iAmSuperuser}
-                                        onChange={toggleStaff}
-                                        label="Staff"
-                                    />
-                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Puede entrar a la gestión de permisos, pero solo puede dar o quitar los permisos que él mismo tiene</span>
-                                </div>
+                                {/* superusuario = todo, incluso nombrar administradores y otros superusuarios */}
                                 <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
                                     <ToggleSwitch
                                         checked={formData.isSuperUser}
@@ -393,12 +386,12 @@ export default function UserEditForm({ user }){
                                         onChange={toggleSuperUser}
                                         label="Superusuario"
                                     />
-                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Tiene todos los permisos sin que se los den y puede modificar a cualquier usuario</span>
+                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Puede hacer de todo, incluso crear administradores y otros superusuarios. El administrador también tiene todos los permisos, pero no puede crear administradores ni superusuarios</span>
                                 </div>
                                 {!iAmSuperuser && (
                                     <p className="flex items-center gap-2 text-m3-body-medium text-br-s800">
                                         <Lock size={16} className="shrink-0" />
-                                        Solo un superusuario puede marcar o quitar staff y superusuario.
+                                        Solo un superusuario puede nombrar o quitar superusuarios y administradores.
                                     </p>
                                 )}
                                 </div>

@@ -113,10 +113,12 @@ export default function PermissionsForm() {
     const selectedUser = userOptions.find((user) => user.id === targetUser);
 
     // por que no se puede cambiar lo que se eligio (null = si se puede)
-    const lockReason = isSuperuser ? null
+    const selectedGroup = groupOptions.find((group) => group.id === targetGroup);
+    const lockReason = mode === "group" && selectedGroup?.label === GROUP_NAMES.ADMIN ? "El grupo Administrador siempre tiene todos los permisos."
+        : mode === "user" && (selectedUser?.isSuperuser || selectedUser?.group === GROUP_NAMES.ADMIN) ? "Los administradores y superusuarios ya tienen todos los permisos."
+        : isSuperuser ? null
         : mode === "group" && targetGroup && groupIds.map(String).includes(targetGroup) ? "Este es tu propio grupo: sus permisos solo los cambia un superusuario."
         : mode === "user" && targetUser && targetUser === myId ? "No puedes cambiar tus propios permisos: pídeselo a un superusuario."
-        : mode === "user" && selectedUser?.isSuperuser ? "Es superusuario: ya tiene todos los permisos y solo otro superusuario lo puede modificar."
         : null;
     // un permiso se puede mover si no hay bloqueo general y la persona lo tiene
     const canTouch = (code) => !lockReason && can(code);

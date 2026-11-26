@@ -42,6 +42,16 @@ export const requirePermissionOrSelf = (permissionCode) => {
     };
 };
 
+// solo administrador o superusuario (ej. Configuracion: el mesero solo ve el mapa desde las ordenes)
+export const requireAdmin = async (req, res, next) => {
+    try {
+        if (await accessService.isStaff(req.user.id)) return next();
+        return res.status(403).json({ error: "Solo el administrador o el superusuario pueden entrar aquí" });
+    } catch (error) {
+        permissionError(res, error);
+    }
+};
+
 // deja pasar si la persona tiene AL MENOS UNO de los permisos
 // (ej. el plano de mesas lo necesita quien lista ordenes y tambien quien las crea)
 export const requireAnyPermission = (...permissionCodes) => {
