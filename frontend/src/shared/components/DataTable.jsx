@@ -19,7 +19,7 @@ import { Button, SearchField, Select, Input } from "@/shared"
 
 const tableVariants = {
     cafe: {
-        panel: "bg-bg-s950 border-t-[5px] border-t-bd-t800 rounded-m3-lg shadow-m3-3 border-t-[5px]! border-t-bd-t800! rounded-m3-lg!", header: "text-bg-w bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 [&_th_svg]:text-bg-w",
+        panel: "bg-bg-s950 border-t-5 border-t-bd-t800 rounded-m3-lg shadow-m3-3 border-t-5! border-t-bd-t800! rounded-m3-lg!", header: "text-bg-w bg-bg-t900 bg-linear-135 from-bg-t950 to-bg-t800 [&_th_svg]:text-bg-w",
         row: "hover:bg-bg-s800", rowText: "text-bg-w", zebra: "bg-bg-s900",
         border: "border-bg-w/10", inputBorder: "border-bd-p400", inputBg: "bg-bg-s900", inputText: "text-bg-w",
         inputPlaceholder: "placeholder:text-br-p300", selectBg: "bg-bg-s900 [&_option]:bg-bg-s900 [&_option]:text-bg-w", selectText: "text-bg-w",

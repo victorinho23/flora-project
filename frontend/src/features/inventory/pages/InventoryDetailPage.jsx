@@ -13,7 +13,7 @@ import fotoFondo from "@/assets/images/fondo-inventory.jpeg";
 import { useAccess } from "@/features/auth/services/accessService";
 
 
-const STAT = "border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1";
+const STAT = "border border-bd-s100 border-t-5 border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1";
 
 const toMoney = (value) => (value != null ? `$${Number(value).toLocaleString("es-CO")}` : null);
 

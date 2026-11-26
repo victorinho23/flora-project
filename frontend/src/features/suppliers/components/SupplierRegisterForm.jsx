@@ -243,7 +243,7 @@ export default function SupplierRegisterForm() {
                 style={{ backgroundImage: `linear-gradient(160deg, color-mix(in srgb, var(--color-bg-s950) 88%, transparent), color-mix(in srgb, var(--color-bg-t950) 80%, transparent)), url(${fotoFondo})` }}
             >
                 <div className="flex items-center justify-between gap-4">
-                    <Button type="button" onClick={() => navigate(backTo)} className="flex items-center gap-2 text-sm font-semibold text-bg-w/90 hover:text-bg-w">
+                    <Button type="button" onClick={() => navigate(backTo)} className="m3-target relative flex items-center gap-2 text-sm font-semibold text-bg-w/90 hover:text-bg-w">
                         <ArrowLeft size={18} />
                         Proveedores
                     </Button>
@@ -277,7 +277,7 @@ export default function SupplierRegisterForm() {
                                     <Button
                                         type="button"
                                         onClick={() => goToStep(index)}
-                                        className={`w-10 h-10 rounded-full grid place-items-center font-bold transition-colors ${
+                                        className={`m3-target relative w-10 h-10 rounded-full grid place-items-center font-bold transition-colors ${
                                             index < step
                                                 ? "bg-bg-t900 text-bg-w"
                                                 : index === step
@@ -313,7 +313,7 @@ export default function SupplierRegisterForm() {
             >
                 {/* Encabezado corto para celular y tablet, donde no se ve la foto */}
                 <div className="lg:hidden flex items-center justify-between gap-3 mb-6">
-                    <Button type="button" onClick={() => navigate(backTo)} className="flex items-center gap-2 text-sm font-semibold text-br-s950">
+                    <Button type="button" onClick={() => navigate(backTo)} className="m3-target relative min-h-12 flex items-center gap-2 text-sm font-semibold text-br-s950">
                         <ArrowLeft size={18} />
                         {editing ? "Actualizar proveedor" : "Registrar proveedor"}
                     </Button>

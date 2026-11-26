@@ -71,7 +71,7 @@
 --fs-xs:    1rem; /* Base*/
 --fs-xxs:   0.875rem; /* Muy pequeño 14px */
 --fs-xxxs:  0.75rem; /* extra pequeño 12px */
---fs-xxxxs: 0.5rem;  /*Minimo 8px*/
+--fs-xxxxs: 0.6875rem; /* minimo 11px, lo mas pequeño que deja Material para leer */
 
 
 /* ====== MATERIAL DESIGN 3: valores base (ref) ======
@@ -79,12 +79,12 @@
    pasan por semantic.css y de ahi a global.css (@theme) como los colores */
 
 /* Forma: escala de esquinas de M3 */
---md-ref-shape-none: 0px;
---md-ref-shape-extra-small: 4px;
---md-ref-shape-small: 8px;
---md-ref-shape-medium: 12px;
---md-ref-shape-large: 16px;
---md-ref-shape-extra-large: 28px;
+--md-ref-shape-none: 0;
+--md-ref-shape-extra-small: 0.25rem;
+--md-ref-shape-small: 0.5rem;
+--md-ref-shape-medium: 0.75rem;
+--md-ref-shape-large: 1rem;
+--md-ref-shape-extra-large: 1.75rem;
 --md-ref-shape-full: 9999px;
 
 /* Elevacion: los 6 niveles de sombra de M3 (0 a 5) */

@@ -169,7 +169,7 @@ export default function MapScanModal({ photo, onClose, onApply }) {
                                     }}
                                     onKeyDown={(e) => nudge(index, e)}
                                     style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
-                                    className={`absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-m3-full border-[3px] border-bg-w bg-bg-t900 shadow-m3-2 cursor-grab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${dragging === index ? "scale-125 cursor-grabbing" : ""}`}
+                                    className={`m3-target absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-m3-full border-3 border-bg-w bg-bg-t900 shadow-m3-2 cursor-grab focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${dragging === index ? "scale-125 cursor-grabbing" : ""}`}
                                 />
                             ))}
                         </div>

@@ -192,7 +192,7 @@ export default function TablePickerModal({ open, onClose, mode = "browse", curre
                     </span>
                 )}
                 <span className="text-m3-title-large font-bold">{table}</span>
-                <span className="text-[0.65rem] font-semibold opacity-90">{since ? timeSince(since) : `${info.capacity}p`}</span>
+                <span className="text-m3-label-small font-semibold opacity-90">{since ? timeSince(since) : `${info.capacity}p`}</span>
             </button>
         );
     };

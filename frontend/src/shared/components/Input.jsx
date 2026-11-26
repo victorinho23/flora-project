@@ -25,9 +25,10 @@ export default function Input({
     }
 
     const sizes = {
-        sm: `h-8`,
-        md: `h-10`,
-        lg: `h-12`,
+        // Material 3: 56 en formularios (lg) y minimo 48 en los compactos de filtros (sm, md)
+        sm: `h-12`,
+        md: `h-12`,
+        lg: `h-14`,
     }
 
     return(

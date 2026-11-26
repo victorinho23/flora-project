@@ -183,7 +183,7 @@ export default function PermissionsForm() {
 
             {/** Contenido principal */}
             <div className="flex-1 flex items-start justify-center px-4 py-10 w-full">
-                <div className="w-full max-w-5xl border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1 p-6 sm:p-10">
+                <div className="w-full max-w-5xl border border-bd-s100 border-t-5 border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1 p-6 sm:p-10">
 
                     <div className="w-full text-bg-w bg-bg-s950 bg-cover bg-center bg-[linear-gradient(110deg,color-mix(in_srgb,var(--color-bg-s950)_82%,transparent)_0%,color-mix(in_srgb,var(--color-bg-s900)_84%,transparent)_55%,color-mix(in_srgb,var(--color-bg-t950)_88%,transparent)_100%),var(--foto)] flex flex-wrap items-center justify-between gap-3 px-4 sm:px-8 py-4 sm:py-6 bajo:sm:py-2 rounded-m3-lg shadow-m3-2 mb-8" style={{ "--foto": `url(${fotoFondo})` }}>
                         <div className="w-8" />
@@ -203,7 +203,7 @@ export default function PermissionsForm() {
                                 role="tab"
                                 aria-selected={mode === id}
                                 onClick={() => changeMode(id)}
-                                className={`m3-state h-11 flex items-center justify-center gap-2 rounded-m3-full text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${mode === id ? "bg-bg-s950 text-bg-w shadow-m3-1" : "text-br-s900"}`}
+                                className={`m3-state h-12 flex items-center justify-center gap-2 rounded-m3-full text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${mode === id ? "bg-bg-s950 text-bg-w shadow-m3-1" : "text-br-s900"}`}
                             >
                                 <Icon size={18} />
                                 {label}

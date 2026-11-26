@@ -25,7 +25,7 @@ export default function Button ({
         crema: `bg-bg-s900 text-bg-w font-semibold border border-bd-p400 rounded-m3-xs! hover:border-bd-w disabled:opacity-60!`,
         // contorno = boton con borde (outlined de Material 3) para la accion secundaria en fondos claros
         // (Cancelar, Volver, Cerrar): asi no compite con el boton relleno de la accion principal
-        contorno: `bg-transparent text-br-t950 font-semibold border border-m3-outline hover:border-bd-t900`,
+        contorno: `bg-transparent text-m3-on-surface font-semibold border border-m3-outline hover:border-m3-on-surface`,
         primary: `bg-bg-s800 text-bg-w shadow-m3-1 hover:shadow-m3-2`,
         sex: ` bg-transparent border border-bg-w/60 text-bg-w hover:border-br-t300`,
         statusActive: `bg-m3-success text-white shadow-m3-1 hover:shadow-m3-2`,
@@ -33,61 +33,16 @@ export default function Button ({
         danger: `bg-m3-error text-m3-on-error shadow-m3-1 hover:shadow-m3-2`,
     };
 
+    // alto de cada tamaño; el area para tocar siempre es minimo 48 x 48 (la pone la clase m3-state)
     const sizes = {
-        sm: `
-            h-8
-            whitespace-nowrap
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[8px] before:-inset-x-[0px]
-
-            `,
-        md: `
-            h-10
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[4px] before:-inset-x-[0px]
-        
-            `,
-        mdl: `
-            h-10
-            px-4
-            w-50
-            before:absolute before:content-['']
-            before:-inset-y-[4px] before:-inset-x-[0px]
-        
-            `,
-        lg: `
-            h-12 
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[0px] before:-inset-x-[0px]
-            before:pointer-events-none
-            `,
-        w: `
-            h-14 
-            w-full max-w-120
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[0px] before:-inset-x-[0px]
-        
-        
-            `,
-        lgg: `
-            h-14 
-            w-60
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[0px] before:-inset-x-[0px]
-            `,
-        lggg: `
-            h-14 
-            w-full max-w-93
-            px-4
-            before:absolute before:content-['']
-            before:-inset-y-[0px] before:-inset-x-[0px]
-            `,
-    }
+        sm: `h-8 whitespace-nowrap px-4`,
+        md: `h-10 px-4`,
+        mdl: `h-10 px-4 w-50`,
+        lg: `h-12 px-4`,
+        w: `h-14 w-full max-w-120 px-4`,
+        lgg: `h-14 w-60 px-4`,
+        lggg: `h-14 w-full max-w-93 px-4`,
+    };
 
     return(
         <button

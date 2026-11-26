@@ -40,10 +40,10 @@ export default function Select({
         },
     }
 
-    // Tamaños: lg para formularios y md para filtros y tablas
+    // Tamaños: lg para formularios (56, como el campo de Material 3) y md para filtros y tablas (minimo 48)
     const sizes = {
-        lg: `h-12 pl-4 pr-11 text-m3-body-large`,
-        md: `h-10 pl-3 pr-9 text-m3-body-medium`,
+        lg: `h-14 pl-4 pr-11 text-m3-body-large`,
+        md: `h-12 pl-3 pr-9 text-m3-body-medium`,
     }
 
     const width = fullWidth ? "w-full" : size === "md" ? "w-full sm:w-auto" : "w-80"

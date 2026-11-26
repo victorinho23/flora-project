@@ -284,7 +284,7 @@ export default function CreateOrderForm() {
                     className="w-full max-w-8xl mx-auto grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)_minmax(0,1fr)] gap-6 xl:h-[calc(100vh-7.5rem)] [&_.w-80]:w-full"
                 >
 
-                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 xl:self-start">
+                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-5 border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 xl:self-start">
                         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
                             <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
                             Datos de la orden
@@ -334,7 +334,7 @@ export default function CreateOrderForm() {
                         />
                     </div>
 
-                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 xl:min-h-0">
+                    <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-5 border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 xl:min-h-0">
                         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
                             <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
                             Platillos disponibles
@@ -432,7 +432,7 @@ export default function CreateOrderForm() {
                                         onClick={() => setDishPage(currentPage - 1)}
                                         disabled={currentPage === 0}
                                         aria-label="Página anterior"
-                                        className="h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
+                                        className="m3-target relative h-10 min-w-10 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
                                     >
                                         <ChevronLeft size={16} />
                                     </Button>
@@ -441,7 +441,7 @@ export default function CreateOrderForm() {
                                             key={index}
                                             type="button"
                                             onClick={() => setDishPage(index)}
-                                            className={`h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed ${index === currentPage ? "border-bd-s950 bg-bg-s950 text-bg-w" : "border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"}`}
+                                            className={`m3-target relative h-10 min-w-10 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed ${index === currentPage ? "border-bd-s950 bg-bg-s950 text-bg-w" : "border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"}`}
                                         >
                                             {index + 1}
                                         </Button>
@@ -451,7 +451,7 @@ export default function CreateOrderForm() {
                                         onClick={() => setDishPage(currentPage + 1)}
                                         disabled={currentPage === dishPageCount - 1}
                                         aria-label="Página siguiente"
-                                        className="h-9 min-w-9 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
+                                        className="m3-target relative h-10 min-w-10 px-3 rounded-m3-sm text-sm font-semibold border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus disabled:opacity-40 disabled:cursor-not-allowed border-bd-s300 bg-bg-w text-br-s950 hover:bg-bg-t50"
                                     >
                                         <ChevronRight size={16} />
                                     </Button>
@@ -464,7 +464,7 @@ export default function CreateOrderForm() {
 
                     <div className="flex flex-col gap-4 xl:min-h-0">
 
-                        <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 flex-1 min-h-64 xl:min-h-0 overflow-y-auto">
+                        <div className="flex flex-col gap-4 bajo:gap-3 border border-bd-s100 border-l-5 border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 p-4 sm:p-5 bajo:sm:p-4 flex-1 min-h-64 xl:min-h-0 overflow-y-auto">
                             <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-br-t900">
                                 <span className="w-2 h-2 rounded-full bg-bg-t900 shrink-0" />
                                 Resumen de la orden
@@ -516,7 +516,7 @@ export default function CreateOrderForm() {
                                         <Button
                                             type="button"
                                             onClick={() => removeItem(item.dishId)}
-                                            className="inline-block rounded bg-m3-error-container px-2 py-0.5 text-m3-on-error-container font-medium hover:text-m3-on-error-container"
+                                            className="m3-state w-10 h-10 shrink-0 grid place-items-center rounded-m3-full bg-m3-error-container text-m3-on-error-container"
                                             aria-label="Quitar"
                                         >
                                             <X className="w-4 h-4" />
