@@ -19,6 +19,7 @@ const USER_COLUMNS = `
     COALESCE(TO_CHAR(u.autorizacion_datos, 'YYYY-MM-DD'), '') AS data_consent_date,
     u.estado AS is_active,
     u.is_superuser,
+    u.is_staff,
     (
         SELECT g.group_name
         FROM user_groups ug
@@ -122,9 +123,11 @@ export const userRepository = {
               estado,
               fecha_inicio_laboral,
               fecha_fin_laboral,
+              is_staff,
+              is_superuser,
               autorizacion_datos
           )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
           RETURNING id
       `;
 
@@ -143,6 +146,8 @@ export const userRepository = {
         userData.isActive,
         userData.userContractStartDate,
         userData.userContractEndDate,
+        userData.isStaff,
+        userData.isSuperUser,
       ];
 
       const result = await client.query(query, values);
@@ -181,8 +186,10 @@ export const userRepository = {
               contrasena = COALESCE($10, contrasena),
               estado = $11,
               fecha_inicio_laboral = $12,
-              fecha_fin_laboral = $13
-          WHERE id = $14
+              fecha_fin_laboral = $13,
+              is_staff = $14,
+              is_superuser = $15
+          WHERE id = $16
           RETURNING id
       `;
 
@@ -200,6 +207,8 @@ export const userRepository = {
         userData.isActive,
         userData.userContractStartDate,
         userData.userContractEndDate,
+        userData.isStaff,
+        userData.isSuperUser,
         id,
       ];
 

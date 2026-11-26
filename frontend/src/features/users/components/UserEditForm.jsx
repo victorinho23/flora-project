@@ -11,6 +11,7 @@ import { userSchema } from "../schemas/userSchema";
 import { showSuccesAlert, showUnexpectedErrorAlert, showConfirmAlert } from "@/shared/services/alertService";
 import fotoFondo from "@/assets/images/fondo-users.png";
 import { updateUser } from "../services/userServices";
+import { useAccessProfile } from "@/features/auth/services/accessService";
 
 
 // secciones del riel: titulo, descripcion y campos que tiene cada una
@@ -19,7 +20,7 @@ const SECTIONS = [
     { id: "acceso", title: "Acceso y seguridad", sub: "Correo para entrar y contraseña", icon: KeyRound, fields: ["userEmail", "userEmailConfirm", "userBusinessEmail", "userPassword"] },
     { id: "contacto", title: "Contacto", sub: "Teléfonos y dirección", icon: Phone, fields: ["userPhone", "userPhoneSecondary", "userAddress", "userImage"] },
     { id: "contrato", title: "Contrato", sub: "Fechas del contrato", icon: CalendarDays, fields: ["userContractStartDate", "userContractEndDate"] },
-    { id: "estado", title: "Estado de la cuenta", sub: "Si puede o no entrar a Flora", icon: Lock, fields: ["isActive"] },
+    { id: "estado", title: "Estado de la cuenta", sub: "Si puede entrar y qué tanto puede administrar", icon: Lock, fields: ["isActive", "isStaff", "isSuperUser"] },
 ];
 
 export default function UserEditForm({ user }){
@@ -54,6 +55,23 @@ export default function UserEditForm({ user }){
         isSuperUser: user.isSuperUser || false,
     }));
     const [formData, setFormData] = useState(initial);
+
+    // staff y superusuario solo los cambia un superusuario
+    const { isSuperuser: iAmSuperuser } = useAccessProfile();
+
+    // superusuario siempre es staff: si se marca superusuario se marca staff, y si se quita staff se quita superusuario
+    const toggleStaff = (next) => setFormData((prev) => ({ ...prev, isStaff: next, isSuperUser: next ? prev.isSuperUser : false }));
+    const toggleSuperUser = async (next) => {
+        const result = await showConfirmAlert({
+            title: next ? "¿Hacerlo superusuario?" : "¿Quitarle el superusuario?",
+            text: next
+                ? "Tendrá todos los permisos de Flora sin que se los den y podrá cambiar a cualquier usuario."
+                : "Quedará solo con los permisos de su grupo y los que se le den.",
+            confirmButtonText: next ? "Hacer superusuario" : "Quitar superusuario",
+        });
+        if (!result.isConfirmed) return;
+        setFormData((prev) => ({ ...prev, isSuperUser: next, isStaff: next ? true : prev.isStaff }));
+    };
 
 
     
@@ -347,6 +365,7 @@ export default function UserEditForm({ user }){
                             )}
 
                             {section === "estado" && (
+                                <div className="flex flex-col gap-4">
                                 <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
                                     {/* al inhabilitar pide el motivo, se aplica al guardar */}
                                     <ToggleSwitch
@@ -355,6 +374,33 @@ export default function UserEditForm({ user }){
                                         label={formData.isActive ? "Cuenta activa" : "Cuenta inactiva"}
                                     />
                                     <span className="text-m3-body-medium text-br-s800">{formData.isActive ? "Puede entrar a Flora" : "No puede entrar ni hacer nada"}</span>
+                                </div>
+
+                                {/* staff = puede gestionar permisos (solo los que tiene); superusuario = tiene todo */}
+                                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
+                                    <ToggleSwitch
+                                        checked={formData.isStaff}
+                                        disabled={!iAmSuperuser}
+                                        onChange={toggleStaff}
+                                        label="Staff"
+                                    />
+                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Puede entrar a la gestión de permisos, pero solo puede dar o quitar los permisos que él mismo tiene</span>
+                                </div>
+                                <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-m3-lg bg-bg-p50 border border-bd-s100">
+                                    <ToggleSwitch
+                                        checked={formData.isSuperUser}
+                                        disabled={!iAmSuperuser}
+                                        onChange={toggleSuperUser}
+                                        label="Superusuario"
+                                    />
+                                    <span className="flex-1 min-w-60 text-m3-body-medium text-br-s800">Tiene todos los permisos sin que se los den y puede modificar a cualquier usuario</span>
+                                </div>
+                                {!iAmSuperuser && (
+                                    <p className="flex items-center gap-2 text-m3-body-medium text-br-s800">
+                                        <Lock size={16} className="shrink-0" />
+                                        Solo un superusuario puede marcar o quitar staff y superusuario.
+                                    </p>
+                                )}
                                 </div>
                             )}
                         </div>

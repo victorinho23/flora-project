@@ -48,6 +48,9 @@ const cleanData = (data, file) => {
         // el administrador no tiene fecha de fin de contrato
         userContractEndDate: userType === "ADMIN" ? null : data.userContractEndDate || null,
         isActive: String(data.isActive) !== "false",
+        // el superusuario siempre es staff
+        isSuperUser: String(data.isSuperUser) === "true",
+        isStaff: String(data.isStaff) === "true" || String(data.isSuperUser) === "true",
         userImage: imagePath(file),
         userPassword: data.userPassword || null,
     };
@@ -71,6 +74,8 @@ const TRACKED = [
 const describeChanges = (current, user) => {
     const changed = TRACKED.filter(([next, saved]) => String(user[next] ?? "") !== String(current[saved] ?? "")).map(([, , label]) => label);
     if ((TYPE_BY_GROUP[current.group_name] ?? "") !== user.userType) changed.push("rol");
+    if (Boolean(current.is_staff) !== user.isStaff) changed.push("staff");
+    if (Boolean(current.is_superuser) !== user.isSuperUser) changed.push("superusuario");
     if (user.userPassword) changed.push("contraseña");
     if (user.userImage) changed.push("foto");
     return changed.length ? `Cambió: ${changed.join(", ")}` : null;
@@ -110,6 +115,39 @@ const validate = async (user, { requirePassword, excludeId }) => {
     if (duplicates.document) throw httpError(409, "Este número de documento ya está en uso", "userDocumentNumber");
 };
 
+// reglas de quien puede tocar a quien (el superusuario se las salta todas):
+// - a un superusuario solo lo cambia otro superusuario
+// - staff y superusuario solo los pone o quita un superusuario
+// - el rol (grupo) solo se puede asignar si quien lo asigna tiene todos sus permisos
+const checkAccountRules = async (actorId, user, current = null) => {
+    const actor = await accessService.getAccess(actorId);
+
+    // nadie se quita el superusuario a si mismo, asi nunca se queda Flora sin uno
+    if (current && actor.isSuperUser && Number(current.id) === Number(actorId) && !user.isSuperUser) {
+        throw httpError(400, "No puedes quitarte el superusuario a ti mismo", "isSuperUser");
+    }
+    if (actor.isSuperUser) return;
+
+    if (current?.is_superuser) {
+        throw httpError(403, "Solo un superusuario puede modificar a otro superusuario");
+    }
+
+    const staffChanged = user.isStaff !== Boolean(current?.is_staff);
+    const superChanged = user.isSuperUser !== Boolean(current?.is_superuser);
+    if (staffChanged || superChanged) {
+        throw httpError(403, "Solo un superusuario puede marcar o quitar staff y superusuario", "isStaff");
+    }
+
+    const groupChanged = !current || (TYPE_BY_GROUP[current.group_name] ?? "") !== user.userType;
+    if (groupChanged) {
+        try {
+            await accessService.ensureCanAssignGroup(actorId, GROUP_BY_TYPE[user.userType]);
+        } catch (error) {
+            throw Object.assign(error, { field: "userType" });
+        }
+    }
+};
+
 export const userService = {
     async createUser(data, file, currentUserId) {
         // sin la autorizacion del tratamiento de datos no se crea la cuenta (llega como texto en el form)
@@ -120,6 +158,7 @@ export const userService = {
         const user = cleanData(data, file);
 
         await validate(user, { requirePassword: true });
+        await checkAccountRules(currentUserId, user);
 
         // la contraseña se guarda cifrada
         user.userPassword = await bcrypt.hash(user.userPassword, 10);
@@ -169,6 +208,7 @@ export const userService = {
         const user = cleanData(data, file);
 
         await validate(user, { requirePassword: false, excludeId: id });
+        await checkAccountRules(currentUserId, user, current);
 
         // si no escriben contraseña nueva se conserva la actual
         if (user.userPassword) {
@@ -219,6 +259,12 @@ export const userService = {
             throw httpError(400, "No puedes inhabilitar tu propia cuenta");
         }
 
+        // a un superusuario solo lo habilita o inhabilita otro superusuario
+        const actor = await accessService.getAccess(currentUserId);
+        if (user.is_superuser && !actor.isSuperUser) {
+            throw httpError(403, "Solo un superusuario puede modificar a otro superusuario");
+        }
+
         if (!isActive && user.group_name === GROUP_BY_TYPE.ADMIN && !(typeof reason === "string" && reason.trim())) {
             throw httpError(400, "El motivo es obligatorio para inhabilitar un administrador");
         }
@@ -244,6 +290,8 @@ export const userService = {
             username: user.username,
             usertype: user.usertype,
             is_active: user.is_active,
+            // la gestion de permisos lo necesita para no dejar tocar al superusuario
+            is_superuser: user.is_superuser,
         }));
     },
 
@@ -263,13 +311,30 @@ export const userService = {
 
     // granted = ids que se le dan, denied = ids que se le quitan aunque su grupo los tenga
     // (permissionIds es la forma vieja: solo los que se le dan)
-    async updatePermissions(userId, { granted, denied, permissionIds } = {}) {
+    async updatePermissions(userId, { granted, denied, permissionIds } = {}, currentUserId) {
         const user = await userRepository.findById(userId);
         if (!user) throw httpError(404, "Usuario no encontrado");
 
         const toIds = (list) => [...new Set((list ?? []).map(Number).filter(Number.isInteger))];
         const give = toIds(granted ?? permissionIds);
         const remove = toIds(denied).filter((id) => !give.includes(id));
+
+        const actor = await accessService.getAccess(currentUserId);
+        if (!actor.isSuperUser) {
+            // nadie se da permisos a si mismo
+            if (Number(userId) === Number(currentUserId)) {
+                throw httpError(403, "No puedes cambiar tus propios permisos. Pídeselo a un superusuario");
+            }
+            if (user.is_superuser) {
+                throw httpError(403, "El superusuario ya tiene todos los permisos, solo otro superusuario lo puede modificar");
+            }
+            // se compara como estaba cada permiso (dado, quitado o como su grupo) con como queda,
+            // y solo los que cambian tienen que estar entre los permisos de quien hace el cambio
+            const before = new Map((await userRepository.getPermissions(userId)).map((permission) => [permission.permission_id, permission.permitido]));
+            const after = new Map([...give.map((id) => [id, true]), ...remove.map((id) => [id, false])]);
+            const changed = [...new Set([...before.keys(), ...after.keys()])].filter((id) => before.get(id) !== after.get(id));
+            await accessService.ensureCanChange(currentUserId, changed);
+        }
 
         const result = await userRepository.updatePermissions(userId, { granted: give, denied: remove });
         accessService.invalidate();

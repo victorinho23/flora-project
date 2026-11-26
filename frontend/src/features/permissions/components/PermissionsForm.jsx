@@ -1,6 +1,6 @@
 // Gestion de permisos: permite activar/desactivar permisos por usuario o por grupo
 import { useEffect, useState } from "react";
-import { Users, UserRound, RotateCcw } from "lucide-react";
+import { Users, UserRound, RotateCcw, Lock } from "lucide-react";
 import { Select, Button, Navbar } from "@/shared";
 import { ToggleSwitch } from "@/shared";
 import { permissionsSchema } from "@/shared/schemas/permissionsSchema.js";
@@ -10,6 +10,8 @@ import { getAllPermissions, getGroupPermissions } from "../services/permissionSe
 import { getUserOptions, getUserPermissions, updateUserPermissions } from "@/features/users/services/userServices";
 import fotoFondo from "@/assets/images/cafe.png";
 import { showConfirmAlert } from "@/shared/services/alertService";
+import { useAccess, useAccessProfile } from "@/features/auth/services/accessService";
+import { getSessionUser } from "@/features/auth/services/logoutService";
 
 
 // tipo de usuario -> nombre del grupo, para mostrar de que grupo vienen los permisos
@@ -25,6 +27,13 @@ export default function PermissionsForm() {
     const [groupOfUser, setGroupOfUser] = useState(new Set());
     const [errors, setErrors] = useState({});
 
+    // quien esta gestionando: solo puede dar o quitar los permisos que el mismo tiene,
+    // y no puede tocar sus propios permisos, los de su grupo ni los del superusuario
+    // (el backend tambien lo revisa, aqui es para que se vea bloqueado antes de guardar)
+    const can = useAccess();
+    const { isSuperuser, groupIds } = useAccessProfile();
+    const myId = String(getSessionUser()?.id ?? "");
+
     // datos que llegan del backend
     const [allPermissions, setAllPermissions] = useState([]);
     const [groupOptions, setGroupOptions] = useState([]);
@@ -33,7 +42,7 @@ export default function PermissionsForm() {
     useEffect(() => {
         getAllPermissions().then(setAllPermissions).catch(console.error);
         getGroups().then((groups) => setGroupOptions(groups.map((group) => ({ id: String(group.group_id), label: group.group_name })))).catch(console.error);
-        getUserOptions().then((users) => setUserOptions(users.map((user) => ({ id: String(user.id), label: user.username, group: GROUP_NAMES[user.usertype] ?? user.usertype })))).catch(console.error);
+        getUserOptions().then((users) => setUserOptions(users.map((user) => ({ id: String(user.id), label: user.username, group: GROUP_NAMES[user.usertype] ?? user.usertype, isSuperuser: Boolean(user.is_superuser) })))).catch(console.error);
     }, []);
 
     // Agrupar permisos por módulo (display_name de content_type)
@@ -103,8 +112,18 @@ export default function PermissionsForm() {
     const removedCount = codes.filter((code) => !permissions[code] && groupOfUser.has(code)).length;
     const selectedUser = userOptions.find((user) => user.id === targetUser);
 
+    // por que no se puede cambiar lo que se eligio (null = si se puede)
+    const lockReason = isSuperuser ? null
+        : mode === "group" && targetGroup && groupIds.map(String).includes(targetGroup) ? "Este es tu propio grupo: sus permisos solo los cambia un superusuario."
+        : mode === "user" && targetUser && targetUser === myId ? "No puedes cambiar tus propios permisos: pídeselo a un superusuario."
+        : mode === "user" && selectedUser?.isSuperuser ? "Es superusuario: ya tiene todos los permisos y solo otro superusuario lo puede modificar."
+        : null;
+    // un permiso se puede mover si no hay bloqueo general y la persona lo tiene
+    const canTouch = (code) => !lockReason && can(code);
+
     // deja al usuario igual que su grupo (quita lo que se le dio y devuelve lo que se le quito)
-    const resetToGroup = () => setPermissions(Object.fromEntries([...groupOfUser].map((code) => [code, true])));
+    // (los que no puede tocar se quedan como estaban)
+    const resetToGroup = () => setPermissions((prev) => Object.fromEntries(codes.map((code) => [code, canTouch(code) ? groupOfUser.has(code) : Boolean(prev[code])]).filter(([, on]) => on)));
 
     const togglePermission = (id, value) => {
         setPermissions((prev) => ({ ...prev, [id]: value }));
@@ -124,6 +143,7 @@ export default function PermissionsForm() {
         }
 
         setErrors({});
+        if (lockReason) return;
 
         // cambiar permisos es delicado: se confirma antes de guardar
         const confirmation = await showConfirmAlert({
@@ -237,6 +257,22 @@ export default function PermissionsForm() {
                         )}
                     </div>
 
+                    {/* si no puede cambiar lo que eligio se le dice por que */}
+                    {lockReason && (
+                        <div role="status" className="flex items-start gap-3 mb-8 p-4 rounded-m3-lg bg-m3-error-container text-m3-on-error-container">
+                            <Lock size={20} className="shrink-0 mt-0.5" />
+                            <p className="text-m3-body-medium font-semibold">{lockReason}</p>
+                        </div>
+                    )}
+
+                    {/* los permisos que no tiene aparecen con candado */}
+                    {!isSuperuser && !lockReason && (targetGroup || targetUser) && (
+                        <p className="flex items-center gap-2 mb-6 text-m3-body-medium text-br-s800">
+                            <Lock size={16} className="shrink-0" />
+                            Solo puedes dar o quitar los permisos que tú tienes; los demás se ven con candado.
+                        </p>
+                    )}
+
                     {/* explicacion y resumen de los permisos individuales */}
                     {mode === "user" && targetUser && (
                         <div className="flex flex-wrap items-center gap-3 mb-8 p-4 rounded-m3-lg bg-bg-t50 border border-bd-t300">
@@ -273,8 +309,14 @@ export default function PermissionsForm() {
                                                 <ToggleSwitch
                                                     label={perm.label}
                                                     checked={!!permissions[perm.id]}
+                                                    disabled={!canTouch(perm.id)}
                                                     onChange={(value) => togglePermission(perm.id, value)}
                                                 />
+                                                {!lockReason && !can(perm.id) && (targetGroup || targetUser) && (
+                                                    <span className="self-start ml-14 inline-flex items-center gap-1 text-m3-label-small font-semibold text-br-s800">
+                                                        <Lock size={12} /> No tienes este permiso
+                                                    </span>
+                                                )}
                                                 {origin && (
                                                     <span className={`self-start ml-14 h-6 px-2 inline-flex items-center rounded-m3-full border text-m3-label-small font-semibold ${origin.style}`}>
                                                         {origin.label}
@@ -295,6 +337,7 @@ export default function PermissionsForm() {
                         <Button
                             type="button"
                             onClick={handleSave}
+                            disabled={Boolean(lockReason)}
                             variant="caramelo"
                         >
                             Guardar permisos

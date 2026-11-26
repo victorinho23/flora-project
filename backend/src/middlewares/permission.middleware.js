@@ -8,7 +8,7 @@ import { accessService } from "../features/access/access.service.js";
 const permissionError = (res, error) => {
     console.error(error);
     if (["42P01", "42703"].includes(error.code)) {
-        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0036 y reinicia el backend" });
+        return res.status(500).json({ error: "La base de datos está desactualizada: corre las migraciones 0030 a 0038 y reinicia el backend" });
     }
     return res.status(500).json({ error: "Error verificando permisos" });
 };
