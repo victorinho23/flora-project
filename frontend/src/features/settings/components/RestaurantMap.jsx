@@ -3,8 +3,7 @@
 // y encima las mesas en la celda donde las puso el administrador.
 // Lo usan el editor de Configuracion (para pintar) y la ventana de mesas del mesero (para ubicarse)
 import { useMemo } from "react";
-import { Sparkles, LayoutGrid } from "lucide-react";
-import { AREAS, REAL_AREAS, REAL_FLOOR, cellKey, chairsFor, tableShape, useMapStyle, setMapStyle } from "./mapAreas";
+import { AREAS, REAL_AREAS, REAL_FLOOR, cellKey, chairsFor, tableShape } from "./mapAreas";
 
 // mesa vista desde arriba (vista realista): sillas alrededor segun la capacidad y la mesa con su forma.
 // topClassName = colores de la mesa (el mesero la pinta segun el estado); rotation = 0 o 90 grados
@@ -41,27 +40,6 @@ export function TableShape({ capacity, rotation = 0, topClassName = "bg-bg-t800 
     );
 }
 
-// botones para cambiar entre la vista realista y la clasica (la de antes); queda guardado en el navegador
-export function MapStyleToggle({ className = "" }) {
-    const style = useMapStyle();
-    return (
-        <div role="group" aria-label="Vista del mapa" className={`inline-flex rounded-m3-full border border-m3-outline overflow-hidden ${className}`}>
-            {[["realista", "Realista", Sparkles], ["clasica", "Clásica", LayoutGrid]].map(([id, label, Icon]) => (
-                <button
-                    key={id}
-                    type="button"
-                    aria-pressed={style === id}
-                    onClick={() => setMapStyle(id)}
-                    className={`m3-state relative flex items-center gap-1.5 h-10 px-4 text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-m3-focus ${style === id ? "bg-m3-secondary-container text-m3-on-secondary-container" : "bg-transparent text-m3-on-surface"}`}
-                >
-                    <Icon size={16} aria-hidden="true" />
-                    {label}
-                </button>
-            ))}
-        </div>
-    );
-}
-
 // cada zona pintada (celdas pegadas del mismo tipo) lleva su nombre una sola vez,
 // en la celda mas cercana al centro de la zona. Las paredes no llevan nombre
 function buildLabels(cells) {
@@ -95,7 +73,7 @@ function buildLabels(cells) {
 // map: { cols, rows, cells: { "x,y": "cocina" } }
 // tables: mesas con { number, x, y, capacity }
 // renderTable(table, key, realistic): como se dibuja cada mesa (el editor y el mesero las pintan distinto;
-// realistic = true cuando esta la vista realista, para que la dibujen con TableShape)
+// realistic = true en el mapa normal, para que la dibujen con TableShape; false solo cuando hay foto de fondo)
 // cellProps(x, y): props extra de cada celda (el editor las usa para pintar con el mouse o el dedo)
 // fitScreen: el mapa se achica lo necesario para verse completo en la pantalla sin bajar (ventana del mesero)
 // photo: foto escaneada del negocio que va detras de la cuadricula para calcar encima (solo en el editor)
@@ -103,8 +81,9 @@ function buildLabels(cells) {
 // showGrid: en la vista realista se marcan suavemente las celdas (el editor lo usa para saber donde pinta)
 export default function RestaurantMap({ map, tables = [], renderTable, cellProps, fitScreen = false, photo, minCell = 3, showGrid = false, className = "" }) {
     const { cols, rows, cells } = map;
-    // la vista previa del escaneo (con foto) siempre va en clasica para ver bien lo detectado
-    const realistic = useMapStyle() === "realista" && !photo;
+    // el mapa siempre se ve realista; solo con la foto del escaneo de fondo va en cuadricula simple
+    // para que se vea bien lo detectado y se pueda calcar encima
+    const realistic = !photo;
 
     // mesa que hay en cada celda, para buscarla directo al dibujar
     const tableAt = useMemo(() => {

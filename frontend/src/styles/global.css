@@ -340,6 +340,13 @@
     color: var(--color-bg-p50);
 }
 
+/* pestañas (Por grupo / Individuales, Lista de mesas / Mapa): en oscuro la elegida era cafe oscuro
+   sobre fondo cafe oscuro y no se notaba cual estaba elegida */
+:root[data-theme="dark"] [role="tablist"] [aria-selected="true"].bg-bg-s950 {
+    background-color: var(--color-bg-t800);
+    color: var(--color-bg-w);
+}
+
 /* el texto de ayuda del buscador en oscuro casi no se veia */
 :root[data-theme="dark"] .search input::placeholder {
     color: color-mix(in srgb, var(--color-bg-p50) 70%, transparent);

@@ -247,11 +247,6 @@ export default function SupplierRegisterForm() {
                         <ArrowLeft size={18} />
                         Proveedores
                     </Button>
-                    {can("proveedores_listar") && (
-                        <Button variant="sex" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
-                            Ver proveedores
-                        </Button>
-                    )}
                 </div>
 
                 <div className="flex flex-col gap-8 bajo:gap-5">
@@ -317,11 +312,6 @@ export default function SupplierRegisterForm() {
                         <ArrowLeft size={18} />
                         {editing ? "Actualizar proveedor" : "Registrar proveedor"}
                     </Button>
-                    {can("proveedores_listar") && (
-                        <Button variant="crema" size="sm" type="button" onClick={() => navigate("/listSuppliers")}>
-                            Ver proveedores
-                        </Button>
-                    )}
                 </div>
 
                 <div className="flex-1 flex flex-col justify-center gap-7 bajo:gap-5 max-w-2xl w-full mx-auto">

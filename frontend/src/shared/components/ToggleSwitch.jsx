@@ -13,15 +13,16 @@ export default function ToggleSwitch({ checked, onChange, label, disabled = fals
                 className={`
                     m3-target relative w-13 h-8 rounded-full flex-shrink-0
                     transition-colors duration-300 disabled:cursor-not-allowed
-                    ${checked ? "bg-bg-t900" : "bg-bg-s300"}
+                    ${checked ? "bg-bg-t900" : "bg-m3-surface-highest border-2 border-m3-outline"}
                 `}
             >
+                {/* Material 3: apagado = riel con borde y bolita pequeña del color del borde (se ve en claro y en oscuro);
+                    prendido = riel lleno y bolita blanca grande */}
                 <span
                     className={`
-                        absolute top-1 left-1
-                        w-6 h-6 rounded-full bg-bg-w shadow-m3-1
-                        transition-transform duration-300
-                        ${checked ? "translate-x-5" : "translate-x-0"}
+                        absolute top-1/2 -translate-y-1/2 rounded-full
+                        transition-all duration-300
+                        ${checked ? "left-1 w-6 h-6 translate-x-5 bg-bg-w shadow-m3-1" : "left-1.5 w-4 h-4 bg-m3-outline"}
                     `}
                 />
             </button>
