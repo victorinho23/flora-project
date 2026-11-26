@@ -1,16 +1,22 @@
 // backend/src/features/access/access.service.js
-// regla: usuario inhabilitado -> se niega; superusuario -> todo;
+// regla: usuario inhabilitado -> se niega; superusuario o administrador -> todo;
 // si no, permisos directos del usuario + permisos de sus grupos activos
 //
-// superusuario vs staff:
-//   superusuario = tiene todos los permisos sin que se los den y puede cambiar lo que sea
-//   staff        = personal administrativo: es el unico que puede gestionar permisos,
-//                  pero solo los que el mismo tiene (no puede dar lo que no tiene)
+// superusuario vs administrador:
+//   los dos tienen TODOS los permisos de Flora
+//   superusuario  = ademas es el unico que puede crear o quitar administradores y superusuarios,
+//                   y el unico que puede modificar a un administrador
+//   administrador = gestiona usuarios y permisos, pero nunca por encima de lo que el tiene
+//                   (no puede crear administradores ni superusuarios)
+// staff = puede entrar a gestionar permisos: lo son el superusuario y los administradores
 
 import { accessRepository } from "./access.repository.js";
 
 // permisos que solo le sirven al staff: aunque a alguien se los den, si no es staff no los puede usar
 const STAFF_ONLY = new Set(["permisos_gestionar"]);
+
+// nombre del grupo de los administradores (asi esta en la tabla groups)
+export const ADMIN_GROUP = "Administrador";
 
 // error con codigo http para que el controller responda 403 con el mensaje
 const forbidden = (message) => Object.assign(new Error(message), { status: 403 });
@@ -33,13 +39,18 @@ const loadAccess = async (userId) => {
 
     const user = await accessRepository.getAccessUser(userId);
     const isSuperUser = Boolean(user?.is_superuser);
-    // el superusuario siempre cuenta como staff
-    const isStaff = isSuperUser || Boolean(user?.is_staff);
-    const list = isSuperUser ? [] : await accessRepository.getUserPermissions(userId);
+    const isAdmin = Boolean(user?.is_admin);
+    const isStaff = isSuperUser || isAdmin;
+
+    // el administrador tiene todos los permisos que existan (aunque se creen nuevos despues)
+    let list = [];
+    if (isAdmin && !isSuperUser) list = await accessRepository.getAllCodenames();
+    else if (!isSuperUser) list = await accessRepository.getUserPermissions(userId);
 
     const access = {
         active: Boolean(user?.estado),
         isSuperUser,
+        isAdmin,
         isStaff,
         permissions: new Set(isStaff ? list : list.filter((code) => !STAFF_ONLY.has(code))),
         groupIds: await accessRepository.getUserGroupIds(userId),
@@ -57,6 +68,12 @@ export const accessService = {
     return access.permissions.has(permissionCode);
   },
 
+  // administrador o superusuario con la cuenta activa (Configuracion es solo de ellos)
+  async isStaff(userId) {
+    const access = await loadAccess(userId);
+    return access.active && access.isStaff;
+  },
+
   // todo lo que se sabe del acceso de una persona (lo usan las reglas de abajo y otros services)
   async getAccess(userId) {
     return await loadAccess(userId);
@@ -68,6 +85,7 @@ export const accessService = {
     return {
       active: access.active,
       isSuperuser: access.isSuperUser,
+      isAdmin: access.isAdmin,
       isStaff: access.isStaff,
       groupIds: access.groupIds,
       permissions: access.isSuperUser ? ["*"] : [...access.permissions],
@@ -87,11 +105,16 @@ export const accessService = {
     }
   },
 
-  // para poner a alguien en un grupo (tipo de usuario) hay que tener todos los permisos de ese grupo,
-  // si no, un supervisor podria crear administradores y asi darse mas poder por la puerta de atras
+  // para poner a alguien en un grupo (tipo de usuario):
+  // - administradores solo los crea el superusuario
+  // - en los demas hay que tener todos los permisos del grupo (asi nadie da mas de lo que tiene)
   async ensureCanAssignGroup(actorId, groupName) {
     const actor = await loadAccess(actorId);
     if (actor.isSuperUser) return;
+
+    if (groupName === ADMIN_GROUP) {
+      throw forbidden("Solo un superusuario puede crear o asignar administradores");
+    }
 
     const rows = await accessRepository.getGroupPermissionsByName(groupName);
     const missing = rows.filter((row) => !actor.permissions.has(row.permission_codename));

@@ -30,8 +30,14 @@ let state = initial();
 const listeners = new Set();
 const emit = () => listeners.forEach((listener) => listener());
 
+// para paginas que no dependen de un permiso sino de ser administrador o superusuario (ej. Configuracion)
+export const ADMIN_ONLY = "solo_administrador";
+
 // "*" = superusuario (el admin tiene todos). Set -> la pregunta es directa
-export const can = (permission) => !permission || state.permissions.has("*") || state.permissions.has(permission);
+export const can = (permission) => {
+    if (permission === ADMIN_ONLY) return state.isStaff || state.isSuperuser;
+    return !permission || state.permissions.has("*") || state.permissions.has(permission);
+};
 
 // pide los permisos al backend; si pasaron menos de 5 segundos usa los que ya tiene
 let pending = null;

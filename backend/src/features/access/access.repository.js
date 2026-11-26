@@ -2,10 +2,17 @@
 import { pool } from "../../config/db.js";
 
 export const accessRepository = {
-  // estado, superusuario y staff en una sola consulta
+  // estado, superusuario y si es administrador en una sola consulta
   async getAccessUser(userId) {
     const result = await pool.query(
-      `SELECT estado, is_superuser, is_staff FROM usuario WHERE id = $1;`,
+      `SELECT u.estado, u.is_superuser,
+              EXISTS (
+                SELECT 1 FROM user_groups ug
+                INNER JOIN groups g ON g.group_id = ug.group_id
+                WHERE ug.user_id = u.id AND g.group_name = 'Administrador' AND g.is_active = TRUE
+              ) AS is_admin
+       FROM usuario u
+       WHERE u.id = $1;`,
       [userId],
     );
     return result.rows[0] ?? null;
@@ -15,6 +22,12 @@ export const accessRepository = {
   async getUserGroupIds(userId) {
     const result = await pool.query(`SELECT group_id FROM user_groups WHERE user_id = $1;`, [userId]);
     return result.rows.map((row) => row.group_id);
+  },
+
+  // todos los codigos de permisos que existen (el administrador los tiene todos)
+  async getAllCodenames() {
+    const result = await pool.query(`SELECT permission_codename FROM permissions;`);
+    return result.rows.map((row) => row.permission_codename);
   },
 
   // nombre y codigo de unos permisos por su id
