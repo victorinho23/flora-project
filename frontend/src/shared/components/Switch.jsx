@@ -49,16 +49,24 @@ export default function Switch ({
 
     // Clases de tamaño del contendor del switch
     const sizes = {
-        sm: "h-5 w-9",
-        md: "h-6 w-11",
-        lg: "h-7 w-14",
+        // md = medida de Material 3 (32 x 52)
+        sm: "h-6 w-10",
+        md: "h-8 w-13",
+        lg: "h-9 w-15",
     };
 
     // Clases de tamaño del "knob" (el circulo que se mueve)
     const knobSizes = {
-        sm: "h-4 w-4",
-        md: "h-5 w-5",
-        lg: "h-6 w-6",
+        sm: "h-5 w-5",
+        md: "h-6 w-6",
+        lg: "h-7 w-7",
+    };
+
+    // cuanto se corre el knob para quedar al otro lado (largo del switch - knob - margenes)
+    const moves = {
+        sm: "translate-x-3",
+        md: "translate-x-5",
+        lg: "translate-x-6",
     };
 
     return(
@@ -69,8 +77,8 @@ export default function Switch ({
             onClick={handleToggle} // Evento que cambia el estado
             disabled = {disabled} // Permite deshabilitar el boton
             className={`
-                // Posicionamiento base del switch
-                relative inline-flex items-center
+                // Posicionamiento base del switch (m3-target = se toca en 48 aunque se vea mas pequeño)
+                m3-target relative inline-flex items-center
                 
                 // Forma redondeada del contendor
                 rounded-full transition-colors
@@ -89,7 +97,7 @@ export default function Switch ({
         {/** "Knob" del switch (el circulo que se mueve de izquierda a derecha) */}
 
         <span className={`
-            absolute left-0.5 flex items-center justify-center
+            absolute left-1 flex items-center justify-center
 
             // Forma del knob
 
@@ -102,7 +110,7 @@ export default function Switch ({
             ${knobSizes[size]}
 
             // posicion dependiendo del estado
-            ${isActive ? "translate-x-full" : "translate-x-0"}
+            ${isActive ? moves[size] : "translate-x-0"}
             `}
         >
 

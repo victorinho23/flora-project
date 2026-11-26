@@ -2,7 +2,7 @@
 @import url(semantic.css);
 @import "tailwindcss"; /*Esta linea debe quedar al final para que funcione*/
 
-@custom-variant bajo (@media (max-height: 820px));
+@custom-variant bajo (@media (max-height: 51.25rem));
 
 @theme{
     --color-bd-s950: var(--semantic-bd-s950);
@@ -183,12 +183,39 @@
 
 }
 
+/* Area tactil sola (sin la capa de estado): para enlaces de texto, casillas y puntos que se arrastran
+   que se ven pequeños pero se tienen que poder tocar en 48 x 48
+   (el elemento tiene que tener relative o absolute para que el area quede encima de el) */
+@utility m3-target {
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max(100%, 3rem);
+        height: max(100%, 3rem);
+        transform: translate(-50%, -50%);
+    }
+}
+
 /* Capa de estado de M3: al pasar el mouse, enfocar con teclado o presionar
    se pone encima un velo del mismo color del texto con la opacidad de la guia.
    Se usa poniendo la clase m3-state en botones o enlaces */
 @utility m3-state {
     position: relative;
     isolation: isolate;
+
+    /* area tactil de Material 3: aunque el elemento se vea mas pequeño (chips de 32, botones de 40),
+       se puede tocar en minimo 48 x 48 (3rem). Es invisible y queda centrada sobre el elemento */
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: max(100%, 3rem);
+        height: max(100%, 3rem);
+        transform: translate(-50%, -50%);
+    }
 
     &::after {
         content: "";
@@ -218,7 +245,6 @@
     }
 }
 
-
 @layer base{
     input[type="search"]::-webkit-search-decoration,
     input[type="search"]::-webkit-search-cancel-button,
@@ -234,12 +260,12 @@
 
 /* ====== MODO OSCURO ======
    Se activa con data-theme="dark" en el html. Oscurece fondos y tarjetas claras y aclara los textos,
-   sin tocar la barra de navegacion, los botones ni las alertas que ya tienen su propio color */
+   sin tocar la barra de navegacion (los nav sin aria-label), los botones ni las alertas que ya tienen su propio color */
 :root[data-theme="dark"] {
     color-scheme: dark;
 }
 
-:root[data-theme="dark"] .bg-bg-p500:not(nav *) {
+:root[data-theme="dark"] .bg-bg-p500:not(nav:not([aria-label]) *) {
     background-color: var(--color-bg-s950);
     background-image:
         radial-gradient(50rem 32rem at 100% -5%, color-mix(in srgb, var(--color-bg-t950) 45%, transparent), transparent 60%),
@@ -247,39 +273,39 @@
         linear-gradient(160deg, var(--color-bg-s950) 0%, var(--color-bg-s900) 55%, var(--color-bg-s950) 100%);
 }
 
-:root[data-theme="dark"] :is(.bg-bg-w, .bg-bg-s50, .bg-bg-t50, .bg-bg-s100):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.bg-bg-w, .bg-bg-s50, .bg-bg-t50, .bg-bg-s100):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     background-color: var(--color-bg-s900);
 }
 
-:root[data-theme="dark"] :is(.from-bg-w, .from-bg-t50):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.from-bg-w, .from-bg-t50):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     --tw-gradient-from: var(--color-bg-s800);
 }
 
-:root[data-theme="dark"] .via-bg-w:not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] .via-bg-w:not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     --tw-gradient-via: var(--color-bg-s900);
 }
 
-:root[data-theme="dark"] :is(.to-bg-w, .to-bg-s50, .to-bg-p50):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.to-bg-w, .to-bg-s50, .to-bg-p50):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     --tw-gradient-to: var(--color-bg-s900);
 }
 
-:root[data-theme="dark"] :is(.hover\:bg-bg-t50, .hover\:bg-bg-s50):hover:not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.hover\:bg-bg-t50, .hover\:bg-bg-s50):hover:not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     background-color: var(--color-bg-s800);
 }
 
-:root[data-theme="dark"] :is(.text-br-s950, .text-br-s900):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.text-br-s950, .text-br-s900):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     color: var(--color-bg-p50);
 }
 
-:root[data-theme="dark"] .text-br-s800:not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] .text-br-s800:not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     color: var(--color-br-p100);
 }
 
-:root[data-theme="dark"] :is(.text-br-t900, .text-br-t950):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.text-br-t900, .text-br-t950):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     color: var(--color-br-t200);
 }
 
-:root[data-theme="dark"] :is(.border-bd-s100, .border-bd-s300, .border-bd-s400, .divide-bd-s100 > *):not(nav *, button, button *, .swal2-container *) {
+:root[data-theme="dark"] :is(.border-bd-s100, .border-bd-s300, .border-bd-s400, .divide-bd-s100 > *):not(nav:not([aria-label]) *, button, button *, .swal2-container *) {
     border-color: color-mix(in srgb, var(--color-bg-w) 22%, transparent);
 }
 
@@ -287,8 +313,54 @@
     color: var(--color-br-p300);
 }
 
-:root[data-theme="dark"] button:is(.text-br-t900, .text-br-t950):not([class*="bg-"], nav *, .swal2-container *) {
+:root[data-theme="dark"] button:is(.text-br-t900, .text-br-t950):not([class*="bg-"], nav:not([aria-label]) *, .swal2-container *) {
     color: var(--color-br-t200);
+}
+
+/* tarjetas blancas semitransparentes (ej. el panel de crear usuario sobre el fondo): en oscuro son superficie oscura */
+:root[data-theme="dark"] :is(.bg-bg-w\/95, .bg-bg-w\/90, .bg-bg-w\/80, .bg-bg-w\/70, .bg-bg-w\/60):not(nav:not([aria-label]) *, .swal2-container *) {
+    background-color: color-mix(in srgb, var(--color-bg-s900) 96%, transparent);
+}
+
+/* cajas crema claras (secciones, avisos) y caramelo claro (resaltados) */
+:root[data-theme="dark"] .bg-bg-p50:not(nav:not([aria-label]) *, .swal2-container *) {
+    background-color: var(--color-bg-s800);
+}
+:root[data-theme="dark"] .bg-bg-t100:not(nav:not([aria-label]) *, .swal2-container *) {
+    background-color: color-mix(in srgb, var(--color-bg-t900) 55%, var(--color-bg-s900));
+}
+
+/* botones claros (chips, pestañas, herramientas, pasos) y botones sin fondo: en oscuro fondo de superficie
+   y texto claro. Los botones rellenos (espresso, caramelo, rojo...) no se tocan */
+:root[data-theme="dark"] button.bg-bg-w:not(nav:not([aria-label]) *, .swal2-container *) {
+    background-color: var(--color-bg-s800);
+}
+:root[data-theme="dark"] :is(button.bg-bg-w, button.bg-transparent, button:not([class*=" bg-"], [class^="bg-"])):is(.text-br-s950, .text-br-s900, .text-br-s800):not(nav:not([aria-label]) *, .swal2-container *),
+:root[data-theme="dark"] :is(button.bg-bg-w, button.bg-transparent, button:not([class*=" bg-"], [class^="bg-"])) :is(.text-br-s950, .text-br-s900, .text-br-s800):not(nav:not([aria-label]) *, .swal2-container *) {
+    color: var(--color-bg-p50);
+}
+
+/* el texto de ayuda del buscador en oscuro casi no se veia */
+:root[data-theme="dark"] .search input::placeholder {
+    color: color-mix(in srgb, var(--color-bg-p50) 70%, transparent);
+}
+
+/* texto de "Seleccione una opción" en los select vacios
+   (va en @layer base porque la clase del select es !important y, entre !important, gana la capa que se declara primero) */
+@layer base {
+    :root[data-theme="dark"] .text-br-s500\! {
+        color: color-mix(in srgb, var(--color-bg-p50) 70%, transparent) !important;
+    }
+}
+
+/* textos caramelo dentro de botones claros o sin fondo (ej. "Ver plano", "Ahora" en los pasos) */
+:root[data-theme="dark"] :is(button.bg-bg-w, button.bg-transparent, button:not([class*=" bg-"], [class^="bg-"])) :is(.text-br-t900, .text-br-t950):not(nav:not([aria-label]) *, .swal2-container *) {
+    color: var(--color-br-t200);
+}
+
+/* franjas blancas dentro de botones (ej. el nombre del platillo en su tarjeta) */
+:root[data-theme="dark"] button .bg-bg-w:not(nav:not([aria-label]) *, .swal2-container *) {
+    background-color: var(--color-bg-s800);
 }
 
 /* ====== ANIMACIONES DE LOS MODALES ======
@@ -299,7 +371,7 @@
 }
 
 @keyframes m3-dialog-in {
-    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    from { opacity: 0; transform: translateY(1rem) scale(0.98); }
     to { opacity: 1; transform: none; }
 }
 

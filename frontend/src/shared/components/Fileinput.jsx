@@ -83,7 +83,7 @@ export default function FileInput({
                         <img src={previews[i]} className="w-full h-full object-cover"/>
                     ) : (
                         <div
-                            className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-[10px] px-1"
+                            className="w-full h-full flex flex-col items-center justify-center bg-gray-100 text-m3-label-small px-1"
                         >
                             <span className="font-semibold">PDF</span>
                             <span className="truncate w-full text-center">{file.name}</span>

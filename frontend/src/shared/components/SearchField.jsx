@@ -7,11 +7,12 @@ import clsx from "clsx";
 const baseStyles =
   "search flex items-center rounded-m3-full px-4 transition-all duration-200 ease-m3-standard border";
 
+// Material 3: el campo de busqueda mide minimo 48 de alto (lg 56, como la barra de busqueda de la guia)
 const sizeStyles = {
-  sm: "h-9 text-sm",
-  md: "h-11 text-sm",
-  lg: "h-12 text-base",
-  field: "h-10 text-base",
+  sm: "h-12 text-sm",
+  md: "h-12 text-sm",
+  lg: "h-14 text-base",
+  field: "h-12 text-base",
 };
 
 const variantStyles = {
@@ -98,7 +99,7 @@ const SearchField = forwardRef(
                 autoComplete={autoComplete}
                 onChange={(e) => onChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="search__input flex-1 min-w-0 w-full bg-transparent px-2 outline-none"
+                className="search__input flex-1 min-w-0 w-full self-stretch -my-px bg-transparent px-2 outline-none"
             />
 
             {!!value && !disabled &&(
@@ -106,7 +107,7 @@ const SearchField = forwardRef(
                     type="button"
                     onClick={handleClear}
                     aria-label="Limpiar búsqueda"
-                    className="search__clear m3-state rounded-m3-full p-1"
+                    className="search__clear m3-state rounded-m3-full p-2"
                 >
                     <X className="size-4 text-current" />
                 </button>

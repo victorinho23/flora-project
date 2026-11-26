@@ -182,7 +182,7 @@ export default function AuthLayout() {
                                 <Button
                                     type="button"
                                     onClick={() => setShowForgotPassword(true)}
-                                    className="w-80 text-right text-br-t900 text-sm font-semibold hover:underline -mt-2"
+                                    className="m3-target relative w-80 justify-end! text-br-t900 text-sm font-semibold hover:underline -mt-2"
                                 >
                                     ¿Olvidaste tu contraseña?
                                 </Button>
@@ -199,7 +199,7 @@ export default function AuthLayout() {
                                         variant="latte"
                                     />
                                     {/* abre la politica completa sin salir del login */}
-                                    <button type="button" onClick={() => setShowPolicy(true)} className="self-start ml-7 text-sm font-semibold text-br-t900 underline underline-offset-4">
+                                    <button type="button" onClick={() => setShowPolicy(true)} className="m3-target relative self-start ml-7 text-sm font-semibold text-br-t900 underline underline-offset-4">
                                         Leer la política de tratamiento de datos
                                     </button>
                                     {errors.isActive && <span className="ml-7 text-sm font-semibold text-m3-error">{errors.isActive}</span>}
@@ -215,7 +215,7 @@ export default function AuthLayout() {
                                 {/* soporte para quien no tiene cuenta o no puede entrar */}
                                 <p className="w-full max-w-80 mt-2 pt-4 border-t border-bd-s100 text-center text-sm text-br-s800">
                                     ¿No tienes cuenta o no puedes entrar? Escríbenos a soporte:
-                                    <a href={`mailto:${SUPPORT_EMAIL}?subject=Soporte%20Flora`} className="block font-semibold text-br-t900 underline underline-offset-4">
+                                    <a href={`mailto:${SUPPORT_EMAIL}?subject=Soporte%20Flora`} className="m3-target relative inline-block font-semibold text-br-t900 underline underline-offset-4">
                                         {SUPPORT_EMAIL}
                                     </a>
                                 </p>

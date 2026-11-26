@@ -154,7 +154,7 @@ export default function CreateDishsForm({ onDone, onCancel, onManageCategories, 
             </aside>
 
             {/* ===== Datos: un bloque por fila, botones abajo ===== */}
-            <div className="grow-[999] basis-[560px] min-w-0 flex flex-col">
+            <div className="grow-[999] basis-140 min-w-0 flex flex-col">
                 <section className="px-6 sm:px-8 bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
 
                     <div className={rowBox}>

@@ -18,6 +18,7 @@ export default function Checkbox({
         <label 
             htmlFor={id}
             className = {`
+                min-h-12
                 flex
                 items-center 
                 gap-2

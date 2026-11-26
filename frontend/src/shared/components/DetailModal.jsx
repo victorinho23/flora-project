@@ -110,7 +110,7 @@ export default function DetailModal({
 
                 <div className={`grid gap-6 p-6 ${image !== undefined ? "md:grid-cols-[16rem_minmax(0,1fr)]" : ""}`}>
                     {image !== undefined && (
-                        <div className="w-full aspect-square md:self-start rounded-m3-md overflow-hidden border border-bd-s100 border-l-[5px] border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 flex items-center justify-center">
+                        <div className="w-full aspect-square md:self-start rounded-m3-md overflow-hidden border border-bd-s100 border-l-5 border-l-bd-t800 rounded-m3-md bg-linear-135 from-bg-t50 via-bg-w via-55% to-bg-s50 shadow-m3-1 flex items-center justify-center">
                             {image ? (
                                 <img src={image} alt={imageAlt} className="w-full h-full object-cover" />
                             ) : (

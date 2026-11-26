@@ -248,7 +248,7 @@ export default function TablesSettingsPage() {
                             role="tab"
                             aria-selected={tab === id}
                             onClick={() => setTab(id)}
-                            className={`m3-state h-11 flex items-center justify-center gap-2 rounded-m3-full text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tab === id ? "bg-bg-s950 text-bg-w shadow-m3-1" : "text-br-s900"}`}
+                            className={`m3-state h-12 flex items-center justify-center gap-2 rounded-m3-full text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tab === id ? "bg-bg-s950 text-bg-w shadow-m3-1" : "text-br-s900"}`}
                         >
                             <Icon size={18} />
                             {label}

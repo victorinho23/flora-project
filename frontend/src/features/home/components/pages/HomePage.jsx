@@ -69,7 +69,7 @@ export default function HomePage(){
                         xl:gap-18
                         mt-6
                         sm:mt-8
-                        border border-bd-s100 border-t-[5px] border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1
+                        border border-bd-s100 border-t-5 border-t-bd-t800 rounded-m3-lg bg-bg-w bg-linear-180 from-bg-w to-bg-p50 shadow-m3-1
                         rounded-m3-xl
                         w-full
                         max-w-395

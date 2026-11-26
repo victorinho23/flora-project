@@ -243,7 +243,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
             className={`pointer-events-none z-10 w-[78%] aspect-square flex flex-col items-center justify-center rounded-m3-full bg-bg-t900 text-bg-w shadow-m3-1 leading-none ${table.active ? "" : "opacity-50"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""}`}
         >
             <span className="text-m3-title-medium font-bold">{table.number}</span>
-            <span className="text-[0.6rem] font-semibold opacity-80">{table.capacity}p</span>
+            <span className="text-m3-label-small font-semibold opacity-80">{table.capacity}p</span>
         </span>
     );
 
@@ -342,7 +342,7 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                                         type="button"
                                         aria-pressed={tool === id}
                                         onClick={() => setTool(id)}
-                                        className={`m3-state flex items-center gap-2 h-11 px-2 rounded-m3-sm border text-left text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tool === id ? "border-bd-t900 bg-m3-secondary-container text-m3-on-secondary-container ring-1 ring-bd-t900" : "border-bd-s300 bg-bg-w text-br-s950"}`}
+                                        className={`m3-state flex items-center gap-2 h-12 px-2 rounded-m3-sm border text-left text-m3-label-large font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${tool === id ? "border-bd-t900 bg-m3-secondary-container text-m3-on-secondary-container ring-1 ring-bd-t900" : "border-bd-s300 bg-bg-w text-br-s950"}`}
                                     >
                                         <span className={`w-7 h-7 shrink-0 flex items-center justify-center rounded-m3-xs ${swatch}`}>
                                             <Icon size={15} />
@@ -378,10 +378,10 @@ export default function RestaurantMapEditor({ map, tables, floors = [], onSave, 
                                             onClick={() => pickTable(table)}
                                             aria-pressed={table.id === selectedId}
                                             aria-label={`Mesa ${table.number}, ${elsewhere ? `en el piso ${elsewhere}` : missing ? "sin ubicar" : "en este piso"}${table.active ? "" : ", deshabilitada"}`}
-                                            className={`m3-state relative h-11 rounded-m3-sm text-m3-label-large font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${missing ? "border-2 border-dashed border-bd-t800 bg-bg-p50 text-br-t950" : "border border-transparent bg-bg-t900 text-bg-w"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""} ${table.active ? "" : "opacity-50"}`}
+                                            className={`m3-state relative h-12 rounded-m3-sm text-m3-label-large font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus ${missing ? "border-2 border-dashed border-bd-t800 bg-bg-p50 text-br-t950" : "border border-transparent bg-bg-t900 text-bg-w"} ${table.id === selectedId ? "ring-3 ring-m3-focus ring-offset-1" : ""} ${table.active ? "" : "opacity-50"}`}
                                         >
                                             {table.number}
-                                            {elsewhere && <span className="absolute -top-1.5 -right-1.5 px-1 rounded-m3-xs bg-bg-s950 text-bg-w text-[0.6rem] leading-4">{elsewhere}</span>}
+                                            {elsewhere && <span className="absolute -top-1.5 -right-1.5 px-1 rounded-m3-xs bg-bg-s950 text-bg-w text-m3-label-small leading-4">{elsewhere}</span>}
                                         </button>
                                     );
                                 })}

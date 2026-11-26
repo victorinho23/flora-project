@@ -3,8 +3,9 @@ import { Eye, Pencil } from "lucide-react";
 
 // src/shared/components/Tablerowactions.jsx
 // Botones de acciones de cada fila de la tabla (ver y editar)
+// boton de icono de Material 3: se ve de 40 y se toca en 48 (m3-state)
 const baseBtn = `
-    p-2 rounded-m3-xs transition-colors duration-200
+    m3-state w-10 h-10 grid place-items-center rounded-m3-full transition-colors duration-200
     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-m3-focus
 `;
 

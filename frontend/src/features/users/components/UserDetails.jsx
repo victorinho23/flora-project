@@ -165,7 +165,7 @@ export function UserDetails({ user, from = "/userList", onStatusChange }) {
             </aside>
 
             {/* ===== Datos: un bloque por fila ===== */}
-            <section className="grow-[999] basis-[560px] min-w-0 px-6 sm:px-8 bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
+            <section className="grow-[999] basis-140 min-w-0 px-6 sm:px-8 bg-bg-w border border-bd-s100 rounded-m3-xl shadow-m3-1">
                 {sections.map(({ id, title, icon: Icon, fields }) => (
                     <div key={id} id={id} className="scroll-mt-6 grid grid-cols-1 md:grid-cols-[13rem_minmax(0,1fr)] gap-4 md:gap-6 py-6 border-b border-bd-s100">
                         <h3 className="flex items-center gap-2 h-fit text-m3-title-small font-bold uppercase tracking-wider text-br-t950">
@@ -198,7 +198,7 @@ export function UserDetails({ user, from = "/userList", onStatusChange }) {
                             {history.map((item, index) => (
                                 <li key={item.id} className="relative flex gap-3 pb-4 last:pb-0">
                                     {/* linea que une un cambio con el siguiente */}
-                                    {index < history.length - 1 && <span aria-hidden="true" className="absolute left-[5px] top-4 bottom-0 w-0.5 bg-bg-t300" />}
+                                    {index < history.length - 1 && <span aria-hidden="true" className="absolute left-1.25 top-4 bottom-0 w-0.5 bg-bg-t300" />}
                                     <span aria-hidden="true" className={`relative mt-1.5 w-3 h-3 shrink-0 rounded-m3-full ${item.action === "INHABILITAR" ? "bg-m3-error" : item.action === "HABILITAR" ? "bg-m3-success" : "bg-bg-t800"}`} />
                                     <div className="flex flex-col min-w-0">
                                         <span className="text-m3-title-small font-bold text-br-s950">{ACTIONS[item.action] ?? item.action}</span>
