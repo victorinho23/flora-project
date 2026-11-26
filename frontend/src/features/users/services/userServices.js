@@ -90,6 +90,8 @@ export function toUserView(data) {
         // fecha en que autorizo el tratamiento de datos (vacia en cuentas viejas)
         userDataConsentDate: data.data_consent_date,
         isActive: data.is_active,
+        isStaff: Boolean(data.is_staff),
+        isSuperUser: Boolean(data.is_superuser),
         imageUrl: data.image,
         // el usuario tal cual llega del backend, para mandarlo a editar
         raw: data,

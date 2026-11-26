@@ -39,6 +39,8 @@ export default function UserEditLayout() {
               userContractStartDate: source.start_date,
               userContractEndDate: source.end_date,
               isActive: source.is_active,
+              isStaff: Boolean(source.is_staff),
+              isSuperUser: Boolean(source.is_superuser),
               imageUrl: source.image,
           }
         : null;

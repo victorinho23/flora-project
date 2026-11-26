@@ -39,7 +39,7 @@ export const groupsController = {
         const groupId = Number(req.params.groupId);
         const { permissionIds } = req.body;
 
-        await groupsService.updatePermissions(groupId, permissionIds);
+        await groupsService.updatePermissions(groupId, permissionIds, req.user.id);
 
         res.status(200).json({
             message: "Permisos actualizados correctamente",
@@ -47,8 +47,9 @@ export const groupsController = {
     } catch (error) {
         console.error(error);
 
-        res.status(500).json({
-            error: "Error actualizando permisos del grupo",
+        // 403 = intento cambiar permisos que no tiene o los de su propio grupo
+        res.status(error.status || 500).json({
+            error: error.status ? error.message : "Error actualizando permisos del grupo",
         });
     }
   },

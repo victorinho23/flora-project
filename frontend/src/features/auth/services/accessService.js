@@ -14,9 +14,15 @@ const REFRESH_MS = 30000;
 const initial = () => {
     try {
         const user = JSON.parse(sessionStorage.getItem("user"));
-        return { permissions: new Set(user?.permissions ?? []), loadedAt: 0 };
+        return {
+            permissions: new Set(user?.permissions ?? []),
+            isSuperuser: Boolean(user?.isSuperuser),
+            isStaff: Boolean(user?.isStaff),
+            groupIds: user?.groupIds ?? [],
+            loadedAt: 0,
+        };
     } catch {
-        return { permissions: new Set(), loadedAt: 0 };
+        return { permissions: new Set(), isSuperuser: false, isStaff: false, groupIds: [], loadedAt: 0 };
     }
 };
 
@@ -34,10 +40,11 @@ export function refreshAccess({ force = false } = {}) {
     if (!force && Date.now() - state.loadedAt < 5000) return Promise.resolve();
     pending ??= request("/access/me")
         .then((access) => {
-            state = { permissions: new Set(access.permissions), loadedAt: Date.now() };
+            const profile = { isSuperuser: Boolean(access.isSuperuser), isStaff: Boolean(access.isStaff), groupIds: access.groupIds ?? [] };
+            state = { permissions: new Set(access.permissions), ...profile, loadedAt: Date.now() };
             // se guardan tambien en la sesion para que al recargar no parpadee
             const user = JSON.parse(sessionStorage.getItem("user") ?? "{}");
-            sessionStorage.setItem("user", JSON.stringify({ ...user, permissions: access.permissions }));
+            sessionStorage.setItem("user", JSON.stringify({ ...user, ...profile, permissions: access.permissions }));
             emit();
         })
         .catch(() => {})
@@ -73,4 +80,11 @@ export function useAccess() {
     const snapshot = useSyncExternalStore(subscribe, () => state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return useCallback((permission) => can(permission), [snapshot]);
+}
+
+// si quien inicio sesion es superusuario o staff, y en que grupos esta
+// (la gestion de permisos lo usa para bloquear lo que la persona no puede cambiar)
+export function useAccessProfile() {
+    const snapshot = useSyncExternalStore(subscribe, () => state);
+    return { isSuperuser: snapshot.isSuperuser, isStaff: snapshot.isStaff, groupIds: snapshot.groupIds };
 }

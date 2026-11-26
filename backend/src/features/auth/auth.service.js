@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { randomInt } from "node:crypto";
 import { authRepository } from "./auth.repository.js";
-import { accessRepository } from "../access/access.repository.js";
+import { accessService } from "../access/access.service.js";
 import { changesRepository } from "../changes/changes.repository.js";
 import { sendMail } from "../../config/mail.js";
 
@@ -97,7 +97,8 @@ export const authService = {
         );
 
         // permisos del usuario para que el frontend sepa que puede hacer
-        const permissions = user.is_superuser ? ["*"] : await accessRepository.getUserPermissions(user.id);
+        // (salen del mismo lugar que /access/me, asi al que no es staff no le llega gestionar permisos)
+        const access = await accessService.getMyAccess(user.id);
 
         return {
             token,
@@ -106,8 +107,9 @@ export const authService = {
                 name: user.nombre,
                 email: user.correo_personal,
                 group: await authRepository.getUserGroup(user.id),
-                isSuperuser: user.is_superuser,
-                permissions,
+                isSuperuser: access.isSuperuser,
+                isStaff: access.isStaff,
+                permissions: access.permissions,
             },
         };
     },

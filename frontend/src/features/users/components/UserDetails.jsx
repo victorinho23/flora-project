@@ -111,6 +111,12 @@ export function UserDetails({ user, from = "/userList", onStatusChange }) {
                         <span className={`w-2 h-2 rounded-m3-full ${isActive ? "bg-m3-success" : "bg-m3-error"}`} />
                         {isActive ? "Activo" : "Inactivo"}
                     </span>
+                    {/* superusuario tiene todo, staff puede gestionar permisos */}
+                    {(user.isSuperUser || user.isStaff) && (
+                        <span className="inline-flex items-center gap-1.5 h-8 px-3 rounded-m3-sm bg-bg-s950 text-m3-label-large font-semibold text-bg-w">
+                            {user.isSuperUser ? "Superusuario" : "Staff"}
+                        </span>
+                    )}
                 </div>
 
                 <hr className="w-full border-bd-s100 my-1" />
