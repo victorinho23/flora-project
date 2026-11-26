@@ -8,11 +8,13 @@
 //   administrador = arranca con todos los permisos (el grupo Administrador los tiene todos),
 //                   pero el superusuario le puede quitar los que quiera; gestiona usuarios y
 //                   permisos sin pasarse nunca de lo que el tiene (no crea administradores ni superusuarios)
-// staff = puede entrar a gestionar permisos: lo son el superusuario y los administradores
+//
+// en la base: is_superuser = superusuario e is_staff = administrador (van separados).
+// "canManage" = superusuario o administrador: los que entran a gestionar permisos y a Configuracion
 
 import { accessRepository } from "./access.repository.js";
 
-// permisos que solo le sirven al staff: aunque a alguien se los den, si no es staff no los puede usar
+// permisos que solo le sirven al administrador o superusuario: aunque a un mesero se los den, no los puede usar
 const STAFF_ONLY = new Set(["permisos_gestionar"]);
 
 // nombre del grupo de los administradores (asi esta en la tabla groups)
@@ -39,8 +41,8 @@ const loadAccess = async (userId) => {
 
     const user = await accessRepository.getAccessUser(userId);
     const isSuperUser = Boolean(user?.is_superuser);
-    const isAdmin = Boolean(user?.is_admin);
-    const isStaff = isSuperUser || isAdmin;
+    const isAdmin = Boolean(user?.is_staff);
+    const canManage = isSuperUser || isAdmin;
 
     // el administrador se calcula igual que los demas (su grupo + individuales),
     // asi los permisos que el superusuario le quite de verdad dejan de servirle
@@ -50,8 +52,8 @@ const loadAccess = async (userId) => {
         active: Boolean(user?.estado),
         isSuperUser,
         isAdmin,
-        isStaff,
-        permissions: new Set(isStaff ? list : list.filter((code) => !STAFF_ONLY.has(code))),
+        canManage,
+        permissions: new Set(canManage ? list : list.filter((code) => !STAFF_ONLY.has(code))),
         groupIds: await accessRepository.getUserGroupIds(userId),
         expires: Date.now() + CACHE_MS,
     };
@@ -68,9 +70,9 @@ export const accessService = {
   },
 
   // administrador o superusuario con la cuenta activa (Configuracion es solo de ellos)
-  async isStaff(userId) {
+  async canManage(userId) {
     const access = await loadAccess(userId);
-    return access.active && access.isStaff;
+    return access.active && access.canManage;
   },
 
   // todo lo que se sabe del acceso de una persona (lo usan las reglas de abajo y otros services)
@@ -85,7 +87,8 @@ export const accessService = {
       active: access.active,
       isSuperuser: access.isSuperUser,
       isAdmin: access.isAdmin,
-      isStaff: access.isStaff,
+      // isStaff = es administrador (el superusuario va aparte en isSuperuser)
+      isStaff: access.isAdmin,
       groupIds: access.groupIds,
       permissions: access.isSuperUser ? ["*"] : [...access.permissions],
     };

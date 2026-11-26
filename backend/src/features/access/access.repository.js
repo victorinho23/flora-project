@@ -2,17 +2,10 @@
 import { pool } from "../../config/db.js";
 
 export const accessRepository = {
-  // estado, superusuario y si es administrador en una sola consulta
+  // estado, superusuario y staff (administrador) en una sola consulta
   async getAccessUser(userId) {
     const result = await pool.query(
-      `SELECT u.estado, u.is_superuser,
-              EXISTS (
-                SELECT 1 FROM user_groups ug
-                INNER JOIN groups g ON g.group_id = ug.group_id
-                WHERE ug.user_id = u.id AND g.group_name = 'Administrador' AND g.is_active = TRUE
-              ) AS is_admin
-       FROM usuario u
-       WHERE u.id = $1;`,
+      `SELECT estado, is_superuser, is_staff FROM usuario WHERE id = $1;`,
       [userId],
     );
     return result.rows[0] ?? null;
